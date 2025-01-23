@@ -10,7 +10,7 @@ spring:
     password: '{cipher}0993f541031bfbf60e9e605d4b46f3fa4996ef42bb5e52daf54d571cb028225d'
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 logging:
