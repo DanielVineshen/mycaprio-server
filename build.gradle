@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.1'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.google.cloud.tools.jib' version '3.4.4'
 }
 
 group = 'com.everowl'
@@ -19,6 +20,19 @@ configurations {
 
 repositories {
     mavenCentral()
+}
+
+ext.dockerhub = property('dockerhubRepo')
+
+jib {
+    to {
+        allowInsecureRegistries = true
+        image = "$dockerhubHost/$dockerhub/mycaprio.server:$version"
+        auth {
+            username = property('dockerHubUsername')
+            password = property('dockerHubPassword')
+        }
+    }
 }
 
 dependencies {

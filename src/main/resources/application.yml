@@ -8,9 +8,19 @@ spring:
     url: jdbc:postgresql://45.127.6.252:5432/mycaprio
     username: '{cipher}07e34b915564c52bf6fe3fe82e047fe04c8e32a3537ec17be0241b1aa0089a6b'
     password: '{cipher}0993f541031bfbf60e9e605d4b46f3fa4996ef42bb5e52daf54d571cb028225d'
+    rewriteBatchedStatements: true
+    testWhileIdle: true
+    validationQuery: SELECT 1
+    hikari:
+      connectionTimeout: 50000
+      maxLifetime: 60000
+      data-source-properties:
+        cachePrepStmts: true
+        useServerPrepStmts: true
+        rewriteBatchedStatements: true
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 logging:

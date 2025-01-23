@@ -1,7 +1,8 @@
 package org.everowl.mycaprio.shared.service;
 
 import lombok.Getter;
-import org.hibernate.usertype.UserType;
+import org.everowl.mycaprio.database.entity.BaseUser;
+import org.everowl.mycaprio.shared.enums.UserType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,7 +18,7 @@ public class CustomUserDetails implements UserDetails {
     private final Collection<? extends GrantedAuthority> authorities;
 
     public CustomUserDetails(BaseUser user, UserType userType) {
-        this.username = user.getUsername();
+        this.username = user.getLoginId();
         this.password = user.getPassword();
         this.userType = userType;
         this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + userType));

@@ -18,7 +18,8 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class StaffEntity {
+@DiscriminatorValue("STAFF")
+public class StaffEntity extends BaseUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "staff_id")
@@ -32,12 +33,6 @@ public class StaffEntity {
             foreignKey = @ForeignKey(name = "FK_STORE_STAFF")
     )
     private StoreEntity store;
-
-    @Column(name = "login_id", nullable = false, unique = true)
-    private String loginId;
-
-    @Column(name = "password", nullable = false)
-    private String password;
 
     @Column(name = "full_name", nullable = false)
     private String fullName;

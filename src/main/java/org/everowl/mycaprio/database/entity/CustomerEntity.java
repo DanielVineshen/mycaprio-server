@@ -17,20 +17,15 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerEntity {
+@DiscriminatorValue("CUSTOMER")
+public class CustomerEntity extends BaseUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cust_id")
     private Integer custId;
 
-    @Column(name = "login_id", nullable = false, unique = true)
-    private String loginId;
-
     @Column(name = "cust_uid", nullable = false, unique = true, columnDefinition = "CHAR(12)")
     private String custUid;
-
-    @Column(name = "password", nullable = false)
-    private String password;
 
     @Column(name = "email_address")
     private String emailAddress;
