@@ -12,6 +12,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.util.Date;
 
 @Entity(name = "Banner_Attachment")
+@Table(name = "`Banner_Attachment`")
 @Getter
 @Setter
 @AllArgsConstructor

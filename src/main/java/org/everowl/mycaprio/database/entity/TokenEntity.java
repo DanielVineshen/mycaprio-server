@@ -8,15 +8,16 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.util.Date;
 
 @Entity(name = "Token")
+@Table(name = "`Token`", uniqueConstraints = {
+        @UniqueConstraint(name = "UK_Token_login_id_user_type", columnNames = {"login_id", "user_type"}),
+        @UniqueConstraint(name = "UK_Token_access_token", columnNames = "access_token"),
+        @UniqueConstraint(name = "UK_Token_refresh_token", columnNames = "refresh_token")
+})
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(uniqueConstraints = {
-        @UniqueConstraint(name = "UK_Token_access_token", columnNames = "access_token"),
-        @UniqueConstraint(name = "UK_Token_refresh_token", columnNames = "refresh_token")
-})
 public class TokenEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

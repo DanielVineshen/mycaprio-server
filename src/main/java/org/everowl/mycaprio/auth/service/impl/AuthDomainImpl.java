@@ -8,10 +8,10 @@ import org.everowl.mycaprio.auth.dto.AuthenticationRequest;
 import org.everowl.mycaprio.auth.dto.AuthenticationResponse;
 import org.everowl.mycaprio.auth.service.AuthDomain;
 import org.everowl.mycaprio.database.entity.CustomerEntity;
-import org.everowl.mycaprio.database.entity.StaffEntity;
+import org.everowl.mycaprio.database.entity.AdminEntity;
 import org.everowl.mycaprio.database.entity.TokenEntity;
 import org.everowl.mycaprio.database.repository.CustomerRepository;
-import org.everowl.mycaprio.database.repository.StaffRepository;
+import org.everowl.mycaprio.database.repository.AdminRepository;
 import org.everowl.mycaprio.database.repository.TokenRepository;
 import org.everowl.mycaprio.shared.dto.GenericMessage;
 import org.everowl.mycaprio.shared.enums.ErrorCode;
@@ -41,7 +41,7 @@ public class AuthDomainImpl implements AuthDomain {
     private final JwtTokenProvider jwtTokenService;
     private final AuthenticationManager authenticationManager;
     private final CustomerRepository customerRepository;
-    private final StaffRepository staffRepository;
+    private final AdminRepository adminRepository;
     private final TokenRepository tokenRepository;
 
     private static final String BEARER = "Bearer ";
@@ -133,7 +133,7 @@ public class AuthDomainImpl implements AuthDomain {
                     .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
             userDetails = new CustomUserDetails(customer, UserType.CUSTOMER);
         } else {
-            StaffEntity staff = staffRepository.findByUsername(token.getLoginId())
+            AdminEntity staff = adminRepository.findByUsername(token.getLoginId())
                     .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
             userDetails = new CustomUserDetails(staff, UserType.STAFF);
         }

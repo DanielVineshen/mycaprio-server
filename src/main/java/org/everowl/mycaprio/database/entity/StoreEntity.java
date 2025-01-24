@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity(name = "Store")
+@Table(name = "`Store`")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -27,16 +28,12 @@ public class StoreEntity {
     private String storeName;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference(value = "store-tier")
-    private List<TierEntity> tiers;
-
-    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference(value = "store-storecustomer")
+    @JsonManagedReference(value = "store-storeCustomer")
     private List<StoreCustomerEntity> storeCustomers;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference(value = "store-staff")
-    private List<StaffEntity> staffs;
+    @JsonManagedReference(value = "store-admin")
+    private List<AdminEntity> admins;
 
     @CreationTimestamp
     @Column(updatable = false, nullable = false, name = "created_at")

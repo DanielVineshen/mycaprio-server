@@ -3,7 +3,7 @@ package org.everowl.mycaprio.store.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.everowl.mycaprio.database.repository.CustomerRepository;
-import org.everowl.mycaprio.database.repository.StaffRepository;
+import org.everowl.mycaprio.database.repository.AdminRepository;
 import org.everowl.mycaprio.database.repository.TokenRepository;
 import org.everowl.mycaprio.shared.dto.BaseSuccessResponseBodyModel;
 import org.everowl.mycaprio.shared.enums.UserType;
@@ -24,7 +24,7 @@ public class StoreController {
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenRepository tokenRepository;
     private final CustomerRepository customerRepository;
-    private final StaffRepository staffRepository;
+    private final AdminRepository adminRepository;
 
     @GetMapping("/info")
     public ResponseEntity<BaseSuccessResponseBodyModel> info(@AuthenticationPrincipal CustomUserDetails userDetails) {

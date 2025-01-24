@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity(name = "Customer")
+@Table(name = "`Customer`")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -24,7 +25,7 @@ public class CustomerEntity extends BaseUser {
     @Column(name = "cust_id")
     private Integer custId;
 
-    @Column(name = "cust_uid", nullable = false, unique = true, columnDefinition = "CHAR(12)")
+    @Column(name = "cust_uid", nullable = false, unique = true, length = 12)
     private String custUid;
 
     @Column(name = "email_address")
@@ -36,7 +37,7 @@ public class CustomerEntity extends BaseUser {
     @Column(name = "role", nullable = false)
     private String role;
 
-    @Column(name = "sms_code", columnDefinition = "CHAR(6)")
+    @Column(name = "sms_code", length = 6)
     private String smsCode;
 
     @Column(name = "sms_attempt", nullable = false)
@@ -45,20 +46,20 @@ public class CustomerEntity extends BaseUser {
     @Column(name = "is_sms_locked", nullable = false, columnDefinition = "BOOLEAN")
     private Boolean isSmsLocked = false;
 
-    @Column(name = "sms_locked_datetime", columnDefinition = "CHAR(14)")
+    @Column(name = "sms_locked_datetime", length = 14)
     private String smsLockedDatetime;
 
     @Column(name = "gender", nullable = false)
     private String gender;
 
-    @Column(name = "date_of_birth", nullable = false, columnDefinition = "CHAR(8)")
+    @Column(name = "date_of_birth", nullable = false, length = 8)
     private String dateOfBirth;
 
     @Column(name = "available_points", nullable = false)
     private Integer availablePoints;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference(value = "customer-storecustomer")
+    @JsonManagedReference(value = "customer-storeCustomer")
     private List<StoreCustomerEntity> storeCustomers;
 
     @CreationTimestamp

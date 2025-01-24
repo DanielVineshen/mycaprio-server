@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity(name = "Transaction")
+@Table(name = "`Transaction`")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -24,22 +25,22 @@ public class TransactionEntity {
     private Integer transId;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonBackReference(value = "storecustomer-transaction")
+    @JsonBackReference(value = "storeCustomer-transaction")
     @JoinColumn(name = "store_cust_id",
             nullable = false,
             referencedColumnName = "store_cust_id",
-            foreignKey = @ForeignKey(name = "FK_STORECUSTOMER_TRANSACTION")
+            foreignKey = @ForeignKey(name = "FK_STORE_CUSTOMER_TRANSACTION")
     )
     private StoreCustomerEntity storeCustomer;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonBackReference(value = "staff-transaction")
-    @JoinColumn(name = "staff_id",
+    @JsonBackReference(value = "admin-transaction")
+    @JoinColumn(name = "admin_id",
             nullable = false,
-            referencedColumnName = "staff_id",
-            foreignKey = @ForeignKey(name = "FK_STAFF_TRANSACTION")
+            referencedColumnName = "admin_id",
+            foreignKey = @ForeignKey(name = "FK_ADMIN_TRANSACTION")
     )
-    private StaffEntity staff;
+    private AdminEntity admin;
 
     @Column(name = "cust_existing_points", nullable = false)
     private Integer custExistingPoints;
@@ -58,6 +59,9 @@ public class TransactionEntity {
 
     @Column(name = "trans_desc", columnDefinition = "TEXT")
     private String transDesc;
+
+    @Column(name = "trans_date", length = 14)
+    private String transDate;
 
     @CreationTimestamp
     @Column(updatable = false, nullable = false, name = "created_at")

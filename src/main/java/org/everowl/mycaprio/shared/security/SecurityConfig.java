@@ -50,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
                         .requestMatchers("/api/staff/**").hasRole("STAFF")
+                        .requestMatchers("/api/owner/**").hasRole("OWNER")
                         // Require authentication for all other requests
                         .anyRequest()
                         .authenticated()

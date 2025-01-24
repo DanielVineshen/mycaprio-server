@@ -20,7 +20,9 @@ spring:
         rewriteBatchedStatements: true
   jpa:
     hibernate:
-      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      ddl-auto: validate
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 logging:

@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity(name = "Store_Customer")
+@Table(name = "`Store_Customer`")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -25,36 +26,36 @@ public class StoreCustomerEntity {
     private Integer storeCustId;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonBackReference(value = "customer-storecustomer")
+    @JsonBackReference(value = "customer-storeCustomer")
     @JoinColumn(name = "cust_id",
             nullable = false,
             referencedColumnName = "cust_id",
-            foreignKey = @ForeignKey(name = "FK_CUSTOMER_STORECUSTOMER")
+            foreignKey = @ForeignKey(name = "FK_CUSTOMER_STORE_CUSTOMER")
     )
     private CustomerEntity customer;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonBackReference(value = "tier-storecustomer")
+    @JsonBackReference(value = "tier-storeCustomer")
     @JoinColumn(name = "tier_id",
             nullable = false,
             referencedColumnName = "tier_id",
-            foreignKey = @ForeignKey(name = "FK_TIER_STORECUSTOMER")
+            foreignKey = @ForeignKey(name = "FK_TIER_STORE_CUSTOMER")
     )
     private TierEntity tier;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonBackReference(value = "store-storecustomer")
+    @JsonBackReference(value = "store-storeCustomer")
     @JoinColumn(name = "store_id",
             nullable = false,
             referencedColumnName = "store_id",
-            foreignKey = @ForeignKey(name = "FK_STORE_STORECUSTOMER")
+            foreignKey = @ForeignKey(name = "FK_STORE_STORE_CUSTOMER")
     )
     private StoreEntity store;
 
     @Column(name = "available_points", nullable = false)
     private Integer availablePoints;
 
-    @Column(name = "last_trans_date", columnDefinition = "CHAR(14)")
+    @Column(name = "last_trans_date", length = 14)
     private String lastTransDate;
 
     @Column(name = "accumulated_points", nullable = false)

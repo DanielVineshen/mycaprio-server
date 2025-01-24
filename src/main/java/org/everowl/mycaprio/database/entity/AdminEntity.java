@@ -13,29 +13,32 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.util.Date;
 import java.util.List;
 
-@Entity(name = "Staff")
+@Entity(name = "Admin")
+@Table(name = "`Admin`")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@DiscriminatorValue("STAFF")
-public class StaffEntity extends BaseUser {
+@DiscriminatorValue("ADMIN")
+public class AdminEntity extends BaseUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "staff_id")
-    private Integer staffId;
+    @Column(name = "admin_id")
+    private Integer adminId;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonBackReference(value = "store-staff")
+    @JsonBackReference(value = "store-admin")
     @JoinColumn(name = "store_id",
             nullable = false,
             referencedColumnName = "store_id",
-            foreignKey = @ForeignKey(name = "FK_STORE_STAFF")
+            foreignKey = @ForeignKey(name = "FK_STORE_ADMIN")
     )
     private StoreEntity store;
 
-    @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference(value = "staff-transaction")
+    private String role;
+
+    @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "admin-transaction")
     private List<TransactionEntity> transactions;
 
     @CreationTimestamp

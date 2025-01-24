@@ -2,7 +2,7 @@ package org.everowl.mycaprio.shared.security;
 
 import lombok.RequiredArgsConstructor;
 import org.everowl.mycaprio.database.repository.CustomerRepository;
-import org.everowl.mycaprio.database.repository.StaffRepository;
+import org.everowl.mycaprio.database.repository.AdminRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,11 +17,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class AuthConfig {
     private final CustomerRepository customerRepository;
-    private final StaffRepository staffRepository;
+    private final AdminRepository adminRepository;
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return new CustomUserDetailsService(customerRepository, staffRepository);
+        return new CustomUserDetailsService(customerRepository, adminRepository);
     }
 
     @Bean
