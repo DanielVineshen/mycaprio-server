@@ -16,7 +16,7 @@ public interface TokenRepository extends JpaRepository<TokenEntity, Integer> {
              WHERE t.accessToken = :accessToken
             """
     )
-    Optional<TokenEntity> findByToken(String accessToken);
+    Optional<TokenEntity> findByAccessToken(String accessToken);
 
     @Query(value = """
              SELECT t FROM Token t
@@ -33,4 +33,6 @@ public interface TokenRepository extends JpaRepository<TokenEntity, Integer> {
             """
     )
     void deleteTokenByAccessToken(@Param("accessToken") String accessToken);
+
+    Optional<TokenEntity> findByRefreshToken(String refreshToken);
 }

@@ -1,4 +1,4 @@
-package org.everowl.mycaprio.shared.service;
+package org.everowl.mycaprio.shared.security;
 
 import lombok.RequiredArgsConstructor;
 import org.everowl.mycaprio.database.entity.CustomerEntity;

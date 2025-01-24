@@ -1,4 +1,4 @@
-package org.everowl.mycaprio.auth.service;
+package org.everowl.mycaprio.auth.service.impl;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

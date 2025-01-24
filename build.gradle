@@ -53,6 +53,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.cloud:spring-cloud-context:4.2.0' // to ensure {cipher} works
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    implementation 'jakarta.ws.rs:jakarta.ws.rs-api:4.0.0'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
     runtimeOnly 'org.postgresql:postgresql'

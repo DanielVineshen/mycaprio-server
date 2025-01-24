@@ -34,9 +34,6 @@ public class StaffEntity extends BaseUser {
     )
     private StoreEntity store;
 
-    @Column(name = "full_name", nullable = false)
-    private String fullName;
-
     @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "staff-transaction")
     private List<TransactionEntity> transactions;

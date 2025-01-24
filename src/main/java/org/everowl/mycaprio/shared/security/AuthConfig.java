@@ -3,7 +3,6 @@ package org.everowl.mycaprio.shared.security;
 import lombok.RequiredArgsConstructor;
 import org.everowl.mycaprio.database.repository.CustomerRepository;
 import org.everowl.mycaprio.database.repository.StaffRepository;
-import org.everowl.mycaprio.shared.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

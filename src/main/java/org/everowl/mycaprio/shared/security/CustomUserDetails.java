@@ -1,4 +1,4 @@
-package org.everowl.mycaprio.shared.service;
+package org.everowl.mycaprio.shared.security;
 
 import lombok.Getter;
 import org.everowl.mycaprio.database.entity.BaseUser;
@@ -14,13 +14,15 @@ import java.util.List;
 public class CustomUserDetails implements UserDetails {
     private final String username;
     private final String password;
-    private final org.everowl.mycaprio.shared.enums.UserType userType;
+    private final String fullName;
+    private final UserType userType;
     private final Collection<? extends GrantedAuthority> authorities;
 
     public CustomUserDetails(BaseUser user, UserType userType) {
         this.username = user.getLoginId();
         this.password = user.getPassword();
         this.userType = userType;
+        this.fullName = user.getFullName();
         this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + userType));
     }
 

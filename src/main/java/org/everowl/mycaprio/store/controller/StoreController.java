@@ -7,7 +7,7 @@ import org.everowl.mycaprio.database.repository.StaffRepository;
 import org.everowl.mycaprio.database.repository.TokenRepository;
 import org.everowl.mycaprio.shared.dto.BaseSuccessResponseBodyModel;
 import org.everowl.mycaprio.shared.enums.UserType;
-import org.everowl.mycaprio.shared.service.CustomUserDetails;
+import org.everowl.mycaprio.shared.security.CustomUserDetails;
 import org.everowl.mycaprio.shared.service.JwtTokenProvider;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
