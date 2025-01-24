@@ -34,9 +34,6 @@ public class CustomerEntity extends BaseUser {
     @Column(name = "full_name")
     private String fullName;
 
-    @Column(name = "role", nullable = false)
-    private String role;
-
     @Column(name = "sms_code", length = 6)
     private String smsCode;
 
