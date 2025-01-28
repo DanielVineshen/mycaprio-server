@@ -51,8 +51,8 @@ public class PointsActivityEntity {
     @Column(name = "points_multiplier", nullable = false, columnDefinition = "DECIMAL(5,2)")
     private BigDecimal pointsMultiplier = BigDecimal.valueOf(0);
 
-    @Column(name = "awarded_points", nullable = false)
-    private Integer awardedPoints;
+    @Column(name = "finalised_points", nullable = false)
+    private Integer finalisedPoints;
 
     @Column(name = "activity_type", nullable = false)
     private String activityType;
