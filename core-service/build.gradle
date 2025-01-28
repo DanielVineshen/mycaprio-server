@@ -1,0 +1,20 @@
+apply plugin: "com.google.cloud.tools.jib"
+
+jar.enabled = true
+bootJar.enabled = true
+
+dependencies {
+    implementation project(':database-service')
+    implementation project(':shared-service')
+}
+
+jib {
+    to {
+        allowInsecureRegistries = true
+        image = "$dockerhubHost/$dockerhub/mycaprio-core.service:$version"
+        auth {
+            username = property('dockerHubUsername')
+            password = property('dockerHubPassword')
+        }
+    }
+}

@@ -1,0 +1,19 @@
+apply plugin: "com.google.cloud.tools.jib"
+
+dependencies {
+    implementation project(':database-service')
+}
+
+jar.enabled = true
+bootJar.enabled = true
+
+jib {
+    to {
+        allowInsecureRegistries = true
+        image = "$dockerhubHost/$dockerhub/mycaprio-scheduler.service:$version"
+        auth {
+            username = property('dockerHubUsername')
+            password = property('dockerHubPassword')
+        }
+    }
+}

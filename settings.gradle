@@ -1,1 +1,5 @@
 rootProject.name = 'mycaprio-server'
+include 'database-service'
+include 'shared-service'
+include 'core-service'
+include 'scheduler-service'
