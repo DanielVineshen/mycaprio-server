@@ -35,6 +35,18 @@ public class StoreEntity {
     @JsonManagedReference(value = "store-admin")
     private List<AdminEntity> admins;
 
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "store-tier")
+    private List<TierEntity> tiers;
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "store-voucher")
+    private List<VoucherEntity> vouchers;
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "store-bannerAttachment")
+    private List<BannerAttachmentEntity> bannerAttachments;
+
     @CreationTimestamp
     @Column(updatable = false, nullable = false, name = "created_at")
     private Date createdAt;

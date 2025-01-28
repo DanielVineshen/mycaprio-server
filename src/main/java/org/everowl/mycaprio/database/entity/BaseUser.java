@@ -11,6 +11,7 @@ public abstract class BaseUser {
     @Column(name = "login_id", nullable = false, unique = true)
     private String loginId;
 
+    @Column(name = "password", nullable = false)
     private String password;
 
     @Column(name = "full_name")

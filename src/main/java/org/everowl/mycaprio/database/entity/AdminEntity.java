@@ -35,11 +35,16 @@ public class AdminEntity extends BaseUser {
     )
     private StoreEntity store;
 
+    @Column(name = "role", nullable = false)
     private String role;
 
     @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference(value = "admin-transaction")
-    private List<TransactionEntity> transactions;
+    @JsonManagedReference(value = "admin-pointsActivity")
+    private List<PointsActivityEntity> pointsActivities;
+
+    @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "admin-voucherRedemption")
+    private List<VoucherRedemptionEntity> voucherRedemptions;
 
     @CreationTimestamp
     @Column(updatable = false, nullable = false, name = "created_at")

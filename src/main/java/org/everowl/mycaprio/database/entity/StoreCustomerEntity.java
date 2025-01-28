@@ -35,6 +35,15 @@ public class StoreCustomerEntity {
     private CustomerEntity customer;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JsonBackReference(value = "store-storeCustomer")
+    @JoinColumn(name = "store_id",
+            nullable = false,
+            referencedColumnName = "store_id",
+            foreignKey = @ForeignKey(name = "FK_STORE_STORE_CUSTOMER")
+    )
+    private StoreEntity store;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonBackReference(value = "tier-storeCustomer")
     @JoinColumn(name = "tier_id",
             nullable = false,
@@ -43,14 +52,8 @@ public class StoreCustomerEntity {
     )
     private TierEntity tier;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonBackReference(value = "store-storeCustomer")
-    @JoinColumn(name = "store_id",
-            nullable = false,
-            referencedColumnName = "store_id",
-            foreignKey = @ForeignKey(name = "FK_STORE_STORE_CUSTOMER")
-    )
-    private StoreEntity store;
+    @Column(name = "tier_points", nullable = false)
+    private Integer tierPoints;
 
     @Column(name = "available_points", nullable = false)
     private Integer availablePoints;
@@ -62,8 +65,12 @@ public class StoreCustomerEntity {
     private Integer accumulatedPoints;
 
     @OneToMany(mappedBy = "storeCustomer", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference(value = "storeCustomer-transaction")
-    private List<TransactionEntity> transactions;
+    @JsonManagedReference(value = "storeCustomer-pointsActivity")
+    private List<PointsActivityEntity> pointsActivities;
+
+    @OneToMany(mappedBy = "storeCustomer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "storeCustomer-voucher")
+    private List<StoreCustomerVoucherEntity> storeCustomerVouchers;
 
     @CreationTimestamp
     @Column(updatable = false, nullable = false, name = "created_at")

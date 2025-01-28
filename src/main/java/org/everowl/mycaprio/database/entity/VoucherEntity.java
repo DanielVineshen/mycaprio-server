@@ -11,32 +11,35 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
 
-@Entity(name = "Catalogue")
-@Table(name = "`Catalogue`")
+@Entity(name = "Voucher")
+@Table(name = "`Voucher`")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CatalogueEntity {
+public class VoucherEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "catalogue_id")
-    private Integer catalogueId;
+    @Column(name = "voucher_id")
+    private Integer voucherId;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonBackReference(value = "store-attachment")
+    @JsonBackReference(value = "store-voucher")
     @JoinColumn(name = "store_id",
             nullable = false,
             referencedColumnName = "store_id",
-            foreignKey = @ForeignKey(name = "FK_STORE_ATTACHMENT")
+            foreignKey = @ForeignKey(name = "FK_STORE_VOUCHER")
     )
     private StoreEntity store;
 
-    @Column(name = "catalogue_name", nullable = false)
-    private String catalogueName;
+    @Column(name = "min_tier_level", nullable = false)
+    private Integer minTierLevel;
 
-    @Column(name = "catalogue_desc", nullable = false)
-    private String catalogueDesc;
+    @Column(name = "voucher_name", nullable = false)
+    private String voucherName;
+
+    @Column(name = "voucher_desc", nullable = false)
+    private String voucherDesc;
 
     @Column(name = "points_required", nullable = false)
     private Integer pointsRequired;
@@ -52,6 +55,18 @@ public class CatalogueEntity {
 
     @Column(name = "is_available", nullable = false, columnDefinition = "BOOLEAN")
     private Boolean isAvailable = false;
+
+    @Column(name = "tnc_desc", nullable = false, columnDefinition = "TEXT")
+    private String tncDesc;
+
+    @Column(name = "is_exclusive", nullable = false, columnDefinition = "BOOLEAN")
+    private Boolean isExclusive = false;
+
+    @Column(name = "life_span", nullable = false)
+    private Integer lifeSpan;
+
+    @Column(name = "meta_tag", nullable = false)
+    private String metaTag;
 
     @CreationTimestamp
     @Column(updatable = false, nullable = false, name = "created_at")

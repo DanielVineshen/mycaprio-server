@@ -41,6 +41,9 @@ public class BannerAttachmentEntity {
     @Column(name = "attachment_size", nullable = false, columnDefinition = "BIGINT")
     private Integer attachmentSize;
 
+    @Column(name = "attachment_type", nullable = false)
+    private String attachmentType;
+
     @CreationTimestamp
     @Column(updatable = false, nullable = false, name = "created_at")
     private Date createdAt;

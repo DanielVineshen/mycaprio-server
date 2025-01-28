@@ -21,18 +21,11 @@ import java.util.List;
 @DiscriminatorValue("CUSTOMER")
 public class CustomerEntity extends BaseUser {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cust_id")
     private Integer custId;
 
-    @Column(name = "cust_uid", nullable = false, unique = true, length = 12)
-    private String custUid;
-
     @Column(name = "email_address")
     private String emailAddress;
-
-    @Column(name = "full_name")
-    private String fullName;
 
     @Column(name = "sms_code", length = 6)
     private String smsCode;

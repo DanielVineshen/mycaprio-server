@@ -12,33 +12,33 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.util.Date;
 
-@Entity(name = "Transaction")
-@Table(name = "`Transaction`")
+@Entity(name = "Points_Activity")
+@Table(name = "`Points_Activity`")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TransactionEntity {
+public class PointsActivityEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "trans_id")
-    private Integer transId;
+    @Column(name = "points_activity_id")
+    private Integer pointsActivityId;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonBackReference(value = "storeCustomer-transaction")
+    @JsonBackReference(value = "storeCustomer-pointsActivity")
     @JoinColumn(name = "store_cust_id",
             nullable = false,
             referencedColumnName = "store_cust_id",
-            foreignKey = @ForeignKey(name = "FK_STORE_CUSTOMER_TRANSACTION")
+            foreignKey = @ForeignKey(name = "FK_STORE_CUSTOMER_POINTS_ACTIVITY")
     )
     private StoreCustomerEntity storeCustomer;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonBackReference(value = "admin-transaction")
+    @JsonBackReference(value = "admin-pointsActivity")
     @JoinColumn(name = "admin_id",
             nullable = false,
             referencedColumnName = "admin_id",
-            foreignKey = @ForeignKey(name = "FK_ADMIN_TRANSACTION")
+            foreignKey = @ForeignKey(name = "FK_ADMIN_POINTS_ACTIVITY")
     )
     private AdminEntity admin;
 
@@ -54,14 +54,14 @@ public class TransactionEntity {
     @Column(name = "awarded_points", nullable = false)
     private Integer awardedPoints;
 
-    @Column(name = "trans_type", nullable = false)
-    private String transType;
+    @Column(name = "activity_type", nullable = false)
+    private String activityType;
 
-    @Column(name = "trans_desc", columnDefinition = "TEXT")
-    private String transDesc;
+    @Column(name = "activity_desc", columnDefinition = "TEXT")
+    private String activityDesc;
 
-    @Column(name = "trans_date", length = 14)
-    private String transDate;
+    @Column(name = "activity_date", length = 14)
+    private String activityDate;
 
     @CreationTimestamp
     @Column(updatable = false, nullable = false, name = "created_at")

@@ -1,5 +1,6 @@
 package org.everowl.mycaprio.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,6 +23,15 @@ public class TierEntity {
     @Column(name = "tier_id")
     private Integer tierId;
 
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JsonBackReference(value = "store-tier")
+    @JoinColumn(name = "store_id",
+            nullable = false,
+            referencedColumnName = "store_id",
+            foreignKey = @ForeignKey(name = "FK_STORE_TIER")
+    )
+    private StoreEntity store;
+
     @Column(name = "tier_level", nullable = false)
     private Integer tierLevel;
 
@@ -33,6 +43,9 @@ public class TierEntity {
 
     @Column(name = "is_default", nullable = false, columnDefinition = "BOOLEAN")
     private Boolean isDefault = false;
+
+    @Column(name = "points_needed", nullable = false)
+    private Integer pointsNeeded;
 
     @OneToMany(mappedBy = "tier", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "tier-storeCustomer")
