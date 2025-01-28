@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.everowl.database.service.entity.composite_keys.VoucherRedemptionPKs;
+import org.everowl.database.service.entity.compositeKeys.VoucherRedemptionPKs;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 

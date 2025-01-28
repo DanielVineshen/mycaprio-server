@@ -33,11 +33,8 @@ public class CustomerEntity extends BaseUser {
     @Column(name = "sms_attempt", nullable = false)
     private Integer smsAttempt;
 
-    @Column(name = "is_sms_locked", nullable = false, columnDefinition = "BOOLEAN")
-    private Boolean isSmsLocked = false;
-
-    @Column(name = "sms_locked_datetime", length = 14)
-    private String smsLockedDatetime;
+    @Column(name = "sms_last_datetime", length = 14)
+    private String smsLastDatetime;
 
     @Column(name = "gender", nullable = false)
     private String gender;

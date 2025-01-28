@@ -1,4 +1,4 @@
-package org.everowl.database.service.entity.composite_keys;
+package org.everowl.database.service.entity.compositeKeys;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
