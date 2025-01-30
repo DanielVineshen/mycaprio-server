@@ -42,9 +42,6 @@ public class CustomerEntity extends BaseUser {
     @Column(name = "date_of_birth", nullable = false, length = 8)
     private String dateOfBirth;
 
-    @Column(name = "available_points", nullable = false)
-    private Integer availablePoints;
-
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "customer-storeCustomer")
     private List<StoreCustomerEntity> storeCustomers;
