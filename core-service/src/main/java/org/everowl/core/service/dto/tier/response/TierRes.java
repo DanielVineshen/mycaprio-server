@@ -15,7 +15,7 @@ public class TierRes {
     private Integer tierId;
     private Integer tierLevel;
     private String tierName;
-    private BigDecimal tierMultiplier = BigDecimal.ZERO;
+    private BigDecimal tierMultiplier;
     private Boolean isDefault;
     private Integer pointsNeeded;
 }

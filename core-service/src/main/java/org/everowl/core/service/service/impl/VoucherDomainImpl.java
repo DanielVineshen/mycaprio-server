@@ -33,19 +33,15 @@ import static org.everowl.shared.service.enums.ErrorCode.*;
 @RequiredArgsConstructor
 @Slf4j
 public class VoucherDomainImpl implements VoucherDomain {
-    private final VoucherRepository voucherRepository;
-
-    private final AdminRepository adminRepository;
-
-    @Value("${app.attachment-storage.voucher-path}")
-    private String storagePath;
-
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
     private static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList(
             "image/jpeg",
             "image/png"
     );
-
+    private final VoucherRepository voucherRepository;
+    private final AdminRepository adminRepository;
+    @Value("${app.attachment-storage.voucher-path}")
+    private String storagePath;
 
     @Override
     @Transactional
@@ -71,7 +67,7 @@ public class VoucherDomainImpl implements VoucherDomain {
         voucher.setVoucherName(voucherReq.getVoucherName());
         voucher.setVoucherDesc(voucherReq.getVoucherDesc());
         voucher.setPointsRequired(voucherReq.getPointsRequired());
-        voucher.setAttachmentName(file != null ? fileName: null);
+        voucher.setAttachmentName(file != null ? fileName : null);
         voucher.setAttachmentPath(file != null ? filePath : null);
         voucher.setAttachmentSize(file != null ? fileSize : null);
         voucher.setIsAvailable(false);
@@ -161,12 +157,12 @@ public class VoucherDomainImpl implements VoucherDomain {
         Integer fileSize = null;
 
         //If file was uploaded and there is existing file in the server, delete existing before re-uploading
-        if(file != null && !file.isEmpty() && voucher.getAttachmentName() != null) {
+        if (file != null && !file.isEmpty() && voucher.getAttachmentName() != null) {
             deleteAttachmentFile(voucher.getAttachmentName());
         }
 
         // Handle file upload and validation
-        if(file != null && !file.isEmpty()) {
+        if (file != null && !file.isEmpty()) {
             fileName = uploadAttachmentFile(file);
             filePath = storagePath + fileName;
             fileSize = (int) voucherReq.getAttachment().getSize();
@@ -202,7 +198,7 @@ public class VoucherDomainImpl implements VoucherDomain {
         VoucherEntity voucher = voucherRepository.findById(voucherReq.getVoucherId())
                 .orElseThrow(() -> new BadRequestException(VOUCHER_NOT_EXIST));
 
-        if(voucher.getAttachmentName() != null) {
+        if (voucher.getAttachmentName() != null) {
             deleteAttachmentFile(voucher.getAttachmentName());
         }
 

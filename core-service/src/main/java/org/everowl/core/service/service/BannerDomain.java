@@ -10,7 +10,10 @@ import java.util.List;
 
 public interface BannerDomain {
     GenericMessage createBanner(CreateBannerReq bannerReq, String username);
+
     GenericMessage updateBanner(UpdateBannerReq bannerReq, String username);
+
     GenericMessage deleteBanner(DeleteBannerReq bannerReq, String username);
+
     List<BannerRes> getAllBanners(Integer storeId);
 }

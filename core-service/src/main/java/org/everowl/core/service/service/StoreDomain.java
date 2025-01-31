@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface StoreDomain {
     StoreRes getStoreDetails(Integer storeId, String username);
+
     List<StoresRes> getStores(String username);
 }
