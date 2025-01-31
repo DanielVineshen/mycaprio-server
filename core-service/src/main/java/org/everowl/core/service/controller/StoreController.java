@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.*;
 public class StoreController {
     @GetMapping("/info")
     public ResponseEntity<BaseSuccessResponseBodyModel> info(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        String username = userDetails.getUsername();
+        String loginId = userDetails.getUsername();
         String fullName = userDetails.getFullName();
         UserType userType = userDetails.getUserType();
-        log.info("username: {}", username);
+        log.info("loginId: {}", loginId);
         log.info("userType: {}", userType);
         log.info("fullName: {}", fullName);
 

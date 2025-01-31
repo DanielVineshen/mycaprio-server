@@ -36,10 +36,10 @@ public class CustomerEntity extends BaseUser {
     @Column(name = "sms_last_datetime", length = 14)
     private String smsLastDatetime;
 
-    @Column(name = "gender", nullable = false)
+    @Column(name = "gender")
     private String gender;
 
-    @Column(name = "date_of_birth", nullable = false, length = 8)
+    @Column(name = "date_of_birth", length = 8)
     private String dateOfBirth;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
