@@ -1,4 +1,4 @@
-package org.everowl.core.service.dto.customer;
+package org.everowl.core.service.dto.customer.response;
 
 import lombok.Data;
 

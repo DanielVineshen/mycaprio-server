@@ -12,7 +12,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.util.Date;
 
 @Entity(name = "Banner_Attachment")
-@Table(name = "`Banner_Attachment`")
+@Table(name = "`Banner_Attachment`", uniqueConstraints = {
+        @UniqueConstraint(name = "UK_Banner_Attachment_attachment_name", columnNames = "attachment_name"),
+})
 @Getter
 @Setter
 @AllArgsConstructor
