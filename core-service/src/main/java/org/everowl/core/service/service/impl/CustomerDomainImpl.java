@@ -27,16 +27,16 @@ public class CustomerDomainImpl implements CustomerDomain {
     private final ModelMapper modelMapper;
 
     @Override
-    public CustomerProfile getCustomerProfile(String profileId) {
-        CustomerEntity customer = customerRepository.findByUsername(profileId)
+    public CustomerProfile getCustomerProfile(String loginId) {
+        CustomerEntity customer = customerRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
         return modelMapper.map(customer, CustomerProfile.class);
     }
 
     @Override
-    public GenericMessage updateCustomerProfile(String profileId, UpdateCustomerProfile updateCustomerProfile) {
-        CustomerEntity customer = customerRepository.findByUsername(profileId)
+    public GenericMessage updateCustomerProfile(String loginId, UpdateCustomerProfile updateCustomerProfile) {
+        CustomerEntity customer = customerRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
         customer.setEmailAddress(updateCustomerProfile.getEmailAddress());
@@ -52,8 +52,8 @@ public class CustomerDomainImpl implements CustomerDomain {
     }
 
     @Override
-    public GenericMessage updateCustomerPassword(String profileId, UpdateCustomerPassword updateCustomerPassword) {
-        CustomerEntity customer = customerRepository.findByUsername(profileId)
+    public GenericMessage updateCustomerPassword(String loginId, UpdateCustomerPassword updateCustomerPassword) {
+        CustomerEntity customer = customerRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
         boolean matches = passwordEncoder.matches(updateCustomerPassword.getOldPassword(), customer.getPassword());

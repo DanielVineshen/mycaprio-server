@@ -19,7 +19,7 @@ import java.util.Date;
 @Builder
 public class TokenEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "token_id")
     private Integer tokenId;
 

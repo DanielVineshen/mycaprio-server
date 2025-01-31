@@ -19,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 public class TierEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "tier_id")
     private Integer tierId;
 

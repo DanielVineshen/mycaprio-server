@@ -22,7 +22,7 @@ import java.util.List;
 @DiscriminatorValue("ADMIN")
 public class AdminEntity extends BaseUser {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "admin_id")
     private Integer adminId;
 
@@ -37,6 +37,9 @@ public class AdminEntity extends BaseUser {
 
     @Column(name = "role", nullable = false)
     private String role;
+
+    @Column(name = "is_disabled", nullable = false, columnDefinition = "boolean default false")
+    private Boolean isDisabled = false;
 
     @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "admin-pointsActivity")

@@ -33,6 +33,7 @@ public enum ErrorCode {
     INVALID_CREDENTIALS(4012, "Invalid credentials were provided."),
     DECODING_ERROR(4013, "There was a problem decoding/decrypting the response body."),
     MAPPING_ERROR(4014, "There was a problem mapping the response body."),
+    LOGIN_ID_EXIST(4020, "Username already exist."),
 
     /**
      * Custom error codes (40xxx range).

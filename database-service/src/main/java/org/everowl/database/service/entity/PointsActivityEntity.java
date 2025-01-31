@@ -20,7 +20,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class PointsActivityEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "points_activity_id")
     private Integer pointsActivityId;
 

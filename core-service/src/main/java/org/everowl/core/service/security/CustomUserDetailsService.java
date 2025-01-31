@@ -30,10 +30,12 @@ public class CustomUserDetailsService implements UserDetailsService {
         // Try finding admin
         Optional<AdminEntity> admin = adminRepository.findByUsername(username);
         if (admin.isPresent()) {
-            if (admin.get().getRole().equals("OWNER")) {
-                return new CustomUserDetails(admin.get(), UserType.OWNER);
+            if (!admin.get().getIsDisabled()) {
+                if (admin.get().getRole().equals("OWNER")) {
+                    return new CustomUserDetails(admin.get(), UserType.OWNER);
+                }
+                return new CustomUserDetails(admin.get(), UserType.STAFF);
             }
-            return new CustomUserDetails(admin.get(), UserType.STAFF);
         }
 
         throw new UsernameNotFoundException("User not found: " + username);

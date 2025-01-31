@@ -21,7 +21,7 @@ import java.util.List;
 @NoArgsConstructor
 public class StoreCustomerEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "store_cust_id")
     private Integer storeCustId;
 
