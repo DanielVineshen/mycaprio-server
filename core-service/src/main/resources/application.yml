@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: core-service
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
 
 logging:
   pattern:
@@ -11,6 +15,11 @@ logging:
 
 log:
   app-name: core-service
+
+app:
+  attachment-storage:
+    voucher-path: ${VOUCHER_STORAGE_PATH:}
+    banner-path: ${BANNER_STORAGE_PATH:}
 
 token:
   secretKey: '{cipher}dc788bed3a6ddb50a1f0e2b4fc411b8af2b12a117ac7d175f80884dbf71feb4e288716750d95946967e3c15ed36b8ac4f668a057179330088f6eeba2cbd4f5ce49b7273bddcc7c963e37d8fc3aa082f39cfa2278560d024934e9e774e21689f1'
