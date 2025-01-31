@@ -27,4 +27,19 @@ public class StoreController {
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(true);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
+
+    @GetMapping("/public/stores")
+    public ResponseEntity<BaseSuccessResponseBodyModel> getAllStores(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        String username = userDetails.getUsername();
+        String fullName = userDetails.getFullName();
+        UserType userType = userDetails.getUserType();
+        log.info("username: {}", username);
+        log.info("userType: {}", userType);
+        log.info("fullName: {}", fullName);
+
+
+
+        BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(true);
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
+    }
 }

@@ -33,6 +33,12 @@ public enum ErrorCode {
     INVALID_CREDENTIALS(4012, "Invalid credentials were provided."),
     DECODING_ERROR(4013, "There was a problem decoding/decrypting the response body."),
     MAPPING_ERROR(4014, "There was a problem mapping the response body."),
+    FILE_NOT_FOUND(4015, "File not found."),
+    FILE_SIZE_ERROR(4016, "File size exceeds maximum limit of 5MB."),
+    FILE_TYPE_ERROR(4017, "Only JPEG and PNG file types are allowed."),
+    VOUCHER_NOT_EXIST(4018, "Voucher does not exist."),
+    STORE_NOT_EXIST(4019, "Store does not exist."),
+
 
     /**
      * Custom error codes (40xxx range).
