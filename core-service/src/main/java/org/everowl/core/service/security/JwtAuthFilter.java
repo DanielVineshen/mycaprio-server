@@ -59,13 +59,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             response.setStatus(HttpStatus.OK.value());
             response.setContentType("application/json");
             response.getWriter().write("""
-                    {
-                        "result": {
-                            "status": false
-                        },
-                        "respCode": 2000,
-                        "respDesc": "Success"
-                    }""");
+                {
+                    "result": null,
+                    "respCode": 5000,
+                    "respDesc": "Something went wrong when processing request."
+                }""");
         }
     }
 }
