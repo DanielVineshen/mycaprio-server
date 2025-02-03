@@ -7,7 +7,6 @@ import org.everowl.core.service.dto.store.response.StoreRes;
 import org.everowl.core.service.dto.store.response.StoresRes;
 import org.everowl.core.service.dto.voucher.response.VoucherRes;
 import org.everowl.core.service.service.StoreDomain;
-import org.everowl.database.service.entity.AdminEntity;
 import org.everowl.database.service.entity.BannerAttachmentEntity;
 import org.everowl.database.service.entity.StoreEntity;
 import org.everowl.database.service.entity.VoucherEntity;
@@ -23,7 +22,6 @@ import static org.everowl.shared.service.enums.ErrorCode.*;
 @RequiredArgsConstructor
 @Slf4j
 public class StoreDomainImpl implements StoreDomain {
-    private final AdminRepository adminRepository;
 
     private final StoreRepository storeRepository;
 
@@ -32,7 +30,7 @@ public class StoreDomainImpl implements StoreDomain {
     private final BannerAttachmentRepository bannerAttachmentRepository;
 
     @Override
-    public StoreRes getStoreDetails(Integer storeId, String username) {
+    public StoreRes getStoreDetails(Integer storeId) {
         StoreEntity store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new NotFoundException(STORE_NOT_EXIST));
 
@@ -50,10 +48,7 @@ public class StoreDomainImpl implements StoreDomain {
     }
 
     @Override
-    public List<StoresRes> getStores(String username) {
-        AdminEntity admin = adminRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException(USER_NOT_AUTHORIZED));
-
+    public List<StoresRes> getStores() {
         List<StoreEntity> stores = storeRepository.findAll();
 
         return StoresRes.fromStoreList(stores);

@@ -6,7 +6,7 @@ import org.everowl.core.service.dto.store.response.StoresRes;
 import java.util.List;
 
 public interface StoreDomain {
-    StoreRes getStoreDetails(Integer storeId, String username);
+    StoreRes getStoreDetails(Integer storeId);
 
-    List<StoresRes> getStores(String username);
+    List<StoresRes> getStores();
 }

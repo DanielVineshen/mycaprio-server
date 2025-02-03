@@ -63,7 +63,7 @@ public class VoucherDomainImpl implements VoucherDomain {
 
         VoucherEntity voucher = new VoucherEntity();
         voucher.setStore(admin.getStore());
-        voucher.setMinTierLevel(voucher.getMinTierLevel());
+        voucher.setMinTierLevel(voucherReq.getMinTierLevel());
         voucher.setVoucherName(voucherReq.getVoucherName());
         voucher.setVoucherDesc(voucherReq.getVoucherDesc());
         voucher.setPointsRequired(voucherReq.getPointsRequired());
@@ -170,7 +170,7 @@ public class VoucherDomainImpl implements VoucherDomain {
 
         voucher.setVoucherId(voucher.getVoucherId());
         voucher.setStore(voucher.getStore());
-        voucher.setMinTierLevel(voucher.getMinTierLevel());
+        voucher.setMinTierLevel(voucherReq.getMinTierLevel());
         voucher.setVoucherName(voucherReq.getVoucherName());
         voucher.setVoucherDesc(voucherReq.getVoucherDesc());
         voucher.setPointsRequired(voucherReq.getPointsRequired());

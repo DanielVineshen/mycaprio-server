@@ -16,6 +16,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.*;
 
@@ -61,6 +62,16 @@ public class GlobalExceptionHandler {
 
         // Use only the first error message in the response
         BaseErrorResponseBodyModel errorResponse = new BaseErrorResponseBodyModel(ErrorCode.INVALID_INPUT_VALUES, errors.get(0));
+
+        return new ResponseEntity<>(errorResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<BaseErrorResponseBodyModel> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        String message = ex.getMessage();
+
+        // Use only the first error message in the response
+        BaseErrorResponseBodyModel errorResponse = new BaseErrorResponseBodyModel(ErrorCode.INVALID_INPUT_VALUES, message);
 
         return new ResponseEntity<>(errorResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }

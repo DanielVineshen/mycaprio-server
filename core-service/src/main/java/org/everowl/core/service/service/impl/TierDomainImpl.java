@@ -15,10 +15,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class TierDomainImpl implements TierDomain {
-    private TierRepository tierRepository;
+    private final TierRepository tierRepository;
 
     @Override
-    public List<TierRes> getAllTiers(Integer storeId, String username) {
+    public List<TierRes> getAllTiers(Integer storeId) {
         List<TierEntity> tiers = tierRepository.findAllByStoreId(storeId);
 
         List<TierRes> tierList = new ArrayList<>();
