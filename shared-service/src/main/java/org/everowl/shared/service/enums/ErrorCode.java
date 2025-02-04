@@ -39,6 +39,12 @@ public enum ErrorCode {
     VOUCHER_NOT_EXIST(4018, "Voucher does not exist."),
     STORE_NOT_EXIST(4019, "Store does not exist."),
     LOGIN_ID_EXIST(4020, "Username already exist."),
+    TIER_NOT_EXIST(4021, "Tier does not exist."),
+    NOT_ENOUGH_POINTS(4022, "Not enough points available."),
+    VOUCHER_CANNOT_PURCHASE(4023, "Voucher cannot be purchased."),
+    STORE_CUSTOMER_VOUCHER_NOT_EXIST(4024, "Store customer voucher does not exist."),
+    VOUCHER_ALREADY_EXPIRED(4024, "Store customer voucher does not exist."),
+    VOUCHER_REDEEMED_EXPIRED(4025, "Voucher already redeemed/expired."),
 
     /**
      * Custom error codes (40xxx range).
