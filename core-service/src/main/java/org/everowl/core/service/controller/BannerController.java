@@ -30,7 +30,7 @@ public class BannerController {
     @PostMapping(value = "/owner/banner", consumes = {
             MediaType.MULTIPART_FORM_DATA_VALUE
     })
-    public ResponseEntity<BaseSuccessResponseBodyModel> createBanner(@RequestParam @NotNull(message = "Please ensure the attachment is not blank") MultipartFile attachment,
+    public ResponseEntity<BaseSuccessResponseBodyModel> createBanner(@Valid @RequestParam @NotNull(message = "Please ensure the attachment is not blank") MultipartFile attachment,
                                                                      @RequestParam @NotNull(message = "Please ensure the availability status is not blank") String attachmentType,
                                                                      @AuthenticationPrincipal CustomUserDetails userDetails) {
         String loginId = userDetails.getUsername();
@@ -46,7 +46,7 @@ public class BannerController {
     }
 
     @PutMapping(value = "/owner/banner")
-    public ResponseEntity<BaseSuccessResponseBodyModel> updateBanner(@RequestParam @ValidInteger(message = "Please ensure a valid attachment ID is provided") @NotBlank(message = "Please ensure the attachment ID is not blank") String attachmentId,
+    public ResponseEntity<BaseSuccessResponseBodyModel> updateBanner(@Valid @RequestParam @ValidInteger(message = "Please ensure a valid attachment ID is provided") @NotBlank(message = "Please ensure the attachment ID is not blank") String attachmentId,
                                                                      @RequestParam @NotNull(message = "Please ensure the attachment is not blank") MultipartFile attachment,
                                                                      @RequestParam @NotBlank(message = "Please ensure the availability status is not blank") String attachmentType,
                                                                      @AuthenticationPrincipal CustomUserDetails userDetails) {

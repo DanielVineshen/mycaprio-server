@@ -1,5 +1,6 @@
 package org.everowl.core.service.controller;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +47,7 @@ public class StoreController {
     }
 
     @GetMapping("/public/store")
-    public ResponseEntity<BaseSuccessResponseBodyModel> getStoreDetails(@RequestParam(value = "storeId")
+    public ResponseEntity<BaseSuccessResponseBodyModel> getStoreDetails(@Valid @RequestParam(value = "storeId")
                                                                         @ValidInteger(message = "Please ensure a valid store ID is provided")
                                                                         @NotBlank(message = "Please ensure the store ID is not blank") String storeId,
                                                                         @AuthenticationPrincipal CustomUserDetails userDetails) {

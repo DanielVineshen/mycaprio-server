@@ -1,5 +1,6 @@
 package org.everowl.core.service.controller;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,7 @@ public class TierController {
     private final TierDomain tierDomain;
 
     @GetMapping(value = "/public/tiers")
-    public ResponseEntity<BaseSuccessResponseBodyModel> getAllTiers(@RequestParam(value = "storeId")
+    public ResponseEntity<BaseSuccessResponseBodyModel> getAllTiers(@Valid @RequestParam(value = "storeId")
                                                                     @ValidInteger(message = "Please ensure a valid store ID is provided")
                                                                     @NotBlank(message = "Please ensure the store ID is not blank") String storeId) {
 
