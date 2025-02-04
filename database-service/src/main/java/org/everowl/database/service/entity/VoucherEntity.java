@@ -68,6 +68,9 @@ public class VoucherEntity {
     @Column(name = "meta_tag", nullable = false)
     private String metaTag;
 
+    @Column(name = "quantity_total", nullable = false, columnDefinition = "integer default 1")
+    private Integer quantityTotal = 1;
+
     @CreationTimestamp
     @Column(updatable = false, nullable = false, name = "created_at")
     private Date createdAt;
