@@ -1,7 +1,6 @@
 package org.everowl.core.service.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +10,7 @@ import org.everowl.core.service.dto.banner.request.DeleteBannerReq;
 import org.everowl.core.service.dto.banner.request.UpdateBannerReq;
 import org.everowl.core.service.security.CustomUserDetails;
 import org.everowl.core.service.service.BannerDomain;
+import org.everowl.shared.service.annotation.ValidInteger;
 import org.everowl.shared.service.dto.BaseSuccessResponseBodyModel;
 import org.everowl.shared.service.dto.GenericMessage;
 import org.springframework.http.HttpStatus;
@@ -46,14 +46,14 @@ public class BannerController {
     }
 
     @PutMapping(value = "/owner/banner")
-    public ResponseEntity<BaseSuccessResponseBodyModel> updateBanner(@RequestParam @Min(value = 1, message = "Please ensure a valid attachment ID is provided") @NotNull(message = "Please ensure the attachment ID is not blank") Integer attachmentId,
+    public ResponseEntity<BaseSuccessResponseBodyModel> updateBanner(@RequestParam @ValidInteger(message = "Please ensure a valid attachment ID is provided") @NotBlank(message = "Please ensure the attachment ID is not blank") String attachmentId,
                                                                      @RequestParam @NotNull(message = "Please ensure the attachment is not blank") MultipartFile attachment,
                                                                      @RequestParam @NotBlank(message = "Please ensure the availability status is not blank") String attachmentType,
                                                                      @AuthenticationPrincipal CustomUserDetails userDetails) {
         String loginId = userDetails.getUsername();
 
         UpdateBannerReq request = new UpdateBannerReq();
-        request.setAttachmentId(attachmentId);
+        request.setAttachmentId(Integer.parseInt(attachmentId));
         request.setAttachment(attachment);
         request.setAttachmentType(attachmentType);
 

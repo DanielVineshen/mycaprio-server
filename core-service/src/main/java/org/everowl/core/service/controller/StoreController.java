@@ -1,6 +1,5 @@
 package org.everowl.core.service.controller;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +7,7 @@ import org.everowl.core.service.dto.store.response.StoreRes;
 import org.everowl.core.service.dto.store.response.StoresRes;
 import org.everowl.core.service.security.CustomUserDetails;
 import org.everowl.core.service.service.StoreDomain;
+import org.everowl.shared.service.annotation.ValidInteger;
 import org.everowl.shared.service.dto.BaseSuccessResponseBodyModel;
 import org.everowl.shared.service.enums.UserType;
 import org.springframework.http.HttpStatus;
@@ -47,10 +47,10 @@ public class StoreController {
 
     @GetMapping("/public/store")
     public ResponseEntity<BaseSuccessResponseBodyModel> getStoreDetails(@RequestParam(value = "storeId")
-                                                                        @Min(value = 1, message = "Please ensure a valid store ID is provided")
-                                                                        @NotBlank(message = "Please ensure the store ID is not blank") Integer storeId,
+                                                                        @ValidInteger(message = "Please ensure a valid store ID is provided")
+                                                                        @NotBlank(message = "Please ensure the store ID is not blank") String storeId,
                                                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
-        StoreRes response = storeDomain.getStoreDetails(storeId);
+        StoreRes response = storeDomain.getStoreDetails(Integer.parseInt(storeId));
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);

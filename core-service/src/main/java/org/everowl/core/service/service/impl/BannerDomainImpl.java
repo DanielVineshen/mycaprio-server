@@ -53,15 +53,13 @@ public class BannerDomainImpl implements BannerDomain {
                 .orElseThrow(() -> new NotFoundException(USER_NOT_AUTHORIZED));
 
         MultipartFile file = bannerReq.getAttachment();
-        if (file != null && !file.isEmpty()) {
-            throw new BadRequestException(FILE_NOT_FOUND);
-        }
 
         String fileName = uploadAttachmentFile(file);
         String filePath = storagePath + fileName;
         Integer fileSize = (int) bannerReq.getAttachment().getSize();
 
         BannerAttachmentEntity banner = new BannerAttachmentEntity();
+        banner.setStore(admin.getStore());
         banner.setAttachmentName(fileName);
         banner.setAttachmentPath(filePath);
         banner.setAttachmentSize(fileSize);
@@ -83,9 +81,6 @@ public class BannerDomainImpl implements BannerDomain {
                 .orElseThrow(() -> new NotFoundException(FILE_NOT_FOUND));
 
         MultipartFile file = bannerReq.getAttachment();
-        if (file != null && !file.isEmpty()) {
-            throw new BadRequestException(FILE_NOT_FOUND);
-        }
 
         //Delete existing before saving new banner
         deleteAttachmentFile(banner.getAttachmentName());
@@ -94,6 +89,7 @@ public class BannerDomainImpl implements BannerDomain {
         Integer fileSize = (int) bannerReq.getAttachment().getSize();
 
         banner.setAttachmentId(banner.getAttachmentId());
+        banner.setStore(admin.getStore());
         banner.setAttachmentName(fileName);
         banner.setAttachmentPath(filePath);
         banner.setAttachmentSize(fileSize);

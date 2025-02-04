@@ -1,11 +1,11 @@
 package org.everowl.core.service.controller;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.everowl.core.service.dto.tier.response.TierRes;
 import org.everowl.core.service.service.TierDomain;
+import org.everowl.shared.service.annotation.ValidInteger;
 import org.everowl.shared.service.dto.BaseSuccessResponseBodyModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +25,10 @@ public class TierController {
 
     @GetMapping(value = "/public/tiers")
     public ResponseEntity<BaseSuccessResponseBodyModel> getAllTiers(@RequestParam(value = "storeId")
-                                                                    @Min(value = 1, message = "Please ensure a valid store ID is provided")
-                                                                    @NotNull(message = "Please ensure the store ID is not blank") Integer storeId) {
+                                                                    @ValidInteger(message = "Please ensure a valid store ID is provided")
+                                                                    @NotBlank(message = "Please ensure the store ID is not blank") String storeId) {
 
-        List<TierRes> response = tierDomain.getAllTiers(storeId);
+        List<TierRes> response = tierDomain.getAllTiers(Integer.parseInt(storeId));
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
