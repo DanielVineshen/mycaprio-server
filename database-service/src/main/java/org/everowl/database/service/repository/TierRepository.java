@@ -25,4 +25,13 @@ public interface TierRepository extends JpaRepository<TierEntity, Integer> {
             """
     )
     Optional<TierEntity> findStoreDefaultTier(Integer storeId);
+
+    @Query(value = """
+             SELECT t FROM Tier t
+             WHERE t.store.storeId = :storeId AND t.tierLevel > :tierLevel
+             ORDER BY t.tierId ASC
+             LIMIT 1
+            """
+    )
+    Optional<TierEntity> findStoreNextTier(Integer storeId, Integer tierLevel);
 }

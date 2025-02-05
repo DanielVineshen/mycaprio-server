@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.everowl.core.service.dto.voucherRedemption.request.CustomerVoucherPurchase;
 import org.everowl.core.service.dto.voucherRedemption.request.CustomerVoucherRedemption;
+import org.everowl.core.service.dto.voucherRedemption.response.CustomerVoucherPurchaseDetails;
 import org.everowl.core.service.security.CustomUserDetails;
 import org.everowl.core.service.service.VoucherRedemptionDomain;
 import org.everowl.shared.service.dto.BaseSuccessResponseBodyModel;
@@ -28,7 +29,7 @@ public class VoucherRedemptionController {
                                                                                                     @Valid @RequestBody CustomerVoucherPurchase customerVoucherPurchase) {
         String loginId = userDetails.getUsername();
 
-        GenericMessage response = voucherRedemptionDomain.createCustomerVoucherPurchase(loginId, customerVoucherPurchase);
+        CustomerVoucherPurchaseDetails response = voucherRedemptionDomain.createCustomerVoucherPurchase(loginId, customerVoucherPurchase);
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);

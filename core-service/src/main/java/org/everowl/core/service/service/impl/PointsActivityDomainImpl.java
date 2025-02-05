@@ -1,0 +1,181 @@
+package org.everowl.core.service.service.impl;
+
+import lombok.RequiredArgsConstructor;
+import org.everowl.core.service.dto.pointsActivity.request.CreateCustomerPointsAwardManual;
+import org.everowl.core.service.dto.pointsActivity.request.CreateCustomerPointsAwardScan;
+import org.everowl.core.service.dto.pointsActivity.response.PointsActivitiesDetails;
+import org.everowl.core.service.dto.pointsActivity.response.PointsActivityDetails;
+import org.everowl.core.service.service.PointsActivityDomain;
+import org.everowl.core.service.service.shared.StoreCustomerService;
+import org.everowl.database.service.entity.*;
+import org.everowl.database.service.repository.*;
+import org.everowl.shared.service.dto.GenericMessage;
+import org.everowl.shared.service.exception.ForbiddenException;
+import org.everowl.shared.service.exception.NotFoundException;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.everowl.shared.service.enums.ErrorCode.*;
+
+@Service
+@RequiredArgsConstructor
+public class PointsActivityDomainImpl implements PointsActivityDomain {
+    private final CustomerRepository customerRepository;
+    private final PointsActivityRepository pointsActivityRepository;
+    private final StoreCustomerRepository storeCustomerRepository;
+    private final TierRepository tierRepository;
+    private final StoreRepository storeRepository;
+    private final ModelMapper modelMapper;
+    private final AdminRepository adminRepository;
+    private final StoreCustomerService storeCustomerService;
+
+    @Override
+    public PointsActivitiesDetails getCustomerPointsActivitiesDetails(String loginId, Integer storeId) {
+        CustomerEntity customer = customerRepository.findByUsername(loginId)
+                .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
+
+        StoreEntity store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new NotFoundException(STORE_NOT_EXIST));
+
+        StoreCustomerEntity storeCustomer = storeCustomerService.getOrCreateStoreCustomer(customer, store);
+
+        PointsActivitiesDetails pointsActivitiesDetails = new PointsActivitiesDetails();
+
+        List<PointsActivityEntity> pointsActivities = storeCustomer.getPointsActivities();
+
+        List<PointsActivityDetails> pointsActivityDetailsList = new ArrayList<>();
+        for (PointsActivityEntity pointsActivity : pointsActivities) {
+            PointsActivityDetails pointsActivityDetails = modelMapper.map(pointsActivity, PointsActivityDetails.class);
+            pointsActivityDetailsList.add(pointsActivityDetails);
+        }
+
+        pointsActivitiesDetails.setPointsActivities(pointsActivityDetailsList);
+
+        return pointsActivitiesDetails;
+    }
+
+    @Override
+    @Transactional
+    public GenericMessage createCustomerPointsAwardScan(String loginId, CreateCustomerPointsAwardScan createCustomerPointsAwardScan) {
+        AdminEntity staff = getAdminAndValidateStore(loginId, createCustomerPointsAwardScan.getStoreId());
+        CustomerEntity customer = customerRepository.findById(createCustomerPointsAwardScan.getCustId())
+                .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
+
+        return processPointsAward(staff, customer, createCustomerPointsAwardScan.getAmountSpent());
+    }
+
+    @Override
+    @Transactional
+    public GenericMessage createCustomerPointsAwardManual(String loginId, CreateCustomerPointsAwardManual createCustomerPointsAwardManual) {
+        AdminEntity staff = getAdminAndValidateStore(loginId, null);
+        CustomerEntity customer = customerRepository.findByUsername(createCustomerPointsAwardManual.getCustLoginId())
+                .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
+
+        return processPointsAward(staff, customer, createCustomerPointsAwardManual.getAmountSpent());
+    }
+
+    private AdminEntity getAdminAndValidateStore(String loginId, Integer requestedStoreId) {
+        AdminEntity staff = adminRepository.findByUsername(loginId)
+                .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
+
+        if (requestedStoreId != null && !staff.getStore().getStoreId().equals(requestedStoreId)) {
+            throw new ForbiddenException(USER_NOT_PERMITTED);
+        }
+
+        return staff;
+    }
+
+    private void createPointsActivity(StoreCustomerEntity storeCustomer, AdminEntity staff,
+                                      BigDecimal originalPoints, BigDecimal finalisedPoints, BigDecimal multiplier) {
+        String currentDate = getCurrentFormattedDate();
+
+        PointsActivityEntity activity = new PointsActivityEntity();
+        activity.setStoreCustomer(storeCustomer);
+        activity.setAdmin(staff);
+        activity.setCustExistingPoints(storeCustomer.getAvailablePoints());
+        activity.setOriginalPoints(originalPoints.intValue());
+        activity.setPointsMultiplier(multiplier);
+        activity.setFinalisedPoints(finalisedPoints.intValue());
+        activity.setActivityType("AWARD");
+        activity.setActivityDate(currentDate);
+
+        pointsActivityRepository.save(activity);
+    }
+
+    private void updateCustomerTierAndPoints(StoreCustomerEntity storeCustomer, BigDecimal finalisedPoints) {
+        int newTierPoints = storeCustomer.getTierPoints() + finalisedPoints.intValue();
+        storeCustomer.setTierPoints(newTierPoints);
+
+        // Process tier upgrades recursively
+        processNextTier(storeCustomer, newTierPoints);
+
+        // Update points and save
+        storeCustomer.setAvailablePoints(storeCustomer.getAvailablePoints() + finalisedPoints.intValue());
+        storeCustomer.setAccumulatedPoints(storeCustomer.getAccumulatedPoints() + finalisedPoints.intValue());
+        storeCustomer.setLastTransDate(getCurrentFormattedDate());
+
+        storeCustomerRepository.save(storeCustomer);
+    }
+
+    private void processNextTier(StoreCustomerEntity storeCustomer, int currentPoints) {
+        TierEntity currentTier = storeCustomer.getTier();
+        Optional<TierEntity> nextTier = tierRepository.findStoreNextTier(
+                storeCustomer.getStore().getStoreId(),
+                currentTier.getTierLevel()
+        );
+
+        //No next tier or not enough points for next tier
+        if (nextTier.isEmpty() || currentPoints < nextTier.get().getPointsNeeded()) {
+            storeCustomer.setTierPoints(currentPoints);
+            return;
+        }
+
+        // Process tier upgrade
+        TierEntity newTier = nextTier.get();
+        int remainingPoints = currentPoints - newTier.getPointsNeeded();
+        storeCustomer.setTier(newTier);
+
+        // Recursive call to check for further tier upgrades
+        processNextTier(storeCustomer, remainingPoints);
+    }
+
+    private String getCurrentFormattedDate() {
+        return ZonedDateTime.now(ZoneId.of("Asia/Kuala_Lumpur"))
+                .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+    }
+
+    private BigDecimal calculatePoints(BigDecimal amountSpent, BigDecimal multiplier) {
+        BigDecimal originalPoints = amountSpent
+                .multiply(BigDecimal.valueOf(10))
+                .multiply(multiplier);
+
+        return originalPoints
+                .multiply(multiplier)
+                .setScale(0, RoundingMode.CEILING);
+    }
+
+    private GenericMessage processPointsAward(AdminEntity staff, CustomerEntity customer, BigDecimal amountSpent) {
+        StoreCustomerEntity storeCustomer = storeCustomerService.getOrCreateStoreCustomer(customer, staff.getStore());
+        TierEntity currentTier = storeCustomer.getTier();
+
+        BigDecimal originalPoints = amountSpent.multiply(BigDecimal.valueOf(10)).setScale(0, RoundingMode.CEILING);
+        BigDecimal finalisedPoints = calculatePoints(amountSpent, currentTier.getTierMultiplier());
+
+        createPointsActivity(storeCustomer, staff, originalPoints, finalisedPoints, currentTier.getTierMultiplier());
+        updateCustomerTierAndPoints(storeCustomer, finalisedPoints);
+
+        return GenericMessage.builder()
+                .status(true)
+                .build();
+    }
+}
