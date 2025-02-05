@@ -22,4 +22,5 @@ public class UpdateVoucherReq {
     private Boolean isExclusive;
     private Integer lifeSpan;
     private String metaTag;
+    private Integer quantityTotal;
 }

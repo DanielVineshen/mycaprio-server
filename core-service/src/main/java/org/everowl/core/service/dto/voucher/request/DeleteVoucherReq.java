@@ -12,5 +12,5 @@ import org.everowl.shared.service.annotation.ValidInteger;
 @NoArgsConstructor
 public class DeleteVoucherReq {
     @ValidInteger(message = "Please ensure a valid voucher ID is provided")
-    private Integer voucherId;
+    private String voucherId;
 }

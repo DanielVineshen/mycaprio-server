@@ -75,6 +75,7 @@ public class VoucherDomainImpl implements VoucherDomain {
         voucher.setIsExclusive(voucherReq.getIsExclusive());
         voucher.setLifeSpan(voucherReq.getLifeSpan());
         voucher.setMetaTag(voucherReq.getMetaTag());
+        voucher.setQuantityTotal(voucherReq.getQuantityTotal());
 
         voucherRepository.save(voucher);
 
@@ -182,6 +183,7 @@ public class VoucherDomainImpl implements VoucherDomain {
         voucher.setIsExclusive(voucherReq.getIsExclusive());
         voucher.setLifeSpan(voucherReq.getLifeSpan());
         voucher.setMetaTag(voucherReq.getMetaTag());
+        voucher.setQuantityTotal(voucherReq.getQuantityTotal());
 
         return GenericMessage.builder()
                 .status(true)
@@ -195,14 +197,14 @@ public class VoucherDomainImpl implements VoucherDomain {
                 .orElseThrow(() -> new NotFoundException(USER_NOT_AUTHORIZED));
 
         // Validate voucher
-        VoucherEntity voucher = voucherRepository.findById(voucherReq.getVoucherId())
+        VoucherEntity voucher = voucherRepository.findById(Integer.parseInt(voucherReq.getVoucherId()))
                 .orElseThrow(() -> new BadRequestException(VOUCHER_NOT_EXIST));
 
         if (voucher.getAttachmentName() != null) {
             deleteAttachmentFile(voucher.getAttachmentName());
         }
 
-        voucherRepository.deleteById(voucherReq.getVoucherId());
+        voucherRepository.deleteById(Integer.parseInt(voucherReq.getVoucherId()));
 
         return GenericMessage.builder()
                 .status(true)
@@ -211,9 +213,16 @@ public class VoucherDomainImpl implements VoucherDomain {
 
     @Override
     public List<VoucherRes> getAllVouchers(Integer storeId) {
-
         List<VoucherEntity> vouchers = voucherRepository.findAllByStoreId(storeId);
 
         return VoucherRes.fromVoucherList(vouchers);
+    }
+
+    @Override
+    public String getVoucherAttachment(String attachmentName) {
+        VoucherEntity voucher = voucherRepository.findByAttachmentName(attachmentName)
+                .orElseThrow(() -> new NotFoundException(FILE_NOT_FOUND));
+
+        return voucher.getAttachmentName();
     }
 }

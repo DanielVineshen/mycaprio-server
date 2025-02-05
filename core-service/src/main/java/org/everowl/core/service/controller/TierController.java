@@ -10,6 +10,7 @@ import org.everowl.shared.service.annotation.ValidInteger;
 import org.everowl.shared.service.dto.BaseSuccessResponseBodyModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,11 +22,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@Validated
 public class TierController {
     private final TierDomain tierDomain;
 
     @GetMapping(value = "/public/tiers")
-    public ResponseEntity<BaseSuccessResponseBodyModel> getAllTiers(@Valid @RequestParam(value = "storeId")
+    public ResponseEntity<BaseSuccessResponseBodyModel> getAllTiers(@RequestParam(value = "storeId")
                                                                     @ValidInteger(message = "Please ensure a valid store ID is provided")
                                                                     @NotBlank(message = "Please ensure the store ID is not blank") String storeId) {
 

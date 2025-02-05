@@ -66,16 +66,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<BaseErrorResponseBodyModel> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
-        String message = ex.getMessage();
-
-        // Use only the first error message in the response
-        BaseErrorResponseBodyModel errorResponse = new BaseErrorResponseBodyModel(ErrorCode.INVALID_INPUT_VALUES, message);
-
-        return new ResponseEntity<>(errorResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST);
-    }
-
     /**
      * Handles IllegalArgumentException.
      *

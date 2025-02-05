@@ -12,8 +12,10 @@ import org.everowl.shared.service.annotation.ValidInteger;
 import org.everowl.shared.service.dto.BaseSuccessResponseBodyModel;
 import org.everowl.shared.service.enums.UserType;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@Validated
 public class StoreController {
     private final StoreDomain storeDomain;
 
@@ -46,8 +49,10 @@ public class StoreController {
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
-    @GetMapping("/public/store")
-    public ResponseEntity<BaseSuccessResponseBodyModel> getStoreDetails(@Valid @RequestParam(value = "storeId")
+    @GetMapping(path = "/public/store", produces = {
+            MediaType.APPLICATION_JSON_VALUE
+    })
+    public ResponseEntity<BaseSuccessResponseBodyModel> getStoreDetails(@RequestParam(value = "storeId")
                                                                         @ValidInteger(message = "Please ensure a valid store ID is provided")
                                                                         @NotBlank(message = "Please ensure the store ID is not blank") String storeId,
                                                                         @AuthenticationPrincipal CustomUserDetails userDetails) {

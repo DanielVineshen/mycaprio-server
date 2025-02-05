@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.everowl.core.service.dto.banner.request.CreateBannerReq;
 import org.everowl.core.service.dto.banner.request.DeleteBannerReq;
 import org.everowl.core.service.dto.banner.request.UpdateBannerReq;
-import org.everowl.core.service.dto.banner.response.BannerRes;
 import org.everowl.core.service.service.BannerDomain;
 import org.everowl.database.service.entity.AdminEntity;
 import org.everowl.database.service.entity.BannerAttachmentEntity;
@@ -107,12 +106,12 @@ public class BannerDomainImpl implements BannerDomain {
         AdminEntity admin = adminRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_AUTHORIZED));
 
-        BannerAttachmentEntity banner = bannerAttachmentRepository.findById(bannerReq.getAttachmentId())
+        BannerAttachmentEntity banner = bannerAttachmentRepository.findById(Integer.parseInt(bannerReq.getAttachmentId()))
                 .orElseThrow(() -> new NotFoundException(FILE_NOT_FOUND));
 
         deleteAttachmentFile(banner.getAttachmentName());
 
-        bannerAttachmentRepository.deleteById(bannerReq.getAttachmentId());
+        bannerAttachmentRepository.deleteById(Integer.parseInt(bannerReq.getAttachmentId()));
 
         return GenericMessage.builder()
                 .status(true)
@@ -120,10 +119,11 @@ public class BannerDomainImpl implements BannerDomain {
     }
 
     @Override
-    public List<BannerRes> getAllBanners(Integer storeId) {
+    public String getBannerAttachment(String attachmentName) {
+        BannerAttachmentEntity banner = bannerAttachmentRepository.findByAttachmentName(attachmentName)
+                .orElseThrow(() -> new NotFoundException(FILE_NOT_FOUND));
 
-
-        return List.of();
+        return banner.getAttachmentName();
     }
 
     public String uploadAttachmentFile(MultipartFile file) {

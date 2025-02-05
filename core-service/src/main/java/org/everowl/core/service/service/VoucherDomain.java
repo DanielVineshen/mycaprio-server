@@ -16,4 +16,6 @@ public interface VoucherDomain {
     GenericMessage deleteVoucher(DeleteVoucherReq voucherReq, String username);
 
     List<VoucherRes> getAllVouchers(Integer storeId);
+
+    String getVoucherAttachment(String attachmentName);
 }

@@ -25,6 +25,7 @@ public class VoucherRes {
     private Boolean isExclusive;
     private Integer lifeSpan;
     private String metaTag;
+    private Integer quantityTotal;
 
     public VoucherRes(VoucherEntity voucher) {
         setVoucherId(voucher.getVoucherId());
@@ -38,6 +39,7 @@ public class VoucherRes {
         setIsExclusive(voucher.getIsExclusive());
         setLifeSpan(voucher.getLifeSpan());
         setMetaTag(voucher.getMetaTag());
+        setQuantityTotal(voucher.getQuantityTotal());
     }
 
     public static List<VoucherRes> fromVoucherList(List<VoucherEntity> vouchers) {

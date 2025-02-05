@@ -12,5 +12,5 @@ import org.everowl.shared.service.annotation.ValidInteger;
 @NoArgsConstructor
 public class DeleteBannerReq {
     @ValidInteger(message = "Please ensure a valid attachment ID is provided")
-    private Integer attachmentId;
+    private String attachmentId;
 }
