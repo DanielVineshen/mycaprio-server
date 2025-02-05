@@ -36,7 +36,6 @@ public class PointsActivityEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonBackReference(value = "admin-pointsActivity")
     @JoinColumn(name = "admin_id",
-            nullable = false,
             referencedColumnName = "admin_id",
             foreignKey = @ForeignKey(name = "FK_ADMIN_POINTS_ACTIVITY")
     )

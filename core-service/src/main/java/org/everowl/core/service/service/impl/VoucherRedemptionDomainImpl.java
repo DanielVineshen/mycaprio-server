@@ -4,12 +4,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.everowl.core.service.dto.voucherRedemption.request.CustomerVoucherPurchase;
 import org.everowl.core.service.dto.voucherRedemption.request.CustomerVoucherRedemption;
+import org.everowl.core.service.dto.voucherRedemption.response.CustomerVoucherDetails;
+import org.everowl.core.service.dto.voucherRedemption.response.CustomerVoucherPurchaseDetails;
 import org.everowl.core.service.service.VoucherRedemptionDomain;
+import org.everowl.core.service.service.shared.StoreCustomerService;
 import org.everowl.database.service.entity.*;
+import org.everowl.database.service.entity.compositeKeys.VoucherRedemptionPKs;
 import org.everowl.database.service.repository.*;
 import org.everowl.shared.service.dto.GenericMessage;
 import org.everowl.shared.service.exception.ForbiddenException;
 import org.everowl.shared.service.exception.NotFoundException;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,14 +23,12 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 import static org.everowl.shared.service.enums.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
     private final CustomerRepository customerRepository;
     private final AdminRepository adminRepository;
@@ -33,12 +36,13 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
     private final VoucherRepository voucherRepository;
     private final StoreCustomerVoucherRepository storeCustomerVoucherRepository;
     private final VoucherRedemptionRepository voucherRedemptionRepository;
-    private final TierRepository tierRepository;
     private final PointsActivityRepository pointsActivityRepository;
+    private final ModelMapper modelMapper;
+    private final StoreCustomerService storeCustomerService;
 
     @Override
     @Transactional
-    public GenericMessage createCustomerVoucherPurchase(String loginId, CustomerVoucherPurchase customerVoucherPurchase) {
+    public CustomerVoucherPurchaseDetails createCustomerVoucherPurchase(String loginId, CustomerVoucherPurchase customerVoucherPurchase) {
         CustomerEntity customer = customerRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
@@ -47,21 +51,7 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
 
         StoreEntity store = voucher.getStore();
 
-        Optional<StoreCustomerEntity> storeCustomerEntity = storeCustomerRepository.findCustomerStoreProfile(customer.getCustId(), store.getStoreId());
-
-        StoreCustomerEntity storeCustomer = storeCustomerEntity.orElseGet(() -> {
-            TierEntity tier = tierRepository.findStoreDefaultTier(store.getStoreId())
-                    .orElseThrow(() -> new NotFoundException(TIER_NOT_EXIST));
-
-            StoreCustomerEntity newStoreCustomer = new StoreCustomerEntity();
-            newStoreCustomer.setCustomer(customer);
-            newStoreCustomer.setStore(store);
-            newStoreCustomer.setTier(tier);
-            newStoreCustomer.setTierPoints(0);
-            newStoreCustomer.setAvailablePoints(0);
-            newStoreCustomer.setAccumulatedPoints(0);
-            return storeCustomerRepository.save(newStoreCustomer);
-        });
+        StoreCustomerEntity storeCustomer = storeCustomerService.getOrCreateStoreCustomer(customer, store);
 
         validateVoucherPurchaseEligibility(voucher, storeCustomer);
 
@@ -100,9 +90,11 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
         pointsActivityEntity.setActivityDate(currentDate);
         pointsActivityRepository.save(pointsActivityEntity);
 
-        return GenericMessage.builder()
-                .status(true)
-                .build();
+        CustomerVoucherPurchaseDetails customerVoucherPurchaseDetails = new CustomerVoucherPurchaseDetails();
+        CustomerVoucherDetails customerVoucherDetails = modelMapper.map(storeCustomerVoucherEntity, CustomerVoucherDetails.class);
+        customerVoucherPurchaseDetails.setCustomerVoucherPurchase(customerVoucherDetails);
+
+        return customerVoucherPurchaseDetails;
     }
 
     private void validateVoucherPurchaseEligibility(VoucherEntity voucher, StoreCustomerEntity storeCustomer) {
@@ -135,6 +127,10 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
         }
 
         VoucherRedemptionEntity voucherRedemptionEntity = new VoucherRedemptionEntity();
+        VoucherRedemptionPKs voucherRedemptionPKs = new VoucherRedemptionPKs();
+        voucherRedemptionPKs.setStoreCustVoucherId(storeCustomerVoucher.getStoreCustVoucherId());
+        voucherRedemptionPKs.setAdminId(staff.getAdminId());
+        voucherRedemptionEntity.setVoucherRedemptionPKs(voucherRedemptionPKs);
         voucherRedemptionEntity.setStoreCustomerVoucher(storeCustomerVoucher);
         voucherRedemptionEntity.setAdmin(staff);
         voucherRedemptionRepository.save(voucherRedemptionEntity);
