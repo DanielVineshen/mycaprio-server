@@ -12,7 +12,6 @@ import org.everowl.core.service.dto.tier.response.TierRes;
 @NoArgsConstructor
 public class StoreCustomerRes {
     private Integer storeCustId;
-    private String custId;
     private TierRes tier;
     private Integer tierPoints;
     private Integer availablePoints;
