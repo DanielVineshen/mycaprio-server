@@ -29,7 +29,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Objects;
 
 import static org.everowl.shared.service.enums.ErrorCode.FILE_NOT_FOUND;
@@ -50,7 +49,7 @@ public class VoucherController {
                                                                        @ValidInteger(message = "Please ensure a valid store ID is provided")
                                                                        @NotBlank(message = "Please ensure the store ID is not blank") String storeId) {
 
-        List<VoucherRes> response = voucherDomain.getAllVouchers(Integer.parseInt(storeId));
+        VoucherRes response = voucherDomain.getAllVouchers(Integer.parseInt(storeId));
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);

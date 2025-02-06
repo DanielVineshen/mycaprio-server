@@ -5,17 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class TierRes {
-    private Integer tierId;
-    private Integer tierLevel;
-    private String tierName;
-    private BigDecimal tierMultiplier;
-    private Boolean isDefault;
-    private Integer pointsNeeded;
+    private List<TierDetailsRes> tiers;
 }

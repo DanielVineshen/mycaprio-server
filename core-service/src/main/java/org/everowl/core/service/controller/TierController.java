@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @Slf4j
 @RestController
 @RequestMapping("/api")
@@ -30,7 +28,7 @@ public class TierController {
                                                                     @ValidInteger(message = "Please ensure a valid store ID is provided")
                                                                     @NotBlank(message = "Please ensure the store ID is not blank") String storeId) {
 
-        List<TierRes> response = tierDomain.getAllTiers(Integer.parseInt(storeId));
+        TierRes response = tierDomain.getAllTiers(Integer.parseInt(storeId));
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);

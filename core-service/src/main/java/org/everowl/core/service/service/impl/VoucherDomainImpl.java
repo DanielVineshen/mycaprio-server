@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.everowl.core.service.dto.voucher.request.CreateVoucherReq;
 import org.everowl.core.service.dto.voucher.request.DeleteVoucherReq;
 import org.everowl.core.service.dto.voucher.request.UpdateVoucherReq;
+import org.everowl.core.service.dto.voucher.response.VoucherDetailsRes;
 import org.everowl.core.service.dto.voucher.response.VoucherRes;
 import org.everowl.core.service.service.VoucherDomain;
 import org.everowl.database.service.entity.AdminEntity;
@@ -16,6 +17,7 @@ import org.everowl.shared.service.dto.GenericMessage;
 import org.everowl.shared.service.exception.BadRequestException;
 import org.everowl.shared.service.exception.NotFoundException;
 import org.everowl.shared.service.exception.RunTimeException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -40,14 +42,24 @@ public class VoucherDomainImpl implements VoucherDomain {
     );
     private final VoucherRepository voucherRepository;
     private final AdminRepository adminRepository;
+    private final ModelMapper modelMapper;
     @Value("${app.attachment-storage.voucher-path}")
     private String storagePath;
 
     @Override
-    public List<VoucherRes> getAllVouchers(Integer storeId) {
+    public VoucherRes getAllVouchers(Integer storeId) {
         List<VoucherEntity> vouchers = voucherRepository.findAllByStoreId(storeId);
 
-        return VoucherRes.fromVoucherList(vouchers);
+        List<VoucherDetailsRes> voucherList = new ArrayList<>();
+        for (VoucherEntity voucher : vouchers) {
+            VoucherDetailsRes voucherDetailsRes = modelMapper.map(voucher, VoucherDetailsRes.class);
+            voucherList.add(voucherDetailsRes);
+        }
+
+        VoucherRes voucher = new VoucherRes();
+        voucher.setVouchers(voucherList);
+
+        return voucher;
     }
 
     @Override

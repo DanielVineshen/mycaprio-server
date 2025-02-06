@@ -2,6 +2,7 @@ package org.everowl.core.service.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.everowl.core.service.dto.storeCustomer.response.StoreCustomerDetailsRes;
 import org.everowl.core.service.dto.storeCustomer.response.StoreCustomerRes;
 import org.everowl.core.service.service.StoreCustomerDomain;
 import org.everowl.core.service.service.shared.StoreCustomerService;
@@ -36,6 +37,9 @@ public class StoreCustomerImpl implements StoreCustomerDomain {
 
         StoreCustomerEntity storeCustomer = storeCustomerService.getOrCreateStoreCustomer(customer, store);
 
-        return modelMapper.map(storeCustomer, StoreCustomerRes.class);
+        StoreCustomerRes storeCustomerRes = new StoreCustomerRes();
+        storeCustomerRes.setStoreCustomer(modelMapper.map(storeCustomer, StoreCustomerDetailsRes.class));
+
+        return storeCustomerRes;
     }
 }

@@ -6,10 +6,8 @@ import org.everowl.core.service.dto.voucher.request.UpdateVoucherReq;
 import org.everowl.core.service.dto.voucher.response.VoucherRes;
 import org.everowl.shared.service.dto.GenericMessage;
 
-import java.util.List;
-
 public interface VoucherDomain {
-    List<VoucherRes> getAllVouchers(Integer storeId);
+    VoucherRes getAllVouchers(Integer storeId);
 
     GenericMessage createVoucher(CreateVoucherReq voucherReq, String loginId);
 

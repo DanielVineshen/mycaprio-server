@@ -14,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Slf4j
 @RestController
 @RequestMapping("/api")
@@ -26,7 +24,7 @@ public class StoreController {
 
     @GetMapping("/public/stores")
     public ResponseEntity<BaseSuccessResponseBodyModel> getAllStores() {
-        List<StoresRes> response = storeDomain.getStores();
+        StoresRes response = storeDomain.getStores();
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);

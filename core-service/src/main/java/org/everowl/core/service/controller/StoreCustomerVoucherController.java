@@ -33,7 +33,7 @@ public class StoreCustomerVoucherController {
                                                                                  @NotBlank(message = "Please ensure the store ID is not blank") String storeId,
                                                                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
         String loginId = userDetails.getUsername();
-        List<StoreCustomerVoucherRes> response = storeCustomerVoucherDomain.getCustomerVoucher(Integer.parseInt(storeId), loginId);
+        StoreCustomerVoucherRes response = storeCustomerVoucherDomain.getCustomerVoucher(Integer.parseInt(storeId), loginId);
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);

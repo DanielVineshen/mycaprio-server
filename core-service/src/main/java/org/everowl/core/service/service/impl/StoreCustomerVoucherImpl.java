@@ -2,6 +2,7 @@ package org.everowl.core.service.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.everowl.core.service.dto.storeCustomerVoucher.response.StoreCustomerVoucherDetailsRes;
 import org.everowl.core.service.dto.storeCustomerVoucher.response.StoreCustomerVoucherRes;
 import org.everowl.core.service.service.StoreCustomerVoucherDomain;
 import org.everowl.core.service.service.shared.StoreCustomerService;
@@ -33,7 +34,7 @@ public class StoreCustomerVoucherImpl implements StoreCustomerVoucherDomain {
     private final StoreCustomerService storeCustomerService;
 
     @Override
-    public List<StoreCustomerVoucherRes> getCustomerVoucher(Integer storeId, String loginId) {
+    public StoreCustomerVoucherRes getCustomerVoucher(Integer storeId, String loginId) {
         CustomerEntity customer = customerRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
@@ -44,12 +45,15 @@ public class StoreCustomerVoucherImpl implements StoreCustomerVoucherDomain {
 
         List<StoreCustomerVoucherEntity> storeVouchers = storeCustomerVoucherRepository.findByStoreCustId(storeCustomerEntity.getStoreCustId());
 
-        List<StoreCustomerVoucherRes> storeCustomerVoucherResList = new ArrayList<>();
-        for (StoreCustomerVoucherEntity storeCustomerVoucherEntity: storeVouchers) {
-            StoreCustomerVoucherRes storeCustomerVoucherRes = modelMapper.map(storeCustomerVoucherEntity, StoreCustomerVoucherRes.class);
-            storeCustomerVoucherResList.add(storeCustomerVoucherRes);
+        List<StoreCustomerVoucherDetailsRes> storeCustomerVoucherDetailsResList = new ArrayList<>();
+        for (StoreCustomerVoucherEntity storeCustomerVoucherEntity : storeVouchers) {
+            StoreCustomerVoucherDetailsRes storeCustomerVoucherDetailsRes = modelMapper.map(storeCustomerVoucherEntity, StoreCustomerVoucherDetailsRes.class);
+            storeCustomerVoucherDetailsResList.add(storeCustomerVoucherDetailsRes);
         }
 
-        return storeCustomerVoucherResList;
+        StoreCustomerVoucherRes vouchers = new StoreCustomerVoucherRes();
+        vouchers.setVouchers(storeCustomerVoucherDetailsResList);
+
+        return vouchers;
     }
 }
