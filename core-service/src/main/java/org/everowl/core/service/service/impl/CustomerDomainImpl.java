@@ -2,9 +2,9 @@ package org.everowl.core.service.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.everowl.core.service.dto.customer.request.UpdateCustomerPassword;
-import org.everowl.core.service.dto.customer.request.UpdateCustomerProfile;
-import org.everowl.core.service.dto.customer.response.CustomerProfile;
+import org.everowl.core.service.dto.customer.request.UpdateCustomerPasswordReq;
+import org.everowl.core.service.dto.customer.request.UpdateCustomerProfileReq;
+import org.everowl.core.service.dto.customer.response.CustomerProfileRes;
 import org.everowl.core.service.service.CustomerDomain;
 import org.everowl.database.service.entity.CustomerEntity;
 import org.everowl.database.service.repository.CustomerRepository;
@@ -27,22 +27,22 @@ public class CustomerDomainImpl implements CustomerDomain {
     private final ModelMapper modelMapper;
 
     @Override
-    public CustomerProfile getCustomerProfile(String loginId) {
+    public CustomerProfileRes getCustomerProfile(String loginId) {
         CustomerEntity customer = customerRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
-        return modelMapper.map(customer, CustomerProfile.class);
+        return modelMapper.map(customer, CustomerProfileRes.class);
     }
 
     @Override
-    public GenericMessage updateCustomerProfile(String loginId, UpdateCustomerProfile updateCustomerProfile) {
+    public GenericMessage updateCustomerProfile(String loginId, UpdateCustomerProfileReq updateCustomerProfileReq) {
         CustomerEntity customer = customerRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
-        customer.setEmailAddress(updateCustomerProfile.getEmailAddress());
-        customer.setFullName(updateCustomerProfile.getFullName());
-        customer.setGender(updateCustomerProfile.getGender());
-        customer.setDateOfBirth(updateCustomerProfile.getDateOfBirth());
+        customer.setEmailAddress(updateCustomerProfileReq.getEmailAddress());
+        customer.setFullName(updateCustomerProfileReq.getFullName());
+        customer.setGender(updateCustomerProfileReq.getGender());
+        customer.setDateOfBirth(updateCustomerProfileReq.getDateOfBirth());
 
         customerRepository.save(customer);
 
@@ -52,17 +52,17 @@ public class CustomerDomainImpl implements CustomerDomain {
     }
 
     @Override
-    public GenericMessage updateCustomerPassword(String loginId, UpdateCustomerPassword updateCustomerPassword) {
+    public GenericMessage updateCustomerPassword(String loginId, UpdateCustomerPasswordReq updateCustomerPasswordReq) {
         CustomerEntity customer = customerRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
-        boolean matches = passwordEncoder.matches(updateCustomerPassword.getOldPassword(), customer.getPassword());
+        boolean matches = passwordEncoder.matches(updateCustomerPasswordReq.getOldPassword(), customer.getPassword());
 
         if (!matches) {
             throw new BadRequestException(INVALID_CREDENTIALS);
         }
 
-        String hashedPassword = passwordEncoder.encode(updateCustomerPassword.getNewPassword());
+        String hashedPassword = passwordEncoder.encode(updateCustomerPasswordReq.getNewPassword());
 
         customer.setPassword(hashedPassword);
 

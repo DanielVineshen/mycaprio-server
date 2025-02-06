@@ -2,10 +2,10 @@ package org.everowl.core.service.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.everowl.core.service.dto.voucherRedemption.request.CustomerVoucherPurchase;
-import org.everowl.core.service.dto.voucherRedemption.request.CustomerVoucherRedemption;
-import org.everowl.core.service.dto.voucherRedemption.response.CustomerVoucherDetails;
-import org.everowl.core.service.dto.voucherRedemption.response.CustomerVoucherPurchaseDetails;
+import org.everowl.core.service.dto.voucherRedemption.request.CustomerVoucherPurchaseReq;
+import org.everowl.core.service.dto.voucherRedemption.request.CustomerVoucherRedemptionReq;
+import org.everowl.core.service.dto.voucherRedemption.response.CustomerVoucherDetailsRes;
+import org.everowl.core.service.dto.voucherRedemption.response.CustomerVoucherPurchaseDetailsRes;
 import org.everowl.core.service.service.VoucherRedemptionDomain;
 import org.everowl.core.service.service.shared.StoreCustomerService;
 import org.everowl.database.service.entity.*;
@@ -42,11 +42,11 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
 
     @Override
     @Transactional
-    public CustomerVoucherPurchaseDetails createCustomerVoucherPurchase(String loginId, CustomerVoucherPurchase customerVoucherPurchase) {
+    public CustomerVoucherPurchaseDetailsRes createCustomerVoucherPurchase(String loginId, CustomerVoucherPurchaseReq customerVoucherPurchaseReq) {
         CustomerEntity customer = customerRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
-        VoucherEntity voucher = voucherRepository.findById(customerVoucherPurchase.getVoucherId())
+        VoucherEntity voucher = voucherRepository.findById(customerVoucherPurchaseReq.getVoucherId())
                 .orElseThrow(() -> new NotFoundException(VOUCHER_NOT_EXIST));
 
         StoreEntity store = voucher.getStore();
@@ -90,11 +90,11 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
         pointsActivityEntity.setActivityDate(currentDate);
         pointsActivityRepository.save(pointsActivityEntity);
 
-        CustomerVoucherPurchaseDetails customerVoucherPurchaseDetails = new CustomerVoucherPurchaseDetails();
-        CustomerVoucherDetails customerVoucherDetails = modelMapper.map(storeCustomerVoucherEntity, CustomerVoucherDetails.class);
-        customerVoucherPurchaseDetails.setCustomerVoucherPurchase(customerVoucherDetails);
+        CustomerVoucherPurchaseDetailsRes customerVoucherPurchaseDetailsRes = new CustomerVoucherPurchaseDetailsRes();
+        CustomerVoucherDetailsRes customerVoucherDetailsRes = modelMapper.map(storeCustomerVoucherEntity, CustomerVoucherDetailsRes.class);
+        customerVoucherPurchaseDetailsRes.setCustomerVoucherPurchase(customerVoucherDetailsRes);
 
-        return customerVoucherPurchaseDetails;
+        return customerVoucherPurchaseDetailsRes;
     }
 
     private void validateVoucherPurchaseEligibility(VoucherEntity voucher, StoreCustomerEntity storeCustomer) {
@@ -111,11 +111,11 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
 
     @Override
     @Transactional
-    public GenericMessage createCustomerVoucherRedemption(String loginId, CustomerVoucherRedemption customerVoucherRedemption) {
+    public GenericMessage createCustomerVoucherRedemption(String loginId, CustomerVoucherRedemptionReq customerVoucherRedemptionReq) {
         AdminEntity staff = adminRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
-        StoreCustomerVoucherEntity storeCustomerVoucher = storeCustomerVoucherRepository.findById(customerVoucherRedemption.getStoreCustVoucherId())
+        StoreCustomerVoucherEntity storeCustomerVoucher = storeCustomerVoucherRepository.findById(customerVoucherRedemptionReq.getStoreCustVoucherId())
                 .orElseThrow(() -> new NotFoundException(STORE_CUSTOMER_VOUCHER_NOT_EXIST));
 
         boolean isValidDateOlder = LocalDateTime.parse(storeCustomerVoucher.getValidDate(), DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))

@@ -1,11 +1,9 @@
-package org.everowl.core.service.dto.customer.response;
+package org.everowl.core.service.dto.customer.request;
 
 import lombok.Data;
 
 @Data
-public class CustomerProfile {
-    private String custId;
-    private String loginId;
+public class UpdateCustomerProfileReq {
     private String emailAddress;
     private String fullName;
     private String gender;

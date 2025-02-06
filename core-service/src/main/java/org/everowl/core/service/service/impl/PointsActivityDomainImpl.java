@@ -1,10 +1,10 @@
 package org.everowl.core.service.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.everowl.core.service.dto.pointsActivity.request.CreateCustomerPointsAwardManual;
-import org.everowl.core.service.dto.pointsActivity.request.CreateCustomerPointsAwardScan;
-import org.everowl.core.service.dto.pointsActivity.response.PointsActivitiesDetails;
-import org.everowl.core.service.dto.pointsActivity.response.PointsActivityDetails;
+import org.everowl.core.service.dto.pointsActivity.request.CreateCustomerPointsAwardManualReq;
+import org.everowl.core.service.dto.pointsActivity.request.CreateCustomerPointsAwardScanReq;
+import org.everowl.core.service.dto.pointsActivity.response.PointsActivitiesDetailsRes;
+import org.everowl.core.service.dto.pointsActivity.response.PointsActivityDetailsRes;
 import org.everowl.core.service.service.PointsActivityDomain;
 import org.everowl.core.service.service.shared.StoreCustomerService;
 import org.everowl.database.service.entity.*;
@@ -40,7 +40,7 @@ public class PointsActivityDomainImpl implements PointsActivityDomain {
     private final StoreCustomerService storeCustomerService;
 
     @Override
-    public PointsActivitiesDetails getCustomerPointsActivitiesDetails(String loginId, Integer storeId) {
+    public PointsActivitiesDetailsRes getCustomerPointsActivitiesDetails(String loginId, Integer storeId) {
         CustomerEntity customer = customerRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
@@ -49,39 +49,39 @@ public class PointsActivityDomainImpl implements PointsActivityDomain {
 
         StoreCustomerEntity storeCustomer = storeCustomerService.getOrCreateStoreCustomer(customer, store);
 
-        PointsActivitiesDetails pointsActivitiesDetails = new PointsActivitiesDetails();
+        PointsActivitiesDetailsRes pointsActivitiesDetailsRes = new PointsActivitiesDetailsRes();
 
         List<PointsActivityEntity> pointsActivities = storeCustomer.getPointsActivities();
 
-        List<PointsActivityDetails> pointsActivityDetailsList = new ArrayList<>();
+        List<PointsActivityDetailsRes> pointsActivityDetailsResList = new ArrayList<>();
         for (PointsActivityEntity pointsActivity : pointsActivities) {
-            PointsActivityDetails pointsActivityDetails = modelMapper.map(pointsActivity, PointsActivityDetails.class);
-            pointsActivityDetailsList.add(pointsActivityDetails);
+            PointsActivityDetailsRes pointsActivityDetailsRes = modelMapper.map(pointsActivity, PointsActivityDetailsRes.class);
+            pointsActivityDetailsResList.add(pointsActivityDetailsRes);
         }
 
-        pointsActivitiesDetails.setPointsActivities(pointsActivityDetailsList);
+        pointsActivitiesDetailsRes.setPointsActivities(pointsActivityDetailsResList);
 
-        return pointsActivitiesDetails;
+        return pointsActivitiesDetailsRes;
     }
 
     @Override
     @Transactional
-    public GenericMessage createCustomerPointsAwardScan(String loginId, CreateCustomerPointsAwardScan createCustomerPointsAwardScan) {
-        AdminEntity staff = getAdminAndValidateStore(loginId, createCustomerPointsAwardScan.getStoreId());
-        CustomerEntity customer = customerRepository.findById(createCustomerPointsAwardScan.getCustId())
+    public GenericMessage createCustomerPointsAwardScan(String loginId, CreateCustomerPointsAwardScanReq createCustomerPointsAwardScanReq) {
+        AdminEntity staff = getAdminAndValidateStore(loginId, createCustomerPointsAwardScanReq.getStoreId());
+        CustomerEntity customer = customerRepository.findById(createCustomerPointsAwardScanReq.getCustId())
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
-        return processPointsAward(staff, customer, createCustomerPointsAwardScan.getAmountSpent());
+        return processPointsAward(staff, customer, createCustomerPointsAwardScanReq.getAmountSpent());
     }
 
     @Override
     @Transactional
-    public GenericMessage createCustomerPointsAwardManual(String loginId, CreateCustomerPointsAwardManual createCustomerPointsAwardManual) {
+    public GenericMessage createCustomerPointsAwardManual(String loginId, CreateCustomerPointsAwardManualReq createCustomerPointsAwardManualReq) {
         AdminEntity staff = getAdminAndValidateStore(loginId, null);
-        CustomerEntity customer = customerRepository.findByUsername(createCustomerPointsAwardManual.getCustLoginId())
+        CustomerEntity customer = customerRepository.findByUsername(createCustomerPointsAwardManualReq.getCustLoginId())
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
-        return processPointsAward(staff, customer, createCustomerPointsAwardManual.getAmountSpent());
+        return processPointsAward(staff, customer, createCustomerPointsAwardManualReq.getAmountSpent());
     }
 
     private AdminEntity getAdminAndValidateStore(String loginId, Integer requestedStoreId) {

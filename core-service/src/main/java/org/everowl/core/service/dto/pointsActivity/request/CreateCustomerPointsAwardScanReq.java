@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateCustomerPointsAwardScan {
+public class CreateCustomerPointsAwardScanReq {
     @NotBlank(message = "Please ensure the customer ID is not empty")
     private String custId;
 

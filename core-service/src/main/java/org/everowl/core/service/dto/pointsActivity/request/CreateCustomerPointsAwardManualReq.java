@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateCustomerPointsAwardManual {
+public class CreateCustomerPointsAwardManualReq {
     @NotBlank(message = "Please ensure the customer login ID is not empty")
     private String custLoginId;
 

@@ -5,6 +5,6 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class StaffsProfiles {
-    List<AdminProfile> staffsProfiles;
+public class StaffsProfilesRes {
+    List<AdminProfileRes> staffsProfiles;
 }

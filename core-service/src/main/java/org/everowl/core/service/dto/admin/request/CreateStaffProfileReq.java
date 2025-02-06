@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class CreateStaffProfile {
+public class CreateStaffProfileReq {
     @NotBlank(message = "Please ensure the field login ID is not blank")
     @Size(min = 1, max = 255, message = "Please ensure the field login ID is 1 to 255 characters in length")
     private String loginId;

@@ -3,9 +3,9 @@ package org.everowl.core.service.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.everowl.core.service.dto.voucherRedemption.request.CustomerVoucherPurchase;
-import org.everowl.core.service.dto.voucherRedemption.request.CustomerVoucherRedemption;
-import org.everowl.core.service.dto.voucherRedemption.response.CustomerVoucherPurchaseDetails;
+import org.everowl.core.service.dto.voucherRedemption.request.CustomerVoucherPurchaseReq;
+import org.everowl.core.service.dto.voucherRedemption.request.CustomerVoucherRedemptionReq;
+import org.everowl.core.service.dto.voucherRedemption.response.CustomerVoucherPurchaseDetailsRes;
 import org.everowl.core.service.security.CustomUserDetails;
 import org.everowl.core.service.service.VoucherRedemptionDomain;
 import org.everowl.shared.service.dto.BaseSuccessResponseBodyModel;
@@ -26,10 +26,10 @@ public class VoucherRedemptionController {
 
     @PostMapping(value = "/customer/voucherRedemption/purchase")
     public @ResponseBody ResponseEntity<BaseSuccessResponseBodyModel> createCustomerVoucherPurchase(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                                                                    @Valid @RequestBody CustomerVoucherPurchase customerVoucherPurchase) {
+                                                                                                    @Valid @RequestBody CustomerVoucherPurchaseReq customerVoucherPurchaseReq) {
         String loginId = userDetails.getUsername();
 
-        CustomerVoucherPurchaseDetails response = voucherRedemptionDomain.createCustomerVoucherPurchase(loginId, customerVoucherPurchase);
+        CustomerVoucherPurchaseDetailsRes response = voucherRedemptionDomain.createCustomerVoucherPurchase(loginId, customerVoucherPurchaseReq);
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
@@ -37,10 +37,10 @@ public class VoucherRedemptionController {
 
     @PostMapping(value = "/staff/voucherRedemption/redeem")
     public @ResponseBody ResponseEntity<BaseSuccessResponseBodyModel> createCustomerVoucherRedemption(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                                                                      @Valid @RequestBody CustomerVoucherRedemption customerVoucherRedemption) {
+                                                                                                      @Valid @RequestBody CustomerVoucherRedemptionReq customerVoucherRedemptionReq) {
         String loginId = userDetails.getUsername();
 
-        GenericMessage response = voucherRedemptionDomain.createCustomerVoucherRedemption(loginId, customerVoucherRedemption);
+        GenericMessage response = voucherRedemptionDomain.createCustomerVoucherRedemption(loginId, customerVoucherRedemptionReq);
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);

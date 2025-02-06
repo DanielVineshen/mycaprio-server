@@ -5,6 +5,6 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class PointsActivitiesDetails {
-    List<PointsActivityDetails> pointsActivities;
+public class PointsActivitiesDetailsRes {
+    List<PointsActivityDetailsRes> pointsActivities;
 }

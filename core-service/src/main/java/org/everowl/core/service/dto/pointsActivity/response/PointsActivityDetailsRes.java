@@ -5,7 +5,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class PointsActivityDetails {
+public class PointsActivityDetailsRes {
     private Integer pointsActivityId;
     private Integer custExistingPoints;
     private Integer originalPoints;

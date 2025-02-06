@@ -3,7 +3,7 @@ package org.everowl.core.service.dto.voucherRedemption.response;
 import lombok.Data;
 
 @Data
-public class CustomerVoucherDetails {
+public class CustomerVoucherDetailsRes {
     private Integer storeCustVoucherId;
     private Integer minTierLevel;
     private Integer pointsRequired;

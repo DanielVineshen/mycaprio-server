@@ -1,17 +1,17 @@
 package org.everowl.core.service.service;
 
-import org.everowl.core.service.dto.admin.request.CreateStaffProfile;
-import org.everowl.core.service.dto.admin.request.UpdateStaffProfile;
-import org.everowl.core.service.dto.admin.response.AdminProfile;
-import org.everowl.core.service.dto.admin.response.StaffsProfiles;
+import org.everowl.core.service.dto.admin.request.CreateStaffProfileReq;
+import org.everowl.core.service.dto.admin.request.UpdateStaffProfileReq;
+import org.everowl.core.service.dto.admin.response.AdminProfileRes;
+import org.everowl.core.service.dto.admin.response.StaffsProfilesRes;
 import org.everowl.shared.service.dto.GenericMessage;
 
 public interface AdminDomain {
-    AdminProfile getAdminProfile(String loginId);
+    AdminProfileRes getAdminProfile(String loginId);
 
-    StaffsProfiles getStaffProfiles(String loginId);
+    StaffsProfilesRes getStaffProfiles(String loginId);
 
-    GenericMessage createStaffProfile(String loginId, CreateStaffProfile createStaffProfile);
+    GenericMessage createStaffProfile(String loginId, CreateStaffProfileReq createStaffProfileReq);
 
-    GenericMessage updateStaffProfile(String loginId, UpdateStaffProfile updateStaffProfile);
+    GenericMessage updateStaffProfile(String loginId, UpdateStaffProfileReq updateStaffProfileReq);
 }

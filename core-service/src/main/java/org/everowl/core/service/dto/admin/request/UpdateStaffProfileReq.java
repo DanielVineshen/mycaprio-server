@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class UpdateStaffProfile {
+public class UpdateStaffProfileReq {
     @NotBlank(message = "Please ensure the field admin ID is not blank")
     @Size(min = 1, max = 255, message = "Please ensure the field admin ID is 1 to 255 characters in length")
     private String adminId;

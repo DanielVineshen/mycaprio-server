@@ -3,9 +3,9 @@ package org.everowl.core.service.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.everowl.core.service.dto.customer.request.UpdateCustomerPassword;
-import org.everowl.core.service.dto.customer.request.UpdateCustomerProfile;
-import org.everowl.core.service.dto.customer.response.CustomerProfile;
+import org.everowl.core.service.dto.customer.request.UpdateCustomerPasswordReq;
+import org.everowl.core.service.dto.customer.request.UpdateCustomerProfileReq;
+import org.everowl.core.service.dto.customer.response.CustomerProfileRes;
 import org.everowl.core.service.security.CustomUserDetails;
 import org.everowl.core.service.service.CustomerDomain;
 import org.everowl.shared.service.dto.BaseSuccessResponseBodyModel;
@@ -28,7 +28,7 @@ public class CustomerController {
     public @ResponseBody ResponseEntity<BaseSuccessResponseBodyModel> getCustomerProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
         String loginId = userDetails.getUsername();
 
-        CustomerProfile response = customerDomain.getCustomerProfile(loginId);
+        CustomerProfileRes response = customerDomain.getCustomerProfile(loginId);
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
@@ -36,10 +36,10 @@ public class CustomerController {
 
     @PutMapping(value = "/customer/profile")
     public @ResponseBody ResponseEntity<BaseSuccessResponseBodyModel> updateCustomerProfile(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                                                            @Valid @RequestBody UpdateCustomerProfile updateCustomerProfile) {
+                                                                                            @Valid @RequestBody UpdateCustomerProfileReq updateCustomerProfileReq) {
         String loginId = userDetails.getUsername();
 
-        GenericMessage response = customerDomain.updateCustomerProfile(loginId, updateCustomerProfile);
+        GenericMessage response = customerDomain.updateCustomerProfile(loginId, updateCustomerProfileReq);
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
@@ -47,10 +47,10 @@ public class CustomerController {
 
     @PutMapping(value = "/customer/password")
     public @ResponseBody ResponseEntity<BaseSuccessResponseBodyModel> updateCustomerPassword(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                                                            @Valid @RequestBody UpdateCustomerPassword updateCustomerPassword) {
+                                                                                            @Valid @RequestBody UpdateCustomerPasswordReq updateCustomerPasswordReq) {
         String loginId = userDetails.getUsername();
 
-        GenericMessage response = customerDomain.updateCustomerPassword(loginId, updateCustomerPassword);
+        GenericMessage response = customerDomain.updateCustomerPassword(loginId, updateCustomerPasswordReq);
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);

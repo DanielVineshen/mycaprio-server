@@ -1,14 +1,14 @@
 package org.everowl.core.service.service;
 
-import org.everowl.core.service.dto.pointsActivity.request.CreateCustomerPointsAwardManual;
-import org.everowl.core.service.dto.pointsActivity.request.CreateCustomerPointsAwardScan;
-import org.everowl.core.service.dto.pointsActivity.response.PointsActivitiesDetails;
+import org.everowl.core.service.dto.pointsActivity.request.CreateCustomerPointsAwardManualReq;
+import org.everowl.core.service.dto.pointsActivity.request.CreateCustomerPointsAwardScanReq;
+import org.everowl.core.service.dto.pointsActivity.response.PointsActivitiesDetailsRes;
 import org.everowl.shared.service.dto.GenericMessage;
 
 public interface PointsActivityDomain {
-    PointsActivitiesDetails getCustomerPointsActivitiesDetails(String loginId, Integer storeId);
+    PointsActivitiesDetailsRes getCustomerPointsActivitiesDetails(String loginId, Integer storeId);
 
-    GenericMessage createCustomerPointsAwardScan(String loginId, CreateCustomerPointsAwardScan createCustomerPointsAwardScan);
+    GenericMessage createCustomerPointsAwardScan(String loginId, CreateCustomerPointsAwardScanReq createCustomerPointsAwardScanReq);
 
-    GenericMessage createCustomerPointsAwardManual(String loginId, CreateCustomerPointsAwardManual createCustomerPointsAwardManual);
+    GenericMessage createCustomerPointsAwardManual(String loginId, CreateCustomerPointsAwardManualReq createCustomerPointsAwardManualReq);
 }
