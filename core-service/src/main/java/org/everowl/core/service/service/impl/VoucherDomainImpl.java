@@ -44,9 +44,16 @@ public class VoucherDomainImpl implements VoucherDomain {
     private String storagePath;
 
     @Override
+    public List<VoucherRes> getAllVouchers(Integer storeId) {
+        List<VoucherEntity> vouchers = voucherRepository.findAllByStoreId(storeId);
+
+        return VoucherRes.fromVoucherList(vouchers);
+    }
+
+    @Override
     @Transactional
-    public GenericMessage createVoucher(CreateVoucherReq voucherReq, String username) {
-        AdminEntity admin = adminRepository.findByUsername(username)
+    public GenericMessage createVoucher(CreateVoucherReq voucherReq, String loginId) {
+        AdminEntity admin = adminRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_AUTHORIZED));
 
         MultipartFile file = voucherReq.getAttachment();
@@ -82,6 +89,85 @@ public class VoucherDomainImpl implements VoucherDomain {
         return GenericMessage.builder()
                 .status(true)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public GenericMessage updateVoucher(UpdateVoucherReq voucherReq, String loginId) {
+        // Validate store owner
+        AdminEntity admin = adminRepository.findByUsername(loginId)
+                .orElseThrow(() -> new NotFoundException(USER_NOT_AUTHORIZED));
+
+        // Validate voucher
+        VoucherEntity voucher = voucherRepository.findById(voucherReq.getVoucherId())
+                .orElseThrow(() -> new BadRequestException(VOUCHER_NOT_EXIST));
+
+
+        MultipartFile file = voucherReq.getAttachment();
+        String fileName = null;
+        String filePath = null;
+        Integer fileSize = null;
+
+        //If file was uploaded and there is existing file in the server, delete existing before re-uploading
+        if (file != null && !file.isEmpty() && voucher.getAttachmentName() != null) {
+            deleteAttachmentFile(voucher.getAttachmentName());
+        }
+
+        // Handle file upload and validation
+        if (file != null && !file.isEmpty()) {
+            fileName = uploadAttachmentFile(file);
+            filePath = storagePath + fileName;
+            fileSize = (int) voucherReq.getAttachment().getSize();
+        }
+
+        voucher.setVoucherId(voucher.getVoucherId());
+        voucher.setStore(voucher.getStore());
+        voucher.setMinTierLevel(voucherReq.getMinTierLevel());
+        voucher.setVoucherName(voucherReq.getVoucherName());
+        voucher.setVoucherDesc(voucherReq.getVoucherDesc());
+        voucher.setPointsRequired(voucherReq.getPointsRequired());
+        voucher.setAttachmentName(file != null ? fileName : null);
+        voucher.setAttachmentPath(file != null ? filePath : null);
+        voucher.setAttachmentSize(file != null ? fileSize : null);
+        voucher.setIsAvailable(false);
+        voucher.setTncDesc(voucherReq.getTncDesc());
+        voucher.setIsExclusive(voucherReq.getIsExclusive());
+        voucher.setLifeSpan(voucherReq.getLifeSpan());
+        voucher.setMetaTag(voucherReq.getMetaTag());
+        voucher.setQuantityTotal(voucherReq.getQuantityTotal());
+
+        return GenericMessage.builder()
+                .status(true)
+                .build();
+    }
+
+    @Override
+    public GenericMessage deleteVoucher(DeleteVoucherReq voucherReq, String loginId) {
+        // Validate store owner
+        AdminEntity admin = adminRepository.findByUsername(loginId)
+                .orElseThrow(() -> new NotFoundException(USER_NOT_AUTHORIZED));
+
+        // Validate voucher
+        VoucherEntity voucher = voucherRepository.findById(Integer.parseInt(voucherReq.getVoucherId()))
+                .orElseThrow(() -> new BadRequestException(VOUCHER_NOT_EXIST));
+
+        if (voucher.getAttachmentName() != null) {
+            deleteAttachmentFile(voucher.getAttachmentName());
+        }
+
+        voucherRepository.deleteById(Integer.parseInt(voucherReq.getVoucherId()));
+
+        return GenericMessage.builder()
+                .status(true)
+                .build();
+    }
+
+    @Override
+    public String getVoucherAttachment(String attachmentName) {
+        VoucherEntity voucher = voucherRepository.findByAttachmentName(attachmentName)
+                .orElseThrow(() -> new NotFoundException(FILE_NOT_FOUND));
+
+        return voucher.getAttachmentName();
     }
 
     public String uploadAttachmentFile(MultipartFile file) {
@@ -135,94 +221,5 @@ public class VoucherDomainImpl implements VoucherDomain {
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
             throw new BadRequestException(FILE_TYPE_ERROR);
         }
-    }
-
-
-    @Override
-    @Transactional
-    public GenericMessage updateVoucher(UpdateVoucherReq voucherReq, String username) {
-        log.info("Updating voucher for store owner: {}", username);
-
-        // Validate store owner
-        AdminEntity admin = adminRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException(USER_NOT_AUTHORIZED));
-
-        // Validate voucher
-        VoucherEntity voucher = voucherRepository.findById(voucherReq.getVoucherId())
-                .orElseThrow(() -> new BadRequestException(VOUCHER_NOT_EXIST));
-
-
-        MultipartFile file = voucherReq.getAttachment();
-        String fileName = null;
-        String filePath = null;
-        Integer fileSize = null;
-
-        //If file was uploaded and there is existing file in the server, delete existing before re-uploading
-        if (file != null && !file.isEmpty() && voucher.getAttachmentName() != null) {
-            deleteAttachmentFile(voucher.getAttachmentName());
-        }
-
-        // Handle file upload and validation
-        if (file != null && !file.isEmpty()) {
-            fileName = uploadAttachmentFile(file);
-            filePath = storagePath + fileName;
-            fileSize = (int) voucherReq.getAttachment().getSize();
-        }
-
-        voucher.setVoucherId(voucher.getVoucherId());
-        voucher.setStore(voucher.getStore());
-        voucher.setMinTierLevel(voucherReq.getMinTierLevel());
-        voucher.setVoucherName(voucherReq.getVoucherName());
-        voucher.setVoucherDesc(voucherReq.getVoucherDesc());
-        voucher.setPointsRequired(voucherReq.getPointsRequired());
-        voucher.setAttachmentName(file != null ? fileName : null);
-        voucher.setAttachmentPath(file != null ? filePath : null);
-        voucher.setAttachmentSize(file != null ? fileSize : null);
-        voucher.setIsAvailable(false);
-        voucher.setTncDesc(voucherReq.getTncDesc());
-        voucher.setIsExclusive(voucherReq.getIsExclusive());
-        voucher.setLifeSpan(voucherReq.getLifeSpan());
-        voucher.setMetaTag(voucherReq.getMetaTag());
-        voucher.setQuantityTotal(voucherReq.getQuantityTotal());
-
-        return GenericMessage.builder()
-                .status(true)
-                .build();
-    }
-
-    @Override
-    public GenericMessage deleteVoucher(DeleteVoucherReq voucherReq, String username) {
-        // Validate store owner
-        AdminEntity admin = adminRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException(USER_NOT_AUTHORIZED));
-
-        // Validate voucher
-        VoucherEntity voucher = voucherRepository.findById(Integer.parseInt(voucherReq.getVoucherId()))
-                .orElseThrow(() -> new BadRequestException(VOUCHER_NOT_EXIST));
-
-        if (voucher.getAttachmentName() != null) {
-            deleteAttachmentFile(voucher.getAttachmentName());
-        }
-
-        voucherRepository.deleteById(Integer.parseInt(voucherReq.getVoucherId()));
-
-        return GenericMessage.builder()
-                .status(true)
-                .build();
-    }
-
-    @Override
-    public List<VoucherRes> getAllVouchers(Integer storeId) {
-        List<VoucherEntity> vouchers = voucherRepository.findAllByStoreId(storeId);
-
-        return VoucherRes.fromVoucherList(vouchers);
-    }
-
-    @Override
-    public String getVoucherAttachment(String attachmentName) {
-        VoucherEntity voucher = voucherRepository.findByAttachmentName(attachmentName)
-                .orElseThrow(() -> new NotFoundException(FILE_NOT_FOUND));
-
-        return voucher.getAttachmentName();
     }
 }

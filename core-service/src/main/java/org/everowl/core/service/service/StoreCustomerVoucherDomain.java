@@ -5,5 +5,5 @@ import org.everowl.core.service.dto.storeCustomerVoucher.response.StoreCustomerV
 import java.util.List;
 
 public interface StoreCustomerVoucherDomain {
-    List<StoreCustomerVoucherRes> getCustomerVoucher(Integer storeId, String username);
+    List<StoreCustomerVoucherRes> getCustomerVoucher(Integer storeId, String loginId);
 }

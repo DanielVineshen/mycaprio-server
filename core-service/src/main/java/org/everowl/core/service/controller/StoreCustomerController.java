@@ -30,7 +30,8 @@ public class StoreCustomerController {
                                                                                 @ValidInteger(message = "Please ensure a valid store ID is provided")
                                                                                 @NotBlank(message = "Please ensure the store ID is not blank") String storeId,
                                                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
-        StoreCustomerRes response = storeCustomerDomain.getStoreCustomerDetails(Integer.parseInt(storeId), userDetails.getUsername());
+        String loginId = userDetails.getUsername();
+        StoreCustomerRes response = storeCustomerDomain.getStoreCustomerDetails(Integer.parseInt(storeId), loginId);
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);

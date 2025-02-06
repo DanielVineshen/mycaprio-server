@@ -47,8 +47,8 @@ public class BannerDomainImpl implements BannerDomain {
 
     @Override
     @Transactional
-    public GenericMessage createBanner(CreateBannerReq bannerReq, String username) {
-        AdminEntity admin = adminRepository.findByUsername(username)
+    public GenericMessage createBanner(CreateBannerReq bannerReq, String loginId) {
+        AdminEntity admin = adminRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_AUTHORIZED));
 
         MultipartFile file = bannerReq.getAttachment();
@@ -72,8 +72,8 @@ public class BannerDomainImpl implements BannerDomain {
     }
 
     @Override
-    public GenericMessage updateBanner(UpdateBannerReq bannerReq, String username) {
-        AdminEntity admin = adminRepository.findByUsername(username)
+    public GenericMessage updateBanner(UpdateBannerReq bannerReq, String loginId) {
+        AdminEntity admin = adminRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_AUTHORIZED));
 
         BannerAttachmentEntity banner = bannerAttachmentRepository.findById(bannerReq.getAttachmentId())
@@ -102,8 +102,8 @@ public class BannerDomainImpl implements BannerDomain {
     }
 
     @Override
-    public GenericMessage deleteBanner(DeleteBannerReq bannerReq, String username) {
-        AdminEntity admin = adminRepository.findByUsername(username)
+    public GenericMessage deleteBanner(DeleteBannerReq bannerReq, String loginId) {
+        AdminEntity admin = adminRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_AUTHORIZED));
 
         BannerAttachmentEntity banner = bannerAttachmentRepository.findById(Integer.parseInt(bannerReq.getAttachmentId()))

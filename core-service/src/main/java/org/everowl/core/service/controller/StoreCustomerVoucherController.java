@@ -29,10 +29,11 @@ public class StoreCustomerVoucherController {
 
     @GetMapping("/customer/storeCustomerVouchers")
     public ResponseEntity<BaseSuccessResponseBodyModel> getStoreCustomerVouchers(@RequestParam(value = "storeId")
-                                                                                @ValidInteger(message = "Please ensure a valid store ID is provided")
-                                                                                @NotBlank(message = "Please ensure the store ID is not blank") String storeId,
-                                                                                @AuthenticationPrincipal CustomUserDetails userDetails) {
-        List<StoreCustomerVoucherRes> response = storeCustomerVoucherDomain.getCustomerVoucher(Integer.parseInt(storeId), userDetails.getUsername());
+                                                                                 @ValidInteger(message = "Please ensure a valid store ID is provided")
+                                                                                 @NotBlank(message = "Please ensure the store ID is not blank") String storeId,
+                                                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
+        String loginId = userDetails.getUsername();
+        List<StoreCustomerVoucherRes> response = storeCustomerVoucherDomain.getCustomerVoucher(Integer.parseInt(storeId), loginId);
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);

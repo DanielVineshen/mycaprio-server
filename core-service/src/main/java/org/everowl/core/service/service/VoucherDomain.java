@@ -9,13 +9,13 @@ import org.everowl.shared.service.dto.GenericMessage;
 import java.util.List;
 
 public interface VoucherDomain {
-    GenericMessage createVoucher(CreateVoucherReq voucherReq, String username);
-
-    GenericMessage updateVoucher(UpdateVoucherReq voucherReq, String username);
-
-    GenericMessage deleteVoucher(DeleteVoucherReq voucherReq, String username);
-
     List<VoucherRes> getAllVouchers(Integer storeId);
+
+    GenericMessage createVoucher(CreateVoucherReq voucherReq, String loginId);
+
+    GenericMessage updateVoucher(UpdateVoucherReq voucherReq, String loginId);
+
+    GenericMessage deleteVoucher(DeleteVoucherReq voucherReq, String loginId);
 
     String getVoucherAttachment(String attachmentName);
 }
