@@ -1,14 +1,11 @@
 package org.everowl.database.service.entity;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
@@ -31,13 +28,11 @@ public class AuditLog {
     @Column(name = "authority_level", nullable = false)
     private String authorityLevel;
 
-    @Type(JsonBinaryType.class)
-    @Column(name = "before_changed", columnDefinition = "jsonb")
-    private JsonNode beforeChanged;
+    @Column(name = "before_changed", columnDefinition = "text")
+    private String beforeChanged;
 
-    @Type(JsonBinaryType.class)
-    @Column(name = "after_changed", columnDefinition = "jsonb")
-    private JsonNode afterChanged;
+    @Column(name = "after_changed", columnDefinition = "text")
+    private String afterChanged;
 
     @Column(name = "log_type", nullable = false)
     private String logType;

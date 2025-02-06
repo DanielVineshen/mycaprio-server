@@ -21,8 +21,8 @@ import java.util.List;
 @DiscriminatorValue("CUSTOMER")
 public class CustomerEntity extends BaseUser {
     @Id
-    @Column(name = "cust_id")
-    private Integer custId;
+    @Column(name = "cust_id", length = 9)
+    private String custId;
 
     @Column(name = "email_address")
     private String emailAddress;

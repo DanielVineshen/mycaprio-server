@@ -50,7 +50,6 @@ subprojects {
         implementation 'org.springframework.cloud:spring-cloud-context:4.2.0' // to ensure {cipher} works
         implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
         implementation 'jakarta.ws.rs:jakarta.ws.rs-api:4.0.0'
-        implementation 'com.vladmihalcea:hibernate-types-60:2.21.1'
         implementation 'org.modelmapper:modelmapper:3.2.2'
         implementation 'com.google.code.gson:gson:2.12.0'
         implementation 'commons-io:commons-io:2.18.0'

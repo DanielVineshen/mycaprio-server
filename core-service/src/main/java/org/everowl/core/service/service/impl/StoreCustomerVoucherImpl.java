@@ -11,8 +11,10 @@ import org.everowl.database.service.repository.CustomerRepository;
 import org.everowl.database.service.repository.StoreCustomerRepository;
 import org.everowl.database.service.repository.StoreCustomerVoucherRepository;
 import org.everowl.shared.service.exception.NotFoundException;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +27,7 @@ public class StoreCustomerVoucherImpl implements StoreCustomerVoucherDomain {
     private final StoreCustomerVoucherRepository storeCustomerVoucherRepository;
     private final CustomerRepository customerRepository;
     private final StoreCustomerRepository storeCustomerRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public List<StoreCustomerVoucherRes> getCustomerVoucher(Integer storeId, String loginId) {
@@ -39,6 +42,12 @@ public class StoreCustomerVoucherImpl implements StoreCustomerVoucherDomain {
 
         List<StoreCustomerVoucherEntity> storeVouchers = storeCustomerVoucherRepository.findByStoreCustId(storeCustomerEntity.get().getStoreCustId());
 
-        return StoreCustomerVoucherRes.fromStoreCustomerVoucherList(storeVouchers);
+        List<StoreCustomerVoucherRes> storeCustomerVoucherResList = new ArrayList<>();
+        for (StoreCustomerVoucherEntity storeCustomerVoucherEntity: storeVouchers) {
+            StoreCustomerVoucherRes storeCustomerVoucherRes = modelMapper.map(storeCustomerVoucherEntity, StoreCustomerVoucherRes.class);
+            storeCustomerVoucherResList.add(storeCustomerVoucherRes);
+        }
+
+        return storeCustomerVoucherResList;
     }
 }

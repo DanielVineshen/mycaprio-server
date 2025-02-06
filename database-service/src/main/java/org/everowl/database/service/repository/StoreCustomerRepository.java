@@ -14,5 +14,5 @@ public interface StoreCustomerRepository extends JpaRepository<StoreCustomerEnti
              WHERE sc.customer.custId = :custId AND sc.store.storeId = :storeId
             """
     )
-    Optional<StoreCustomerEntity> findCustomerStoreProfile(Integer custId, Integer storeId);
+    Optional<StoreCustomerEntity> findCustomerStoreProfile(String custId, Integer storeId);
 }

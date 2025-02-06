@@ -44,7 +44,7 @@ public class AuthController {
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/validate")
+    @GetMapping(value = "/validate/token")
     public @ResponseBody ResponseEntity<BaseSuccessResponseBodyModel> validateToken(HttpServletRequest request) {
         // Validate the user token
         GenericMessage response = authenticationDomain.validateUserToken(request);
