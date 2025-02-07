@@ -5,6 +5,8 @@ import jakarta.ws.rs.core.HttpHeaders;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.everowl.core.service.dto.auth.request.AuthReq;
+import org.everowl.core.service.dto.auth.request.CreateCustomerProfileReq;
+import org.everowl.core.service.dto.auth.request.ResetCustomerPasswordReq;
 import org.everowl.core.service.dto.auth.response.AuthRes;
 import org.everowl.core.service.service.AuthDomain;
 import org.everowl.database.service.entity.CustomerEntity;
@@ -100,6 +102,31 @@ public class AuthDomainImpl implements AuthDomain {
         boolean isTokenValid = isAccessTokenValid(accessToken);
         return GenericMessage.builder()
                 .status(isTokenValid)
+                .build();
+    }
+
+    @Override
+    public GenericMessage validateCustomerLoginId(String custLoginId) {
+        Optional<CustomerEntity> customer = customerRepository.findByUsername(custLoginId);
+
+        boolean status = customer.isEmpty();
+
+        return GenericMessage.builder()
+                .status(status)
+                .build();
+    }
+
+    @Override
+    public GenericMessage createCustomerProfile(CreateCustomerProfileReq createCustomerProfileReq) {
+        return GenericMessage.builder()
+                .status(true)
+                .build();
+    }
+
+    @Override
+    public GenericMessage resetCustomerPassword(ResetCustomerPasswordReq resetCustomerPasswordReq) {
+        return GenericMessage.builder()
+                .status(true)
                 .build();
     }
 
