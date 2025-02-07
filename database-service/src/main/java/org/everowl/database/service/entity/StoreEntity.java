@@ -47,6 +47,10 @@ public class StoreEntity {
     @JsonManagedReference(value = "store-bannerAttachment")
     private List<BannerAttachmentEntity> bannerAttachments;
 
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "store-feedback")
+    private List<FeedbackEntity> feedbacks;
+
     @CreationTimestamp
     @Column(updatable = false, nullable = false, name = "created_at")
     private Date createdAt;
