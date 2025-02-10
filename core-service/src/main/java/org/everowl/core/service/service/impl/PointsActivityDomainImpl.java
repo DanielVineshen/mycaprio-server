@@ -67,7 +67,9 @@ public class PointsActivityDomainImpl implements PointsActivityDomain {
     @Override
     @Transactional
     public GenericMessage createCustomerPointsAwardScan(String loginId, CreateCustomerPointsAwardScanReq createCustomerPointsAwardScanReq) {
-        AdminEntity staff = getAdminAndValidateStore(loginId, createCustomerPointsAwardScanReq.getStoreId());
+        AdminEntity staff = adminRepository.findByUsername(loginId)
+                .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
+
         CustomerEntity customer = customerRepository.findById(createCustomerPointsAwardScanReq.getCustId())
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
@@ -77,22 +79,13 @@ public class PointsActivityDomainImpl implements PointsActivityDomain {
     @Override
     @Transactional
     public GenericMessage createCustomerPointsAwardManual(String loginId, CreateCustomerPointsAwardManualReq createCustomerPointsAwardManualReq) {
-        AdminEntity staff = getAdminAndValidateStore(loginId, null);
+        AdminEntity staff = adminRepository.findByUsername(loginId)
+                .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
+
         CustomerEntity customer = customerRepository.findByUsername(createCustomerPointsAwardManualReq.getCustLoginId())
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
         return processPointsAward(staff, customer, createCustomerPointsAwardManualReq.getAmountSpent());
-    }
-
-    private AdminEntity getAdminAndValidateStore(String loginId, Integer requestedStoreId) {
-        AdminEntity staff = adminRepository.findByUsername(loginId)
-                .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
-
-        if (requestedStoreId != null && !staff.getStore().getStoreId().equals(requestedStoreId)) {
-            throw new ForbiddenException(USER_NOT_PERMITTED);
-        }
-
-        return staff;
     }
 
     private void createPointsActivity(StoreCustomerEntity storeCustomer, AdminEntity staff,

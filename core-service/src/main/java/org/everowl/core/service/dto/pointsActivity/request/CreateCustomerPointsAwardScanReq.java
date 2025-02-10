@@ -1,6 +1,5 @@
 package org.everowl.core.service.dto.pointsActivity.request;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -16,10 +15,6 @@ import java.math.BigDecimal;
 public class CreateCustomerPointsAwardScanReq {
     @NotBlank(message = "Please ensure the customer ID is not empty")
     private String custId;
-
-    @Min(value = 1, message = "Please ensure the store ID is valid")
-    @NotNull(message = "Please ensure the store ID is not empty")
-    private Integer storeId;
 
     @NotNull(message = "Please ensure the amount spent is not empty")
     @Positive(message = "Please ensure the amount spent is greater than 0")
