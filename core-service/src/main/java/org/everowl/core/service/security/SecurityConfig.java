@@ -46,12 +46,11 @@ public class SecurityConfig {
                 // Configure authorization rules
                 .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
                         // Permit requests to specific authentication endpoints
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/public/**").permitAll()
                         .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
                         .requestMatchers("/api/staff/**").hasRole("STAFF")
                         .requestMatchers("/api/owner/**").hasRole("OWNER")
                         .requestMatchers("/api/admin/**").hasAnyRole("OWNER", "STAFF")
-                        .requestMatchers("/api/public/**").hasAnyRole("CUSTOMER", "OWNER", "STAFF")
                         // Require authentication for all other requests
                         .anyRequest()
                         .authenticated()

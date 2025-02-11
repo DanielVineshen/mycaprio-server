@@ -23,7 +23,7 @@ public class VoucherEntity {
     @Column(name = "voucher_id")
     private Integer voucherId;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonBackReference(value = "store-voucher")
     @JoinColumn(name = "store_id",
             nullable = false,

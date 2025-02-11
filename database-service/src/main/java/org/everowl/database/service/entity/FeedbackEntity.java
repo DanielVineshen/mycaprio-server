@@ -23,7 +23,7 @@ public class FeedbackEntity {
     @Column(name = "feedback_id")
     private Integer feedbackId;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonBackReference(value = "store-feedback")
     @JoinColumn(name = "store_id",
             nullable = false,

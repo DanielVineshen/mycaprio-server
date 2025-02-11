@@ -25,7 +25,7 @@ public class StoreCustomerVoucherEntity {
     @Column(name = "store_cust_voucher_id")
     private Integer storeCustVoucherId;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonBackReference(value = "storeCustomer-voucher")
     @JoinColumn(name = "store_cust_id",
             nullable = false,
@@ -67,7 +67,7 @@ public class StoreCustomerVoucherEntity {
     @Column(name = "meta_tag", nullable = false)
     private String metaTag;
 
-    @OneToMany(mappedBy = "storeCustomerVoucher", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "storeCustomerVoucher", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "storeCustomerVoucher-voucherRedemption")
     private List<VoucherRedemptionEntity> voucherRedemptions;
 

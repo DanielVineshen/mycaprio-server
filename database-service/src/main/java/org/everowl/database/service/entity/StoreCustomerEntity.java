@@ -25,7 +25,7 @@ public class StoreCustomerEntity {
     @Column(name = "store_cust_id")
     private Integer storeCustId;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonBackReference(value = "customer-storeCustomer")
     @JoinColumn(name = "cust_id",
             nullable = false,
@@ -34,7 +34,7 @@ public class StoreCustomerEntity {
     )
     private CustomerEntity customer;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonBackReference(value = "store-storeCustomer")
     @JoinColumn(name = "store_id",
             nullable = false,
@@ -43,7 +43,7 @@ public class StoreCustomerEntity {
     )
     private StoreEntity store;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonBackReference(value = "tier-storeCustomer")
     @JoinColumn(name = "tier_id",
             nullable = false,
@@ -64,11 +64,11 @@ public class StoreCustomerEntity {
     @Column(name = "accumulated_points", nullable = false)
     private Integer accumulatedPoints;
 
-    @OneToMany(mappedBy = "storeCustomer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "storeCustomer", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "storeCustomer-pointsActivity")
     private List<PointsActivityEntity> pointsActivities;
 
-    @OneToMany(mappedBy = "storeCustomer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "storeCustomer", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "storeCustomer-voucher")
     private List<StoreCustomerVoucherEntity> storeCustomerVouchers;
 

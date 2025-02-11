@@ -42,7 +42,7 @@ public class CustomerEntity extends BaseUser {
     @Column(name = "date_of_birth", length = 8)
     private String dateOfBirth;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "customer-storeCustomer")
     private List<StoreCustomerEntity> storeCustomers;
 

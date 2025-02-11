@@ -26,7 +26,7 @@ public class AdminEntity extends BaseUser {
     @Column(name = "admin_id")
     private Integer adminId;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonBackReference(value = "store-admin")
     @JoinColumn(name = "store_id",
             nullable = false,
@@ -41,11 +41,11 @@ public class AdminEntity extends BaseUser {
     @Column(name = "is_disabled", nullable = false, columnDefinition = "boolean default false")
     private Boolean isDisabled = false;
 
-    @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "admin", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "admin-pointsActivity")
     private List<PointsActivityEntity> pointsActivities;
 
-    @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "admin", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "admin-voucherRedemption")
     private List<VoucherRedemptionEntity> voucherRedemptions;
 

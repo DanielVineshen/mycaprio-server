@@ -25,7 +25,7 @@ public class BannerAttachmentEntity {
     @Column(name = "attachment_id")
     private Integer attachmentId;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonBackReference(value = "store-attachment")
     @JoinColumn(name = "store_id",
             nullable = false,

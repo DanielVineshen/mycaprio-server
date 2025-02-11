@@ -24,7 +24,7 @@ public class PointsActivityEntity {
     @Column(name = "points_activity_id")
     private Integer pointsActivityId;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonBackReference(value = "storeCustomer-pointsActivity")
     @JoinColumn(name = "store_cust_id",
             nullable = false,
