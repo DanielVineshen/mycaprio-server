@@ -64,7 +64,7 @@ public class StoreCustomerVoucherEntity {
     @Column(name = "life_span", nullable = false)
     private Integer lifeSpan;
 
-    @Column(name = "meta_tag", nullable = false)
+    @Column(name = "meta_tag")
     private String metaTag;
 
     @OneToMany(mappedBy = "storeCustomerVoucher", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

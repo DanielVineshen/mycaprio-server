@@ -65,7 +65,7 @@ public class VoucherEntity {
     @Column(name = "life_span", nullable = false)
     private Integer lifeSpan;
 
-    @Column(name = "meta_tag", nullable = false)
+    @Column(name = "meta_tag")
     private String metaTag;
 
     @Column(name = "quantity_total", nullable = false, columnDefinition = "integer default 1")
