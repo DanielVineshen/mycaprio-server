@@ -36,7 +36,7 @@ public class StoreDomainImpl implements StoreDomain {
         StoreEntity store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new NotFoundException(STORE_NOT_EXIST));
 
-        List<VoucherEntity> vouchers = voucherRepository.findAllByStoreId(storeId);
+        List<VoucherEntity> vouchers = voucherRepository.findByStoreId(storeId);
         List<VoucherDetailsRes> voucherList = new ArrayList<>();
         for (VoucherEntity voucher : vouchers) {
             VoucherDetailsRes voucherDetailsRes = modelMapper.map(voucher, VoucherDetailsRes.class);

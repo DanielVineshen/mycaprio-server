@@ -2,6 +2,7 @@ apply plugin: "com.google.cloud.tools.jib"
 
 dependencies {
     implementation project(':database-service')
+    implementation project(':shared-service')
 }
 
 jar.enabled = true

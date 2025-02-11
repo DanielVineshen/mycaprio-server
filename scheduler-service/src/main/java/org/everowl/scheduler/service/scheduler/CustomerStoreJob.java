@@ -26,7 +26,7 @@ public class CustomerStoreJob {
     private final StoreCustomerRepository storeCustomerRepository;
 
     @Scheduled(fixedDelay = 60000)
-    @Transactional(readOnly = true)
+    @Transactional()
     public void customerTierMaintainJob() {
         log.info("Customer Tier Maintain Job Scheduler started at {}", LocalDateTime.now());
 

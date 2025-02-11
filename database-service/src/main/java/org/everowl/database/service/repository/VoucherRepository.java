@@ -15,7 +15,17 @@ public interface VoucherRepository extends JpaRepository<VoucherEntity, Integer>
              WHERE v.store.storeId = :storeId
             """
     )
-    List<VoucherEntity> findAllByStoreId(Integer storeId);
+    List<VoucherEntity> findByStoreId(Integer storeId);
+
+    @Query(value = """
+             SELECT v FROM Voucher v
+             WHERE v.store.storeId = :storeId
+             AND v.metaTag = :metaTag
+             AND v.isAvailable = true
+             AND v.isExclusive = true
+            """
+    )
+    List<VoucherEntity> findAvailableStoreMetaTagVouchers(Integer storeId, String metaTag);
 
     Optional<VoucherEntity> findByAttachmentName(String attachmentName);
 }

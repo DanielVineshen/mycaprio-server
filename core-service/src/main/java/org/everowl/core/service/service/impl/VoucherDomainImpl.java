@@ -48,7 +48,7 @@ public class VoucherDomainImpl implements VoucherDomain {
 
     @Override
     public VoucherRes getAllVouchers(Integer storeId) {
-        List<VoucherEntity> vouchers = voucherRepository.findAllByStoreId(storeId);
+        List<VoucherEntity> vouchers = voucherRepository.findByStoreId(storeId);
 
         List<VoucherDetailsRes> voucherList = new ArrayList<>();
         for (VoucherEntity voucher : vouchers) {
