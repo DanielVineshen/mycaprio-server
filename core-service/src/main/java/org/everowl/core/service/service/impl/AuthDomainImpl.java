@@ -9,12 +9,9 @@ import org.everowl.core.service.dto.auth.request.CreateCustomerProfileReq;
 import org.everowl.core.service.dto.auth.request.ResetCustomerPasswordReq;
 import org.everowl.core.service.dto.auth.response.AuthRes;
 import org.everowl.core.service.service.AuthDomain;
-import org.everowl.database.service.entity.CustomerEntity;
-import org.everowl.database.service.entity.AdminEntity;
-import org.everowl.database.service.entity.TokenEntity;
-import org.everowl.database.service.repository.CustomerRepository;
-import org.everowl.database.service.repository.AdminRepository;
-import org.everowl.database.service.repository.TokenRepository;
+import org.everowl.core.service.service.shared.SmsService;
+import org.everowl.database.service.entity.*;
+import org.everowl.database.service.repository.*;
 import org.everowl.core.service.security.CustomUserDetails;
 import org.everowl.core.service.security.CustomUserDetailsService;
 import org.everowl.core.service.security.JwtTokenProvider;
@@ -24,12 +21,19 @@ import org.everowl.shared.service.enums.UserType;
 import org.everowl.shared.service.exception.BadRequestException;
 import org.everowl.shared.service.exception.ForbiddenException;
 import org.everowl.shared.service.exception.NotFoundException;
+import org.everowl.shared.service.util.UniqueIdGenerator;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,6 +49,11 @@ public class AuthDomainImpl implements AuthDomain {
     private final CustomerRepository customerRepository;
     private final AdminRepository adminRepository;
     private final TokenRepository tokenRepository;
+    private final SmsService smsService;
+    private final PasswordEncoder passwordEncoder;
+    private final StoreRepository storeRepository;
+    private final TierRepository tierRepository;
+    private final StoreCustomerRepository storeCustomerRepository;
 
     private static final String BEARER = "Bearer ";
     private static final int BEARER_LENGTH = BEARER.length();
@@ -117,7 +126,103 @@ public class AuthDomainImpl implements AuthDomain {
     }
 
     @Override
+    @Transactional
     public GenericMessage createCustomerProfile(CreateCustomerProfileReq createCustomerProfileReq) {
+        String loginId = createCustomerProfileReq.getLoginId();
+        String password = createCustomerProfileReq.getPassword();
+        String smsCode = createCustomerProfileReq.getSmsCode();
+
+        Optional<CustomerEntity> customerCheck = customerRepository.findByUsername(loginId);
+
+        if (loginId != null && password == null && smsCode == null) {
+            if (customerCheck.isPresent() && customerCheck.get().getPassword() != null) {
+                throw new ForbiddenException(LOGIN_ID_EXIST);
+            }
+
+            String datetime = LocalDateTime.now(ZoneId.of("Asia/Kuala_Lumpur")).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+            String newSmsCode = UniqueIdGenerator.generateSmsCode();
+            if (customerCheck.isEmpty()) {
+                CustomerEntity newCustomer = new CustomerEntity();
+                newCustomer.setCustId(UniqueIdGenerator.generateMyCaprioIdWithTimestamp());
+                newCustomer.setLoginId(loginId);
+                newCustomer.setSmsCode(newSmsCode);
+                newCustomer.setSmsAttempt(1);
+                newCustomer.setSmsLastDatetime(datetime);
+                newCustomer = customerRepository.save(newCustomer);
+
+                List<StoreCustomerEntity> storeCustomerEntityList = new ArrayList<>();
+                List<StoreEntity> storeEntityList = storeRepository.findAll();
+                for (StoreEntity store : storeEntityList) {
+                    Optional<TierEntity> tier = tierRepository.findStoreDefaultTier(store.getStoreId());
+                    if (tier.isPresent()) {
+                        StoreCustomerEntity storeCustomer = new StoreCustomerEntity();
+                        storeCustomer.setCustomer(newCustomer);
+                        storeCustomer.setStore(store);
+                        storeCustomer.setTier(tier.get());
+                        storeCustomer.setTierPoints(0);
+                        storeCustomer.setAvailablePoints(0);
+                        storeCustomer.setAccumulatedPoints(0);
+                        storeCustomer.setStoreCustomerVouchers(new ArrayList<>());
+                        storeCustomer.setPointsActivities(new ArrayList<>());
+                        storeCustomerEntityList.add(storeCustomer);
+                    }
+                }
+                storeCustomerRepository.saveAll(storeCustomerEntityList);
+            } else {
+                SmsService.SmsValidationResult smsValidationResult = smsService.canMakeSmsRequest(customerCheck.get().getSmsLastDatetime(), customerCheck.get().getSmsAttempt());
+                log.info(smsValidationResult.getMessage());
+                if (smsValidationResult.isAllowed()) {
+                    customerCheck.get().setSmsCode(newSmsCode);
+                    customerCheck.get().setSmsLastDatetime(datetime);
+
+                    if (smsValidationResult.isShouldResetCounter()) {
+                        customerCheck.get().setSmsAttempt(1);
+                    } else {
+                        customerCheck.get().setSmsAttempt(customerCheck.get().getSmsAttempt() + 1);
+                    }
+
+                    customerRepository.save(customerCheck.get());
+                } else {
+                    throw new ForbiddenException(SMS_QUOTA_REACHED);
+                }
+            }
+
+            smsService.sendSms(loginId, newSmsCode);
+        }
+
+        if (loginId != null && smsCode != null && password == null) {
+            if (customerCheck.isEmpty()) {
+                throw new NotFoundException(USER_NOT_EXIST);
+            }
+
+            if (customerCheck.get().getPassword() != null) {
+                throw new ForbiddenException(USER_NOT_PERMITTED);
+            }
+
+            if (!smsCode.equals(customerCheck.get().getSmsCode())) {
+                return GenericMessage.builder()
+                        .status(false)
+                        .build();
+            }
+        }
+
+        if (loginId != null && smsCode != null && password != null) {
+            String encodedPassword = passwordEncoder.encode(password);
+
+            if (customerCheck.isEmpty()) {
+                throw new NotFoundException(USER_NOT_EXIST);
+            }
+
+            if (customerCheck.get().getPassword() != null) {
+                throw new ForbiddenException(USER_NOT_PERMITTED);
+            }
+
+            customerCheck.get().setSmsCode(null);
+            customerCheck.get().setPassword(encodedPassword);
+            customerCheck.get().setSmsAttempt(0);
+            customerRepository.save(customerCheck.get());
+        }
+
         return GenericMessage.builder()
                 .status(true)
                 .build();
@@ -125,6 +230,71 @@ public class AuthDomainImpl implements AuthDomain {
 
     @Override
     public GenericMessage resetCustomerPassword(ResetCustomerPasswordReq resetCustomerPasswordReq) {
+        String loginId = resetCustomerPasswordReq.getLoginId();
+        String password = resetCustomerPasswordReq.getPassword();
+        String smsCode = resetCustomerPasswordReq.getSmsCode();
+
+        Optional<CustomerEntity> customerCheck = customerRepository.findByUsername(loginId);
+
+        if (loginId != null && password == null && smsCode == null) {
+            if (customerCheck.isEmpty() || customerCheck.get().getPassword() == null) {
+                throw new ForbiddenException(USER_NOT_EXIST);
+            }
+
+            String datetime = LocalDateTime.now(ZoneId.of("Asia/Kuala_Lumpur")).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+            String newSmsCode = UniqueIdGenerator.generateSmsCode();
+
+            SmsService.SmsValidationResult smsValidationResult = smsService.canMakeSmsRequest(customerCheck.get().getSmsLastDatetime(), customerCheck.get().getSmsAttempt());
+            log.info(smsValidationResult.getMessage());
+            if (smsValidationResult.isAllowed()) {
+                customerCheck.get().setSmsCode(newSmsCode);
+                customerCheck.get().setSmsLastDatetime(datetime);
+
+                if (smsValidationResult.isShouldResetCounter()) {
+                    customerCheck.get().setSmsAttempt(1);
+                } else {
+                    customerCheck.get().setSmsAttempt(customerCheck.get().getSmsAttempt() + 1);
+                }
+
+                customerRepository.save(customerCheck.get());
+            } else {
+                throw new ForbiddenException(SMS_QUOTA_REACHED);
+            }
+        }
+
+        if (loginId != null && smsCode != null && password == null) {
+            if (customerCheck.isEmpty()) {
+                throw new NotFoundException(USER_NOT_EXIST);
+            }
+
+            if (customerCheck.get().getPassword() == null) {
+                throw new ForbiddenException(USER_NOT_PERMITTED);
+            }
+
+            if (!smsCode.equals(customerCheck.get().getSmsCode())) {
+                return GenericMessage.builder()
+                        .status(false)
+                        .build();
+            }
+        }
+
+        if (loginId != null && smsCode != null && password != null) {
+            String encodedPassword = passwordEncoder.encode(password);
+
+            if (customerCheck.isEmpty()) {
+                throw new NotFoundException(USER_NOT_EXIST);
+            }
+
+            if (customerCheck.get().getPassword() == null) {
+                throw new ForbiddenException(USER_NOT_PERMITTED);
+            }
+
+            customerCheck.get().setSmsCode(null);
+            customerCheck.get().setPassword(encodedPassword);
+            customerCheck.get().setSmsAttempt(0);
+            customerRepository.save(customerCheck.get());
+        }
+
         return GenericMessage.builder()
                 .status(true)
                 .build();

@@ -21,6 +21,11 @@ app:
     voucher-path: ${VOUCHER_STORAGE_PATH:}
     banner-path: ${BANNER_STORAGE_PATH:}
 
+sms:
+  api:
+    username: MyCaprio
+    password: '{cipher}e2e3260fa32a180471e84f75334ac6f535726f1aa7d6e069916c372e4b31c05272c375ea51975547ad57429f80346413'
+
 token:
   secretKey: '{cipher}dc788bed3a6ddb50a1f0e2b4fc411b8af2b12a117ac7d175f80884dbf71feb4e288716750d95946967e3c15ed36b8ac4f668a057179330088f6eeba2cbd4f5ce49b7273bddcc7c963e37d8fc3aa082f39cfa2278560d024934e9e774e21689f1'
   accessTokenExpiration: 86400000 # a day

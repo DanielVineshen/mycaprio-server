@@ -45,6 +45,7 @@ public enum ErrorCode {
     STORE_CUSTOMER_VOUCHER_NOT_EXIST(4024, "Store customer voucher does not exist."),
     VOUCHER_ALREADY_EXPIRED(4024, "Store customer voucher does not exist."),
     VOUCHER_REDEEMED_EXPIRED(4025, "Voucher already redeemed/expired."),
+    SMS_QUOTA_REACHED(4026, "Reached maximum message request for today. Please try again tomorrow."),
 
     /**
      * Custom error codes (40xxx range).
@@ -60,7 +61,8 @@ public enum ErrorCode {
     ENTITY_NOT_FOUND_EXCEPTION(5003, "Entity not found exception occurred."),
     FILE_UPLOAD_ERROR(5004, "Something went wrong when uploading the file."),
     FILE_DELETE_ERROR(5005, "Something went wrong when deleting the file."),
-    UNSUPPORTED_MEDIA_TYPE_EXCEPTION(5006, "Unsupported media type exception occurred.");
+    UNSUPPORTED_MEDIA_TYPE_EXCEPTION(5006, "Unsupported media type exception occurred."),
+    SMS_SEND_EXCEPTION(5007, "Something went wrong when sending sms.");
 
     /**
      * The numeric code associated with the error.
