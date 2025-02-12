@@ -190,7 +190,7 @@ public class AuthDomainImpl implements AuthDomain {
             smsService.sendSms(loginId, newSmsCode);
         }
 
-        if (loginId != null && smsCode != null && password == null) {
+        if (loginId != null && smsCode != null) {
             if (customerCheck.isEmpty()) {
                 throw new NotFoundException(USER_NOT_EXIST);
             }
@@ -200,27 +200,16 @@ public class AuthDomainImpl implements AuthDomain {
             }
 
             if (!smsCode.equals(customerCheck.get().getSmsCode())) {
-                return GenericMessage.builder()
-                        .status(false)
-                        .build();
-            }
-        }
-
-        if (loginId != null && smsCode != null && password != null) {
-            String encodedPassword = passwordEncoder.encode(password);
-
-            if (customerCheck.isEmpty()) {
-                throw new NotFoundException(USER_NOT_EXIST);
+                throw new ForbiddenException(SMS_NOT_VALID);
             }
 
-            if (customerCheck.get().getPassword() != null) {
-                throw new ForbiddenException(USER_NOT_PERMITTED);
+            if (password != null) {
+                String encodedPassword = passwordEncoder.encode(password);
+                customerCheck.get().setSmsCode(null);
+                customerCheck.get().setPassword(encodedPassword);
+                customerCheck.get().setSmsAttempt(0);
+                customerRepository.save(customerCheck.get());
             }
-
-            customerCheck.get().setSmsCode(null);
-            customerCheck.get().setPassword(encodedPassword);
-            customerCheck.get().setSmsAttempt(0);
-            customerRepository.save(customerCheck.get());
         }
 
         return GenericMessage.builder()
@@ -260,9 +249,11 @@ public class AuthDomainImpl implements AuthDomain {
             } else {
                 throw new ForbiddenException(SMS_QUOTA_REACHED);
             }
+
+            smsService.sendSms(loginId, newSmsCode);
         }
 
-        if (loginId != null && smsCode != null && password == null) {
+        if (loginId != null && smsCode != null) {
             if (customerCheck.isEmpty()) {
                 throw new NotFoundException(USER_NOT_EXIST);
             }
@@ -272,27 +263,16 @@ public class AuthDomainImpl implements AuthDomain {
             }
 
             if (!smsCode.equals(customerCheck.get().getSmsCode())) {
-                return GenericMessage.builder()
-                        .status(false)
-                        .build();
-            }
-        }
-
-        if (loginId != null && smsCode != null && password != null) {
-            String encodedPassword = passwordEncoder.encode(password);
-
-            if (customerCheck.isEmpty()) {
-                throw new NotFoundException(USER_NOT_EXIST);
+                throw new ForbiddenException(SMS_NOT_VALID);
             }
 
-            if (customerCheck.get().getPassword() == null) {
-                throw new ForbiddenException(USER_NOT_PERMITTED);
+            if (password != null) {
+                String encodedPassword = passwordEncoder.encode(password);
+                customerCheck.get().setSmsCode(null);
+                customerCheck.get().setPassword(encodedPassword);
+                customerCheck.get().setSmsAttempt(0);
+                customerRepository.save(customerCheck.get());
             }
-
-            customerCheck.get().setSmsCode(null);
-            customerCheck.get().setPassword(encodedPassword);
-            customerCheck.get().setSmsAttempt(0);
-            customerRepository.save(customerCheck.get());
         }
 
         return GenericMessage.builder()
