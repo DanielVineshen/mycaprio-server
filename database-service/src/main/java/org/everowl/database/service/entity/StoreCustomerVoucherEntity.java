@@ -55,6 +55,9 @@ public class StoreCustomerVoucherEntity {
     @Column(name = "voucher_desc", nullable = false, columnDefinition = "TEXT")
     private String voucherDesc;
 
+    @Column(name = "voucher_type", nullable = false)
+    private String voucherType;
+
     @Column(name = "tnc_desc", nullable = false, columnDefinition = "TEXT")
     private String tncDesc;
 

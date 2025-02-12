@@ -66,6 +66,7 @@ public class ExclusiveVoucherJob {
                             storeCustomerVoucherEntity.setValidDate(validDate);
                             storeCustomerVoucherEntity.setVoucherName(voucherModel.getVoucherName());
                             storeCustomerVoucherEntity.setVoucherDesc(voucherModel.getVoucherDesc());
+                            storeCustomerVoucherEntity.setVoucherType(voucherModel.getVoucherType());
                             storeCustomerVoucherEntity.setTncDesc(voucherModel.getTncDesc());
                             storeCustomerVoucherEntity.setIsExclusive(voucherModel.getIsExclusive());
                             storeCustomerVoucherEntity.setLifeSpan(voucherModel.getLifeSpan());

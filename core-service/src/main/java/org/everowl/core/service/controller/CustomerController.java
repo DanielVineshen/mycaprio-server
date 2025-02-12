@@ -3,6 +3,8 @@ package org.everowl.core.service.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.everowl.core.service.dto.customer.request.CreateCustomerProfileReq;
+import org.everowl.core.service.dto.customer.request.ResetCustomerPasswordReq;
 import org.everowl.core.service.dto.customer.request.UpdateCustomerPasswordReq;
 import org.everowl.core.service.dto.customer.request.UpdateCustomerProfileReq;
 import org.everowl.core.service.dto.customer.response.CustomerProfileRes;
@@ -47,10 +49,28 @@ public class CustomerController {
 
     @PutMapping(value = "/customer/password")
     public @ResponseBody ResponseEntity<BaseSuccessResponseBodyModel> updateCustomerPassword(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                                                            @Valid @RequestBody UpdateCustomerPasswordReq updateCustomerPasswordReq) {
+                                                                                             @Valid @RequestBody UpdateCustomerPasswordReq updateCustomerPasswordReq) {
         String loginId = userDetails.getUsername();
 
         GenericMessage response = customerDomain.updateCustomerPassword(loginId, updateCustomerPasswordReq);
+
+        BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/admin/customer/create")
+    public @ResponseBody ResponseEntity<BaseSuccessResponseBodyModel> createCustomerProfileManual(@Valid @RequestBody CreateCustomerProfileReq createCustomerProfileReq) {
+
+        GenericMessage response = customerDomain.createCustomerProfile(createCustomerProfileReq);
+
+        BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
+    }
+
+    @PutMapping(value = "/admin/customer/password")
+    public @ResponseBody ResponseEntity<BaseSuccessResponseBodyModel> updateCustomerPasswordManual(@Valid @RequestBody ResetCustomerPasswordReq resetCustomerPasswordReq) {
+
+        GenericMessage response = customerDomain.resetCustomerPassword(resetCustomerPasswordReq);
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);

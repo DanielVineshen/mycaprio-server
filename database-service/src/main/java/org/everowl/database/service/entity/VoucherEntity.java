@@ -38,8 +38,11 @@ public class VoucherEntity {
     @Column(name = "voucher_name", nullable = false)
     private String voucherName;
 
-    @Column(name = "voucher_desc", nullable = false)
+    @Column(name = "voucher_desc", nullable = false, columnDefinition = "TEXT")
     private String voucherDesc;
+
+    @Column(name = "voucher_type", nullable = false)
+    private String voucherType;
 
     @Column(name = "points_required", nullable = false)
     private Integer pointsRequired;

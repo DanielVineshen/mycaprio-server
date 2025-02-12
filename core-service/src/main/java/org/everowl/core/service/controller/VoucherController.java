@@ -59,6 +59,7 @@ public class VoucherController {
     public ResponseEntity<BaseSuccessResponseBodyModel> createVoucher(@RequestParam @ValidInteger(message = "Please ensure a valid min tier level is provided") @NotBlank(message = "Please ensure the min tier level is not blank") String minTierLevel,
                                                                       @RequestParam @NotBlank(message = "Please ensure the voucher name is not blank") String voucherName,
                                                                       @RequestParam @NotBlank(message = "Please ensure the voucher description is not blank") String voucherDesc,
+                                                                      @RequestParam @NotBlank(message = "Please ensure the voucher type is not blank") String voucherType,
                                                                       @RequestParam @ValidInteger(message = "Please ensure a valid points required value is provided") @NotBlank(message = "Please ensure the points required value is not blank") String pointsRequired,
                                                                       @RequestParam MultipartFile attachment,
                                                                       @RequestParam @BooleanValidation(message = "Please ensure the availability status is not blank") String isAvailable,
@@ -74,6 +75,7 @@ public class VoucherController {
         request.setMinTierLevel(Integer.parseInt(minTierLevel));
         request.setVoucherName(voucherName);
         request.setVoucherDesc(voucherDesc);
+        request.setVoucherType(voucherType);
         request.setPointsRequired(Integer.parseInt(pointsRequired));
         request.setAttachment(attachment);
         request.setIsAvailable(Boolean.getBoolean(isAvailable));
@@ -96,6 +98,7 @@ public class VoucherController {
                                                                       @RequestParam @ValidInteger(message = "Please ensure a valid min tier level is provided") @NotBlank(message = "Please ensure the min tier level is not blank") String minTierLevel,
                                                                       @RequestParam @NotBlank(message = "Please ensure the voucher name is not blank") String voucherName,
                                                                       @RequestParam @NotBlank(message = "Please ensure the voucher description is not blank") String voucherDesc,
+                                                                      @RequestParam @NotBlank(message = "Please ensure the voucher type is not blank") String voucherType,
                                                                       @RequestParam @ValidInteger(message = "Please ensure a valid points required value is provided") @NotBlank(message = "Please ensure the points required value is not blank") String pointsRequired,
                                                                       @RequestParam MultipartFile attachment,
                                                                       @RequestParam @BooleanValidation(message = "Please ensure the availability status is not blank") String isAvailable,
@@ -112,6 +115,7 @@ public class VoucherController {
         request.setMinTierLevel(Integer.parseInt(minTierLevel));
         request.setVoucherName(voucherName);
         request.setVoucherDesc(voucherDesc);
+        request.setVoucherType(voucherType);
         request.setPointsRequired(Integer.parseInt(pointsRequired));
         request.setAttachment(attachment);
         request.setIsAvailable(Boolean.getBoolean(isAvailable));

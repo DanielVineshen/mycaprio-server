@@ -1,5 +1,7 @@
 package org.everowl.core.service.service;
 
+import org.everowl.core.service.dto.customer.request.CreateCustomerProfileReq;
+import org.everowl.core.service.dto.customer.request.ResetCustomerPasswordReq;
 import org.everowl.core.service.dto.customer.request.UpdateCustomerPasswordReq;
 import org.everowl.core.service.dto.customer.request.UpdateCustomerProfileReq;
 import org.everowl.core.service.dto.customer.response.CustomerProfileRes;
@@ -11,4 +13,8 @@ public interface CustomerDomain {
     GenericMessage updateCustomerProfile(String loginId, UpdateCustomerProfileReq updateCustomerProfileReq);
 
     GenericMessage updateCustomerPassword(String loginId, UpdateCustomerPasswordReq updateCustomerPasswordReq);
+
+    GenericMessage createCustomerProfile(CreateCustomerProfileReq createCustomerProfileReq);
+
+    GenericMessage resetCustomerPassword(ResetCustomerPasswordReq resetCustomerPasswordReq);
 }

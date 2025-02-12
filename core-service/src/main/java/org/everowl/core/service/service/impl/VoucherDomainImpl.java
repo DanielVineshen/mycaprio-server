@@ -85,6 +85,7 @@ public class VoucherDomainImpl implements VoucherDomain {
         voucher.setMinTierLevel(voucherReq.getMinTierLevel());
         voucher.setVoucherName(voucherReq.getVoucherName());
         voucher.setVoucherDesc(voucherReq.getVoucherDesc());
+        voucher.setVoucherType(voucherReq.getVoucherType());
         voucher.setPointsRequired(voucherReq.getPointsRequired());
         voucher.setAttachmentName(file != null ? fileName : null);
         voucher.setAttachmentPath(file != null ? filePath : null);
@@ -137,6 +138,7 @@ public class VoucherDomainImpl implements VoucherDomain {
         voucher.setMinTierLevel(voucherReq.getMinTierLevel());
         voucher.setVoucherName(voucherReq.getVoucherName());
         voucher.setVoucherDesc(voucherReq.getVoucherDesc());
+        voucher.setVoucherType(voucherReq.getVoucherType());
         voucher.setPointsRequired(voucherReq.getPointsRequired());
         voucher.setAttachmentName(file != null ? fileName : null);
         voucher.setAttachmentPath(file != null ? filePath : null);

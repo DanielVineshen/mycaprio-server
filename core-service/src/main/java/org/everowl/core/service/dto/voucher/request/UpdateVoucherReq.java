@@ -15,6 +15,7 @@ public class UpdateVoucherReq {
     private Integer minTierLevel;
     private String voucherName;
     private String voucherDesc;
+    private String voucherType;
     private Integer pointsRequired;
     private MultipartFile attachment;
     private Boolean isAvailable;

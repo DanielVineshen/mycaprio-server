@@ -9,6 +9,7 @@ public class VoucherModel {
     private Integer minTierLevel;
     private String voucherName;
     private String voucherDesc;
+    private String voucherType;
     private Integer pointsRequired;
     private String attachmentName;
     private String attachmentPath;
