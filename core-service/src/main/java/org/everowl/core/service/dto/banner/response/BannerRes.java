@@ -16,13 +16,11 @@ import java.util.stream.Collectors;
 public class BannerRes {
     private Integer attachmentId;
     private String attachmentName;
-    private String attachmentPath;
     private String attachmentType;
 
     public BannerRes(BannerAttachmentEntity banner) {
         setAttachmentId(banner.getAttachmentId());
         setAttachmentName(banner.getAttachmentName());
-        setAttachmentPath(banner.getAttachmentPath());
         setAttachmentType(banner.getAttachmentType());
     }
 
