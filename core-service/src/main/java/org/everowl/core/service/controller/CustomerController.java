@@ -67,7 +67,7 @@ public class CustomerController {
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
-    @PutMapping(value = "/admin/customer/password")
+    @PutMapping(value = "/owner/customer/password")
     public @ResponseBody ResponseEntity<BaseSuccessResponseBodyModel> updateCustomerPasswordManual(@Valid @RequestBody ResetCustomerPasswordReq resetCustomerPasswordReq) {
 
         GenericMessage response = customerDomain.resetCustomerPassword(resetCustomerPasswordReq);

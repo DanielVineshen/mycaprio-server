@@ -10,5 +10,5 @@ public class ResetCustomerPasswordReq {
     private String loginId;
 
     @Size(min = 1, max = 64, message = "Please ensure the field password is 1 to 64 characters in length")
-    private String password;
+    private String newPassword;
 }

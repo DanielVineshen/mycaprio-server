@@ -151,7 +151,7 @@ public class CustomerDomainImpl implements CustomerDomain {
     @Override
     public GenericMessage resetCustomerPassword(ResetCustomerPasswordReq resetCustomerPasswordReq) {
         String loginId = resetCustomerPasswordReq.getLoginId();
-        String password = resetCustomerPasswordReq.getPassword();
+        String password = resetCustomerPasswordReq.getNewPassword();
         String encodedPassword = passwordEncoder.encode(password);
 
         Optional<CustomerEntity> customerCheck = customerRepository.findByUsername(loginId);
