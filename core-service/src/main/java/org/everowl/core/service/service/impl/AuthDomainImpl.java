@@ -343,6 +343,7 @@ public class AuthDomainImpl implements AuthDomain {
         if (user.getUserType().toString().equals("CUSTOMER")) {
             Optional<CustomerEntity> customer = customerRepository.findByUsername(user.getUsername());
             if (customer.isPresent()) {
+                authRes.setCustId(customer.get().getCustId());
                 authRes.setEmailAddress(customer.get().getEmailAddress());
                 authRes.setGender(customer.get().getGender());
                 String dob = customer.get().getDateOfBirth();
