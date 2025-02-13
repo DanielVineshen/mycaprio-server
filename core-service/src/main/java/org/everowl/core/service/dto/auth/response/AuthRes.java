@@ -13,7 +13,11 @@ public class AuthRes {
     private Integer tokenId;
     private String accessToken;
     private String refreshToken;
+    private String custId;
     private String loginId;
     private String userType;
     private String fullName;
+    private String emailAddress;
+    private String gender;
+    private String dateOfBirth;
 }

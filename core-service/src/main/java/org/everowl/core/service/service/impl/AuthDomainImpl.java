@@ -331,7 +331,7 @@ public class AuthDomainImpl implements AuthDomain {
     }
 
     private AuthRes createAuthenticationResponse(CustomUserDetails user, TokenEntity token) {
-        return AuthRes.builder()
+        AuthRes authRes = AuthRes.builder()
                 .tokenId(token.getTokenId())
                 .accessToken(token.getAccessToken())
                 .refreshToken(token.getRefreshToken())
@@ -339,5 +339,18 @@ public class AuthDomainImpl implements AuthDomain {
                 .userType(user.getUserType().toString())
                 .fullName(user.getFullName())
                 .build();
+
+        if (user.getUserType().toString().equals("CUSTOMER")) {
+            Optional<CustomerEntity> customer = customerRepository.findByUsername(user.getUsername());
+            if (customer.isPresent()) {
+                authRes.setEmailAddress(customer.get().getEmailAddress());
+                authRes.setGender(customer.get().getGender());
+                String dob = customer.get().getDateOfBirth();
+                String formattedDob = dob.substring(0, 4) + "-" + dob.substring(4, 6) + "-" + dob.substring(6, 8);
+                authRes.setDateOfBirth(formattedDob);
+            }
+        }
+
+        return authRes;
     }
 }
