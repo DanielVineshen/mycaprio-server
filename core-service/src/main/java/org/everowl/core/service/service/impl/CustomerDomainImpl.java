@@ -38,6 +38,7 @@ public class CustomerDomainImpl implements CustomerDomain {
     private final StoreCustomerRepository storeCustomerRepository;
     private final AuditLogRepository auditLogRepository;
     private final ModelMapper modelMapper;
+    private final AuditLogRepository auditLogRepository;
 
     @Override
     public CustomerProfileRes getCustomerProfile(String loginId) {
@@ -52,6 +53,8 @@ public class CustomerDomainImpl implements CustomerDomain {
         CustomerEntity customer = customerRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
+        String beforeChanged = convertObjectToJsonString(customer);
+
         customer.setEmailAddress(updateCustomerProfileReq.getEmailAddress());
         customer.setFullName(updateCustomerProfileReq.getFullName());
         customer.setGender(updateCustomerProfileReq.getGender());
@@ -59,7 +62,19 @@ public class CustomerDomainImpl implements CustomerDomain {
             customer.setDateOfBirth(updateCustomerProfileReq.getDateOfBirth());
         }
 
-        customerRepository.save(customer);
+        CustomerEntity savedCustomer = customerRepository.save(customer);
+
+        String afterChanged = convertObjectToJsonString(savedCustomer);
+
+        AuditLogEntity auditLogEntity = new AuditLogEntity();
+        auditLogEntity.setLoginId(customer.getLoginId());
+        auditLogEntity.setPerformedBy(customer.getFullName());
+        auditLogEntity.setAuthorityLevel("CUSTOMER");
+        auditLogEntity.setBeforeChanged(beforeChanged);
+        auditLogEntity.setAfterChanged(afterChanged);
+        auditLogEntity.setLogType("UPDATE_CUSTOMER_PROFILE");
+        auditLogEntity.setLogAction("UPDATE");
+        auditLogRepository.save(auditLogEntity);
 
         return GenericMessage.builder()
                 .status(true)
@@ -71,6 +86,8 @@ public class CustomerDomainImpl implements CustomerDomain {
         CustomerEntity customer = customerRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
+        String beforeChanged = convertObjectToJsonString(customer);
+
         boolean matches = passwordEncoder.matches(updateCustomerPasswordReq.getOldPassword(), customer.getPassword());
 
         if (!matches) {
@@ -81,7 +98,19 @@ public class CustomerDomainImpl implements CustomerDomain {
 
         customer.setPassword(hashedPassword);
 
-        customerRepository.save(customer);
+        CustomerEntity savedCustomer = customerRepository.save(customer);
+
+        String afterChanged = convertObjectToJsonString(savedCustomer);
+
+        AuditLogEntity auditLogEntity = new AuditLogEntity();
+        auditLogEntity.setLoginId(customer.getLoginId());
+        auditLogEntity.setPerformedBy(customer.getFullName());
+        auditLogEntity.setAuthorityLevel("CUSTOMER");
+        auditLogEntity.setBeforeChanged(beforeChanged);
+        auditLogEntity.setAfterChanged(afterChanged);
+        auditLogEntity.setLogType("UPDATE_CUSTOMER_PASSWORD");
+        auditLogEntity.setLogAction("UPDATE");
+        auditLogRepository.save(auditLogEntity);
 
         return GenericMessage.builder()
                 .status(true)

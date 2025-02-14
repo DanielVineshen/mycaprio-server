@@ -1,5 +1,6 @@
 package org.everowl.database.service.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -48,9 +50,11 @@ public class CustomerEntity extends BaseUser {
 
     @CreationTimestamp
     @Column(updatable = false, nullable = false, name = "created_at")
-    private Date createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(nullable = false, name = "updated_at")
-    private Date updatedAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime  updatedAt;
 }
