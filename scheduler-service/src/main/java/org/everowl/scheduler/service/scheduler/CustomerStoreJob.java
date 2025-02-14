@@ -55,6 +55,7 @@ public class CustomerStoreJob {
 
                         // Set the new lower tier
                         storeCustomer.setTier(lowerTier);
+                        storeCustomer.setTierPoints(0);
                     } else {
                         // Customer is already at lowest tier
                         log.info("no tier level found");
