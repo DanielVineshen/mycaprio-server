@@ -22,7 +22,10 @@ public class AuditLogEntity {
     @Column(name = "audit_log_id")
     private Integer auditLogId;
 
-    @Column(name = "performed_by", nullable = false)
+    @Column(name = "login_id", nullable = false)
+    private String loginId;
+
+    @Column(name = "performed_by")
     private String performedBy;
 
     @Column(name = "authority_level", nullable = false)
