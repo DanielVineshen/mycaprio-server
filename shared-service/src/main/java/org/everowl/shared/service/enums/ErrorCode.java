@@ -63,7 +63,9 @@ public enum ErrorCode {
     FILE_UPLOAD_ERROR(5004, "Something went wrong when uploading the file."),
     FILE_DELETE_ERROR(5005, "Something went wrong when deleting the file."),
     UNSUPPORTED_MEDIA_TYPE_EXCEPTION(5006, "Unsupported media type exception occurred."),
-    SMS_SEND_EXCEPTION(5007, "Something went wrong when sending sms.");
+    SMS_SEND_EXCEPTION(5007, "Something went wrong when sending sms."),
+    JSON_CONVERSION_EXCEPTION(5008, "Failed to convert object to JSON."),
+    JSON_PROCESSING_EXCEPTION(5009, "Failed to convert JSON to object.");
 
     /**
      * The numeric code associated with the error.

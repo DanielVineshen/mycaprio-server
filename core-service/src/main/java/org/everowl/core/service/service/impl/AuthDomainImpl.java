@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.everowl.shared.service.enums.ErrorCode.*;
+import static org.everowl.shared.service.util.JsonConverterUtils.convertObjectToJsonString;
 
 @Service
 @RequiredArgsConstructor
@@ -54,6 +55,7 @@ public class AuthDomainImpl implements AuthDomain {
     private final StoreRepository storeRepository;
     private final TierRepository tierRepository;
     private final StoreCustomerRepository storeCustomerRepository;
+    private final AuditLogRepository auditLogRepository;
 
     private static final String BEARER = "Bearer ";
     private static final int BEARER_LENGTH = BEARER.length();
@@ -65,6 +67,16 @@ public class AuthDomainImpl implements AuthDomain {
 
         validateTokens(userDetails.getUsername(), userDetails.getUserType().toString());
         TokenEntity token = generateUserTokens(userDetails, ipAddress, userAgent);
+
+        AuditLogEntity auditLogEntity = new AuditLogEntity();
+        auditLogEntity.setLoginId("system");
+        auditLogEntity.setPerformedBy("system");
+        auditLogEntity.setAuthorityLevel("SYSTEM");
+        auditLogEntity.setBeforeChanged(null);
+        auditLogEntity.setAfterChanged(convertObjectToJsonString(new Object[]{token}));
+        auditLogEntity.setLogType("CREATE_USER_LOGIN");
+        auditLogEntity.setLogAction("CREATE");
+        auditLogRepository.save(auditLogEntity);
 
         return createAuthenticationResponse(userDetails, token);
     }
