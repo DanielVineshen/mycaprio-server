@@ -10,8 +10,10 @@ import org.everowl.core.service.dto.voucher.response.VoucherDetailsRes;
 import org.everowl.core.service.dto.voucher.response.VoucherRes;
 import org.everowl.core.service.service.VoucherDomain;
 import org.everowl.database.service.entity.AdminEntity;
+import org.everowl.database.service.entity.AuditLogEntity;
 import org.everowl.database.service.entity.VoucherEntity;
 import org.everowl.database.service.repository.AdminRepository;
+import org.everowl.database.service.repository.AuditLogRepository;
 import org.everowl.database.service.repository.VoucherRepository;
 import org.everowl.shared.service.dto.GenericMessage;
 import org.everowl.shared.service.exception.BadRequestException;
@@ -30,6 +32,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 import static org.everowl.shared.service.enums.ErrorCode.*;
+import static org.everowl.shared.service.util.JsonConverterUtils.convertObjectToJsonString;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +45,7 @@ public class VoucherDomainImpl implements VoucherDomain {
     );
     private final VoucherRepository voucherRepository;
     private final AdminRepository adminRepository;
+    private final AuditLogRepository auditLogRepository;
     private final ModelMapper modelMapper;
     @Value("${app.attachment-storage.voucher-path}")
     private String storagePath;
@@ -90,7 +94,7 @@ public class VoucherDomainImpl implements VoucherDomain {
         voucher.setAttachmentName(file != null ? fileName : null);
         voucher.setAttachmentPath(file != null ? filePath : null);
         voucher.setAttachmentSize(file != null ? fileSize : null);
-        voucher.setIsAvailable(false);
+        voucher.setIsAvailable(voucherReq.getIsAvailable());
         voucher.setTncDesc(voucherReq.getTncDesc());
         voucher.setIsExclusive(voucherReq.getIsExclusive());
         voucher.setLifeSpan(voucherReq.getLifeSpan());
@@ -98,6 +102,18 @@ public class VoucherDomainImpl implements VoucherDomain {
         voucher.setQuantityTotal(voucherReq.getQuantityTotal());
 
         voucherRepository.save(voucher);
+
+        AuditLogEntity auditLogEntity = new AuditLogEntity();
+        auditLogEntity.setLoginId(loginId);
+        auditLogEntity.setPerformedBy(admin.getFullName());
+        auditLogEntity.setAuthorityLevel("OWNER");
+        auditLogEntity.setBeforeChanged(null);
+        auditLogEntity.setAfterChanged(convertObjectToJsonString(new Object[]{voucher}));
+        auditLogEntity.setLogType("CREATE_STORE_VOUCHER");
+        auditLogEntity.setLogAction("CREATE");
+        auditLogEntity.setLogDesc("A store voucher was created");
+
+        auditLogRepository.save(auditLogEntity);
 
         return GenericMessage.builder()
                 .status(true)
@@ -114,6 +130,9 @@ public class VoucherDomainImpl implements VoucherDomain {
         // Validate voucher
         VoucherEntity voucher = voucherRepository.findById(voucherReq.getVoucherId())
                 .orElseThrow(() -> new BadRequestException(VOUCHER_NOT_EXIST));
+
+        //Save original copy for audit log
+        String beforeChange = convertObjectToJsonString(new Object[]{voucher});
 
 
         MultipartFile file = voucherReq.getAttachment();
@@ -143,12 +162,26 @@ public class VoucherDomainImpl implements VoucherDomain {
         voucher.setAttachmentName(file != null ? fileName : null);
         voucher.setAttachmentPath(file != null ? filePath : null);
         voucher.setAttachmentSize(file != null ? fileSize : null);
-        voucher.setIsAvailable(false);
+        voucher.setIsAvailable(voucherReq.getIsAvailable());
         voucher.setTncDesc(voucherReq.getTncDesc());
         voucher.setIsExclusive(voucherReq.getIsExclusive());
         voucher.setLifeSpan(voucherReq.getLifeSpan());
         voucher.setMetaTag(voucherReq.getMetaTag());
         voucher.setQuantityTotal(voucherReq.getQuantityTotal());
+
+        voucherRepository.save(voucher);
+
+        AuditLogEntity auditLogEntity = new AuditLogEntity();
+        auditLogEntity.setLoginId(loginId);
+        auditLogEntity.setPerformedBy(admin.getFullName());
+        auditLogEntity.setAuthorityLevel("OWNER");
+        auditLogEntity.setBeforeChanged(beforeChange);
+        auditLogEntity.setAfterChanged(convertObjectToJsonString(new Object[]{voucher}));
+        auditLogEntity.setLogType("UPDATE_STORE_VOUCHER");
+        auditLogEntity.setLogAction("UPDATE");
+        auditLogEntity.setLogDesc("A store voucher was updated");
+
+        auditLogRepository.save(auditLogEntity);
 
         return GenericMessage.builder()
                 .status(true)
@@ -156,6 +189,7 @@ public class VoucherDomainImpl implements VoucherDomain {
     }
 
     @Override
+    @Transactional
     public GenericMessage deleteVoucher(DeleteVoucherReq voucherReq, String loginId) {
         // Validate store owner
         AdminEntity admin = adminRepository.findByUsername(loginId)
@@ -170,6 +204,18 @@ public class VoucherDomainImpl implements VoucherDomain {
         }
 
         voucherRepository.deleteById(Integer.parseInt(voucherReq.getVoucherId()));
+
+        AuditLogEntity auditLogEntity = new AuditLogEntity();
+        auditLogEntity.setLoginId(loginId);
+        auditLogEntity.setPerformedBy(admin.getFullName());
+        auditLogEntity.setAuthorityLevel("OWNER");
+        auditLogEntity.setBeforeChanged(convertObjectToJsonString(new Object[]{voucher}));
+        auditLogEntity.setAfterChanged(null);
+        auditLogEntity.setLogType("DELETE_STORE_VOUCHER");
+        auditLogEntity.setLogAction("DELETE");
+        auditLogEntity.setLogDesc("A store voucher was deleted");
+
+        auditLogRepository.save(auditLogEntity);
 
         return GenericMessage.builder()
                 .status(true)

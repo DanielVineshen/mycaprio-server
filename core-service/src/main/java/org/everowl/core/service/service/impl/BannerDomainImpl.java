@@ -8,8 +8,10 @@ import org.everowl.core.service.dto.banner.request.DeleteBannerReq;
 import org.everowl.core.service.dto.banner.request.UpdateBannerReq;
 import org.everowl.core.service.service.BannerDomain;
 import org.everowl.database.service.entity.AdminEntity;
+import org.everowl.database.service.entity.AuditLogEntity;
 import org.everowl.database.service.entity.BannerAttachmentEntity;
 import org.everowl.database.service.repository.AdminRepository;
+import org.everowl.database.service.repository.AuditLogRepository;
 import org.everowl.database.service.repository.BannerAttachmentRepository;
 import org.everowl.shared.service.dto.GenericMessage;
 import org.everowl.shared.service.exception.BadRequestException;
@@ -30,6 +32,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static org.everowl.shared.service.enums.ErrorCode.*;
+import static org.everowl.shared.service.util.JsonConverterUtils.convertObjectToJsonString;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +45,7 @@ public class BannerDomainImpl implements BannerDomain {
     );
     private final BannerAttachmentRepository bannerAttachmentRepository;
     private final AdminRepository adminRepository;
+    private final AuditLogRepository auditLogRepository;
     @Value("${app.attachment-storage.banner-path}")
     private String storagePath;
 
@@ -66,18 +70,34 @@ public class BannerDomainImpl implements BannerDomain {
 
         bannerAttachmentRepository.save(banner);
 
+        AuditLogEntity auditLogEntity = new AuditLogEntity();
+        auditLogEntity.setLoginId(loginId);
+        auditLogEntity.setPerformedBy(admin.getFullName());
+        auditLogEntity.setAuthorityLevel("OWNER");
+        auditLogEntity.setBeforeChanged(null);
+        auditLogEntity.setAfterChanged(convertObjectToJsonString(new Object[]{banner}));
+        auditLogEntity.setLogType("CREATE_STORE_BANNER");
+        auditLogEntity.setLogAction("CREATE");
+        auditLogEntity.setLogDesc("A store banner was created");
+
+        auditLogRepository.save(auditLogEntity);
+
         return GenericMessage.builder()
                 .status(true)
                 .build();
     }
 
     @Override
+    @Transactional
     public GenericMessage updateBanner(UpdateBannerReq bannerReq, String loginId) {
         AdminEntity admin = adminRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_AUTHORIZED));
 
         BannerAttachmentEntity banner = bannerAttachmentRepository.findById(bannerReq.getAttachmentId())
                 .orElseThrow(() -> new NotFoundException(FILE_NOT_FOUND));
+
+        //Save original copy for audit log
+        String beforeChange = convertObjectToJsonString(new Object[]{banner});
 
         MultipartFile file = bannerReq.getAttachment();
 
@@ -96,12 +116,25 @@ public class BannerDomainImpl implements BannerDomain {
 
         bannerAttachmentRepository.save(banner);
 
+        AuditLogEntity auditLogEntity = new AuditLogEntity();
+        auditLogEntity.setLoginId(loginId);
+        auditLogEntity.setPerformedBy(admin.getFullName());
+        auditLogEntity.setAuthorityLevel("OWNER");
+        auditLogEntity.setBeforeChanged(beforeChange);
+        auditLogEntity.setAfterChanged(convertObjectToJsonString(new Object[]{banner}));
+        auditLogEntity.setLogType("UPDATE_STORE_BANNER");
+        auditLogEntity.setLogAction("UPDATE");
+        auditLogEntity.setLogDesc("A store banner was updated");
+
+        auditLogRepository.save(auditLogEntity);
+
         return GenericMessage.builder()
                 .status(true)
                 .build();
     }
 
     @Override
+    @Transactional
     public GenericMessage deleteBanner(DeleteBannerReq bannerReq, String loginId) {
         AdminEntity admin = adminRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_AUTHORIZED));
@@ -112,6 +145,18 @@ public class BannerDomainImpl implements BannerDomain {
         deleteAttachmentFile(banner.getAttachmentName());
 
         bannerAttachmentRepository.deleteById(Integer.parseInt(bannerReq.getAttachmentId()));
+
+        AuditLogEntity auditLogEntity = new AuditLogEntity();
+        auditLogEntity.setLoginId(loginId);
+        auditLogEntity.setPerformedBy(admin.getFullName());
+        auditLogEntity.setAuthorityLevel("OWNER");
+        auditLogEntity.setBeforeChanged(convertObjectToJsonString(new Object[]{banner}));
+        auditLogEntity.setAfterChanged(null);
+        auditLogEntity.setLogType("DELETE_STORE_BANNER");
+        auditLogEntity.setLogAction("DELETE");
+        auditLogEntity.setLogDesc("A store banner was deleted");
+
+        auditLogRepository.save(auditLogEntity);
 
         return GenericMessage.builder()
                 .status(true)

@@ -8,7 +8,7 @@ import org.everowl.shared.service.dto.GenericMessage;
 public interface FeedbackDomain {
     FeedbackRes getStoreFeedbacks(String loginId);
 
-    GenericMessage createFeedback(CreateFeedbackReq request);
+    GenericMessage createFeedback(CreateFeedbackReq request, String loginId);
 
     GenericMessage deleteFeedback(DeleteFeedbackReq request, String loginId);
 }

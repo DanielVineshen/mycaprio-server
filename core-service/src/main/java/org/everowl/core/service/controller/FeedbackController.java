@@ -35,9 +35,11 @@ public class FeedbackController {
     }
 
     @PostMapping(value = "/customer/feedback")
-    public ResponseEntity<BaseSuccessResponseBodyModel> createFeedback(@Valid @RequestBody CreateFeedbackReq createFeedbackReq) {
+    public ResponseEntity<BaseSuccessResponseBodyModel> createFeedback(@Valid @RequestBody CreateFeedbackReq createFeedbackReq,
+                                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
+        String loginId = userDetails.getUsername();
 
-        GenericMessage response = feedbackDomain.createFeedback(createFeedbackReq);
+        GenericMessage response = feedbackDomain.createFeedback(createFeedbackReq, loginId);
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);

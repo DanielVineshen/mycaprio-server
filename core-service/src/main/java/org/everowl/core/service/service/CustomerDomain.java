@@ -14,7 +14,7 @@ public interface CustomerDomain {
 
     GenericMessage updateCustomerPassword(String loginId, UpdateCustomerPasswordReq updateCustomerPasswordReq);
 
-    GenericMessage createCustomerProfile(CreateCustomerProfileReq createCustomerProfileReq);
+    GenericMessage createCustomerProfile(CreateCustomerProfileReq createCustomerProfileReq, String loginId);
 
-    GenericMessage resetCustomerPassword(ResetCustomerPasswordReq resetCustomerPasswordReq);
+    GenericMessage resetCustomerPassword(ResetCustomerPasswordReq resetCustomerPasswordReq, String loginId);
 }

@@ -61,12 +61,12 @@ public class VoucherController {
                                                                       @RequestParam @NotBlank(message = "Please ensure the voucher description is not blank") String voucherDesc,
                                                                       @RequestParam @NotBlank(message = "Please ensure the voucher type is not blank") String voucherType,
                                                                       @RequestParam @ValidInteger(message = "Please ensure a valid points required value is provided") @NotBlank(message = "Please ensure the points required value is not blank") String pointsRequired,
-                                                                      @RequestParam MultipartFile attachment,
+                                                                      @RequestParam(required = false) MultipartFile attachment,
                                                                       @RequestParam @BooleanValidation(message = "Please ensure the availability status is not blank") String isAvailable,
                                                                       @RequestParam @NotBlank(message = "Please ensure the tnc description is not blank") String tncDesc,
                                                                       @RequestParam @BooleanValidation(message = "Please ensure the exclusive status is not blank") String isExclusive,
                                                                       @RequestParam @ValidInteger(message = "Please ensure a valid life span is provided") @NotBlank(message = "Please ensure the life span is not blank") String lifeSpan,
-                                                                      @RequestParam @NotBlank(message = "Please ensure the meta tag is not blank") String metaTag,
+                                                                      @RequestParam(required = false) String metaTag,
                                                                       @RequestParam @ValidInteger(message = "Please ensure a valid quantity total is provided") @NotBlank(message = "Please ensure the quantity total is not blank") String quantityTotal,
                                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
         String loginId = userDetails.getUsername();
@@ -100,12 +100,12 @@ public class VoucherController {
                                                                       @RequestParam @NotBlank(message = "Please ensure the voucher description is not blank") String voucherDesc,
                                                                       @RequestParam @NotBlank(message = "Please ensure the voucher type is not blank") String voucherType,
                                                                       @RequestParam @ValidInteger(message = "Please ensure a valid points required value is provided") @NotBlank(message = "Please ensure the points required value is not blank") String pointsRequired,
-                                                                      @RequestParam MultipartFile attachment,
+                                                                      @RequestParam(required = false) MultipartFile attachment,
                                                                       @RequestParam @BooleanValidation(message = "Please ensure the availability status is not blank") String isAvailable,
                                                                       @RequestParam @NotBlank(message = "Please ensure the tnc description is not blank") String tncDesc,
                                                                       @RequestParam @BooleanValidation(message = "Please ensure the exclusive status is not blank") String isExclusive,
                                                                       @RequestParam @ValidInteger(message = "Please ensure a valid life span is provided") @NotBlank(message = "Please ensure the life span is not blank") String lifeSpan,
-                                                                      @RequestParam @NotBlank(message = "Please ensure the meta tag is not blank") String metaTag,
+                                                                      @RequestParam(required = false) String metaTag,
                                                                       @RequestParam @ValidInteger(message = "Please ensure a valid quantity total is provided") @NotBlank(message = "Please ensure the quantity total is not blank") String quantityTotal,
                                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
         String loginId = userDetails.getUsername();

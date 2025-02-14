@@ -8,14 +8,8 @@ import org.everowl.core.service.dto.customer.request.UpdateCustomerPasswordReq;
 import org.everowl.core.service.dto.customer.request.UpdateCustomerProfileReq;
 import org.everowl.core.service.dto.customer.response.CustomerProfileRes;
 import org.everowl.core.service.service.CustomerDomain;
-import org.everowl.database.service.entity.CustomerEntity;
-import org.everowl.database.service.entity.StoreCustomerEntity;
-import org.everowl.database.service.entity.StoreEntity;
-import org.everowl.database.service.entity.TierEntity;
-import org.everowl.database.service.repository.CustomerRepository;
-import org.everowl.database.service.repository.StoreCustomerRepository;
-import org.everowl.database.service.repository.StoreRepository;
-import org.everowl.database.service.repository.TierRepository;
+import org.everowl.database.service.entity.*;
+import org.everowl.database.service.repository.*;
 import org.everowl.shared.service.dto.GenericMessage;
 import org.everowl.shared.service.exception.BadRequestException;
 import org.everowl.shared.service.exception.NotFoundException;
@@ -30,16 +24,19 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.everowl.shared.service.enums.ErrorCode.*;
+import static org.everowl.shared.service.util.JsonConverterUtils.convertObjectToJsonString;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class CustomerDomainImpl implements CustomerDomain {
     private final BCryptPasswordEncoder passwordEncoder;
+    private final AdminRepository adminRepository;
     private final CustomerRepository customerRepository;
     private final StoreRepository storeRepository;
     private final TierRepository tierRepository;
     private final StoreCustomerRepository storeCustomerRepository;
+    private final AuditLogRepository auditLogRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -93,10 +90,13 @@ public class CustomerDomainImpl implements CustomerDomain {
 
     @Override
     @Transactional
-    public GenericMessage createCustomerProfile(CreateCustomerProfileReq createCustomerProfileReq) {
+    public GenericMessage createCustomerProfile(CreateCustomerProfileReq createCustomerProfileReq, String adminLoginId) {
         String loginId = createCustomerProfileReq.getLoginId();
         String password = createCustomerProfileReq.getPassword();
         String encodedPassword = passwordEncoder.encode(password);
+
+        AdminEntity admin = adminRepository.findByUsername(adminLoginId)
+                .orElseThrow(() -> new NotFoundException(USER_NOT_AUTHORIZED));
 
         // Check if customer exists
         Optional<CustomerEntity> customerCheck = customerRepository.findByUsername(loginId);
@@ -116,9 +116,6 @@ public class CustomerDomainImpl implements CustomerDomain {
         newCustomer.setLoginId(loginId);
         newCustomer.setPassword(encodedPassword);
         newCustomer.setSmsAttempt(0);
-
-        // Save and flush to ensure the customer is persisted
-        newCustomer = customerRepository.saveAndFlush(newCustomer);
 
         // Create store customers in a separate transaction
         List<StoreCustomerEntity> storeCustomerEntityList = new ArrayList<>();
@@ -140,8 +137,20 @@ public class CustomerDomainImpl implements CustomerDomain {
             }
         }
 
-        // Save all store customers
-        storeCustomerRepository.saveAll(storeCustomerEntityList);
+        newCustomer.setStoreCustomers(storeCustomerEntityList);
+        customerRepository.save(newCustomer);
+
+        AuditLogEntity auditLogEntity = new AuditLogEntity();
+        auditLogEntity.setLoginId(adminLoginId);
+        auditLogEntity.setPerformedBy(admin.getFullName());
+        auditLogEntity.setAuthorityLevel("ADMIN");
+        auditLogEntity.setBeforeChanged(null);
+        auditLogEntity.setAfterChanged(convertObjectToJsonString(new Object[]{newCustomer}));
+        auditLogEntity.setLogType("CREATE_STORE_CUSTOMER_BY_ADMIN");
+        auditLogEntity.setLogAction("CREATE");
+        auditLogEntity.setLogDesc("A store customer was manually created by an admin");
+
+        auditLogRepository.save(auditLogEntity);
 
         return GenericMessage.builder()
                 .status(true)
@@ -149,18 +158,37 @@ public class CustomerDomainImpl implements CustomerDomain {
     }
 
     @Override
-    public GenericMessage resetCustomerPassword(ResetCustomerPasswordReq resetCustomerPasswordReq) {
+    @Transactional
+    public GenericMessage resetCustomerPassword(ResetCustomerPasswordReq resetCustomerPasswordReq, String adminLoginId) {
         String loginId = resetCustomerPasswordReq.getLoginId();
         String password = resetCustomerPasswordReq.getNewPassword();
         String encodedPassword = passwordEncoder.encode(password);
+
+        AdminEntity admin = adminRepository.findByUsername(adminLoginId)
+                .orElseThrow(() -> new NotFoundException(USER_NOT_AUTHORIZED));
 
         Optional<CustomerEntity> customerCheck = customerRepository.findByUsername(loginId);
         if (customerCheck.isEmpty()) {
             throw new BadRequestException(USER_NOT_EXIST);
         }
 
+        //Save original copy for audit log
+        String beforeChange = convertObjectToJsonString(new Object[]{customerCheck.get()});
+
         customerCheck.get().setPassword(encodedPassword);
         customerRepository.save(customerCheck.get());
+
+        AuditLogEntity auditLogEntity = new AuditLogEntity();
+        auditLogEntity.setLoginId(adminLoginId);
+        auditLogEntity.setPerformedBy(admin.getFullName());
+        auditLogEntity.setAuthorityLevel("OWNER");
+        auditLogEntity.setBeforeChanged(convertObjectToJsonString(new Object[]{beforeChange}));
+        auditLogEntity.setAfterChanged(convertObjectToJsonString(new Object[]{customerCheck}));
+        auditLogEntity.setLogType("UPDATE_CUSTOMER_PASSWORD_BY_OWNER");
+        auditLogEntity.setLogAction("UPDATE");
+        auditLogEntity.setLogDesc("A customer account password was manually updated by an owner");
+
+        auditLogRepository.save(auditLogEntity);
 
         return GenericMessage.builder()
                 .status(true)

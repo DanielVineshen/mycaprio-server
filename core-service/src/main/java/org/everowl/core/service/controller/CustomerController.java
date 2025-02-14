@@ -59,18 +59,22 @@ public class CustomerController {
     }
 
     @PostMapping(value = "/admin/customer/create")
-    public @ResponseBody ResponseEntity<BaseSuccessResponseBodyModel> createCustomerProfileManual(@Valid @RequestBody CreateCustomerProfileReq createCustomerProfileReq) {
+    public @ResponseBody ResponseEntity<BaseSuccessResponseBodyModel> createCustomerProfileManual(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                                                  @Valid @RequestBody CreateCustomerProfileReq createCustomerProfileReq) {
+        String loginId = userDetails.getUsername();
 
-        GenericMessage response = customerDomain.createCustomerProfile(createCustomerProfileReq);
+        GenericMessage response = customerDomain.createCustomerProfile(createCustomerProfileReq, loginId);
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
     @PutMapping(value = "/owner/customer/password")
-    public @ResponseBody ResponseEntity<BaseSuccessResponseBodyModel> updateCustomerPasswordManual(@Valid @RequestBody ResetCustomerPasswordReq resetCustomerPasswordReq) {
+    public @ResponseBody ResponseEntity<BaseSuccessResponseBodyModel> updateCustomerPasswordManual(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                                                   @Valid @RequestBody ResetCustomerPasswordReq resetCustomerPasswordReq) {
+        String loginId = userDetails.getUsername();
 
-        GenericMessage response = customerDomain.resetCustomerPassword(resetCustomerPasswordReq);
+        GenericMessage response = customerDomain.resetCustomerPassword(resetCustomerPasswordReq, loginId);
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
