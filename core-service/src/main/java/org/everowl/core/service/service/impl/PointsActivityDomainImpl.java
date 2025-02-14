@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.everowl.shared.service.enums.ErrorCode.*;
+import static org.everowl.shared.service.util.JsonConverterUtils.convertObjectToJsonString;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +39,7 @@ public class PointsActivityDomainImpl implements PointsActivityDomain {
     private final ModelMapper modelMapper;
     private final AdminRepository adminRepository;
     private final StoreCustomerService storeCustomerService;
+    private final AuditLogRepository auditLogRepository;
 
     @Override
     public PointsActivitiesDetailsRes getCustomerPointsActivitiesDetails(String loginId, Integer storeId) {
@@ -88,8 +90,8 @@ public class PointsActivityDomainImpl implements PointsActivityDomain {
         return processPointsAward(staff, customer, createCustomerPointsAwardManualReq.getAmountSpent());
     }
 
-    private void createPointsActivity(StoreCustomerEntity storeCustomer, AdminEntity staff,
-                                      BigDecimal originalPoints, BigDecimal finalisedPoints, BigDecimal multiplier) {
+    private PointsActivityEntity createPointsActivity(StoreCustomerEntity storeCustomer, AdminEntity staff,
+                                                      BigDecimal originalPoints, BigDecimal finalisedPoints, BigDecimal multiplier) {
         String currentDate = getCurrentFormattedDate();
 
         PointsActivityEntity activity = new PointsActivityEntity();
@@ -102,10 +104,10 @@ public class PointsActivityDomainImpl implements PointsActivityDomain {
         activity.setActivityType("AWARD");
         activity.setActivityDate(currentDate);
 
-        pointsActivityRepository.save(activity);
+        return pointsActivityRepository.save(activity);
     }
 
-    private void updateCustomerTierAndPoints(StoreCustomerEntity storeCustomer, BigDecimal finalisedPoints) {
+    private StoreCustomerEntity updateCustomerTierAndPoints(StoreCustomerEntity storeCustomer, BigDecimal finalisedPoints) {
         int newTierPoints = storeCustomer.getTierPoints() + finalisedPoints.intValue();
         storeCustomer.setTierPoints(newTierPoints);
 
@@ -117,7 +119,7 @@ public class PointsActivityDomainImpl implements PointsActivityDomain {
         storeCustomer.setAccumulatedPoints(storeCustomer.getAccumulatedPoints() + finalisedPoints.intValue());
         storeCustomer.setLastTransDate(getCurrentFormattedDate());
 
-        storeCustomerRepository.save(storeCustomer);
+        return storeCustomerRepository.save(storeCustomer);
     }
 
     private void processNextTier(StoreCustomerEntity storeCustomer, int currentPoints) {
@@ -159,13 +161,28 @@ public class PointsActivityDomainImpl implements PointsActivityDomain {
 
     private GenericMessage processPointsAward(AdminEntity staff, CustomerEntity customer, BigDecimal amountSpent) {
         StoreCustomerEntity storeCustomer = storeCustomerService.getOrCreateStoreCustomer(customer, staff.getStore());
+
+        String beforeChanged = convertObjectToJsonString(new Object[]{storeCustomer});
+
         TierEntity currentTier = storeCustomer.getTier();
 
         BigDecimal originalPoints = amountSpent.multiply(BigDecimal.valueOf(10)).setScale(0, RoundingMode.CEILING);
         BigDecimal finalisedPoints = calculatePoints(amountSpent, currentTier.getTierMultiplier());
 
-        createPointsActivity(storeCustomer, staff, originalPoints, finalisedPoints, currentTier.getTierMultiplier());
-        updateCustomerTierAndPoints(storeCustomer, finalisedPoints);
+        PointsActivityEntity savedPointsActivity = createPointsActivity(storeCustomer, staff, originalPoints, finalisedPoints, currentTier.getTierMultiplier());
+        StoreCustomerEntity savedStoreCustomer = updateCustomerTierAndPoints(storeCustomer, finalisedPoints);
+
+        String afterChanged = convertObjectToJsonString(new Object[]{savedPointsActivity, savedStoreCustomer});
+
+        AuditLogEntity auditLogEntity = new AuditLogEntity();
+        auditLogEntity.setLoginId(staff.getLoginId());
+        auditLogEntity.setPerformedBy(staff.getFullName());
+        auditLogEntity.setAuthorityLevel("STAFF");
+        auditLogEntity.setBeforeChanged(beforeChanged);
+        auditLogEntity.setAfterChanged(afterChanged);
+        auditLogEntity.setLogType("CREATE_VOUCHER_REDEEM");
+        auditLogEntity.setLogAction("CREATE");
+        auditLogRepository.save(auditLogEntity);
 
         return GenericMessage.builder()
                 .status(true)

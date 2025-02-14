@@ -25,6 +25,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import static org.everowl.shared.service.enums.ErrorCode.*;
+import static org.everowl.shared.service.util.JsonConverterUtils.convertObjectToJsonString;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +40,7 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
     private final PointsActivityRepository pointsActivityRepository;
     private final ModelMapper modelMapper;
     private final StoreCustomerService storeCustomerService;
+    private final AuditLogRepository auditLogRepository;
 
     @Override
     @Transactional
@@ -52,6 +54,8 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
         StoreEntity store = voucher.getStore();
 
         StoreCustomerEntity storeCustomer = storeCustomerService.getOrCreateStoreCustomer(customer, store);
+
+        String beforeChanged = convertObjectToJsonString(new Object[]{storeCustomer});
 
         validateVoucherPurchaseEligibility(voucher, storeCustomer);
 
@@ -72,10 +76,10 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
         storeCustomerVoucherEntity.setIsExclusive(voucher.getIsExclusive());
         storeCustomerVoucherEntity.setLifeSpan(voucher.getLifeSpan());
         storeCustomerVoucherEntity.setMetaTag(voucher.getMetaTag());
-        storeCustomerVoucherRepository.save(storeCustomerVoucherEntity);
+        StoreCustomerVoucherEntity savedCustomerVoucher = storeCustomerVoucherRepository.save(storeCustomerVoucherEntity);
 
         storeCustomer.setAvailablePoints(storeCustomer.getAvailablePoints() - voucher.getPointsRequired());
-        storeCustomerRepository.save(storeCustomer);
+        StoreCustomerEntity updatedStoreCustomer = storeCustomerRepository.save(storeCustomer);
 
         String currentDate = ZonedDateTime.now(ZoneId.of("Asia/Kuala_Lumpur"))
                 .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
@@ -88,11 +92,23 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
         pointsActivityEntity.setFinalisedPoints(voucher.getPointsRequired());
         pointsActivityEntity.setActivityType("REDEEM");
         pointsActivityEntity.setActivityDate(currentDate);
-        pointsActivityRepository.save(pointsActivityEntity);
+        PointsActivityEntity savedPointsActivity = pointsActivityRepository.save(pointsActivityEntity);
 
         CustomerVoucherPurchaseDetailsRes customerVoucherPurchaseDetailsRes = new CustomerVoucherPurchaseDetailsRes();
         CustomerVoucherDetailsRes customerVoucherDetailsRes = modelMapper.map(storeCustomerVoucherEntity, CustomerVoucherDetailsRes.class);
         customerVoucherPurchaseDetailsRes.setCustomerVoucherPurchase(customerVoucherDetailsRes);
+
+        String afterChanged = convertObjectToJsonString(new Object[]{savedCustomerVoucher, updatedStoreCustomer, savedPointsActivity});
+
+        AuditLogEntity auditLogEntity = new AuditLogEntity();
+        auditLogEntity.setLoginId(customer.getLoginId());
+        auditLogEntity.setPerformedBy(customer.getFullName());
+        auditLogEntity.setAuthorityLevel("CUSTOMER");
+        auditLogEntity.setBeforeChanged(beforeChanged);
+        auditLogEntity.setAfterChanged(afterChanged);
+        auditLogEntity.setLogType("CREATE_CUSTOMER_VOUCHER");
+        auditLogEntity.setLogAction("CREATE");
+        auditLogRepository.save(auditLogEntity);
 
         return customerVoucherPurchaseDetailsRes;
     }
@@ -118,6 +134,8 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
         StoreCustomerVoucherEntity storeCustomerVoucher = storeCustomerVoucherRepository.findById(customerVoucherRedemptionReq.getStoreCustVoucherId())
                 .orElseThrow(() -> new NotFoundException(STORE_CUSTOMER_VOUCHER_NOT_EXIST));
 
+        String beforeChanged = convertObjectToJsonString(new Object[]{storeCustomerVoucher});
+
         boolean isValidDateOlder = LocalDateTime.parse(storeCustomerVoucher.getValidDate(), DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
                 .atZone(ZoneId.of("Asia/Kuala_Lumpur"))
                 .isBefore(ZonedDateTime.now(ZoneId.of("Asia/Kuala_Lumpur")));
@@ -133,10 +151,22 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
         voucherRedemptionEntity.setVoucherRedemptionPKs(voucherRedemptionPKs);
         voucherRedemptionEntity.setStoreCustomerVoucher(storeCustomerVoucher);
         voucherRedemptionEntity.setAdmin(staff);
-        voucherRedemptionRepository.save(voucherRedemptionEntity);
+        VoucherRedemptionEntity savedVoucherRedemption = voucherRedemptionRepository.save(voucherRedemptionEntity);
 
         storeCustomerVoucher.setQuantityLeft(storeCustomerVoucher.getQuantityLeft() - 1);
-        storeCustomerVoucherRepository.save(storeCustomerVoucher);
+        StoreCustomerVoucherEntity savedCustomerVoucher = storeCustomerVoucherRepository.save(storeCustomerVoucher);
+
+        String afterChanged = convertObjectToJsonString(new Object[]{savedCustomerVoucher, savedVoucherRedemption});
+
+        AuditLogEntity auditLogEntity = new AuditLogEntity();
+        auditLogEntity.setLoginId(staff.getLoginId());
+        auditLogEntity.setPerformedBy(staff.getFullName());
+        auditLogEntity.setAuthorityLevel("STAFF");
+        auditLogEntity.setBeforeChanged(beforeChanged);
+        auditLogEntity.setAfterChanged(afterChanged);
+        auditLogEntity.setLogType("CREATE_VOUCHER_REDEEM");
+        auditLogEntity.setLogAction("CREATE");
+        auditLogRepository.save(auditLogEntity);
 
         return GenericMessage.builder()
                 .status(true)

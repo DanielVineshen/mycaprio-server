@@ -3,12 +3,17 @@ package org.everowl.core.service.service.impl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.everowl.database.service.entity.AuditLogEntity;
+import org.everowl.database.service.entity.TokenEntity;
+import org.everowl.database.service.repository.AuditLogRepository;
 import org.everowl.database.service.repository.TokenRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+
+import static org.everowl.shared.service.util.JsonConverterUtils.convertObjectToJsonString;
 
 /**
  * This class represents a LogoutService that implements the LogoutHandler interface.
@@ -19,6 +24,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class LogoutDomainImpl implements LogoutHandler {
     private final TokenRepository tokenRepository;
+    private final AuditLogRepository auditLogRepository;
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER = "Bearer ";
@@ -45,8 +51,25 @@ public class LogoutDomainImpl implements LogoutHandler {
         // Extract the JWT token from the Authorization header
         final String jwt = authHeader.substring(BEARER.length());
 
+        TokenEntity token = tokenRepository.findByAccessToken(jwt)
+                .orElse(null);
+
         // Delete the token from the token repository
         tokenRepository.deleteTokenByAccessToken(jwt);
+
+        if (token != null) {
+            String beforeDeleted = convertObjectToJsonString(token);
+
+            AuditLogEntity auditLogEntity = new AuditLogEntity();
+            auditLogEntity.setLoginId("system");
+            auditLogEntity.setPerformedBy("system");
+            auditLogEntity.setAuthorityLevel("SYSTEM");
+            auditLogEntity.setBeforeChanged(beforeDeleted);
+            auditLogEntity.setAfterChanged(null);
+            auditLogEntity.setLogType("USER_LOGOUT");
+            auditLogEntity.setLogAction("DELETE");
+            auditLogRepository.save(auditLogEntity);
+        }
 
         // Write a successful logout response
         writeResponse(response, true);

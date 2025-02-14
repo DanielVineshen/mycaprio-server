@@ -8,7 +8,9 @@ import org.everowl.core.service.dto.admin.response.AdminProfileRes;
 import org.everowl.core.service.dto.admin.response.StaffsProfilesRes;
 import org.everowl.core.service.service.AdminDomain;
 import org.everowl.database.service.entity.AdminEntity;
+import org.everowl.database.service.entity.AuditLogEntity;
 import org.everowl.database.service.repository.AdminRepository;
+import org.everowl.database.service.repository.AuditLogRepository;
 import org.everowl.shared.service.dto.GenericMessage;
 import org.everowl.shared.service.exception.ForbiddenException;
 import org.everowl.shared.service.exception.NotFoundException;
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.everowl.shared.service.enums.ErrorCode.*;
+import static org.everowl.shared.service.util.JsonConverterUtils.convertObjectToJsonString;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,7 @@ public class AdminDomainImpl implements AdminDomain {
     private final BCryptPasswordEncoder passwordEncoder;
     private final AdminRepository adminRepository;
     private final ModelMapper modelMapper;
+    private final AuditLogRepository auditLogRepository;
 
     @Override
     public AdminProfileRes getAdminProfile(String loginId) {
@@ -77,7 +81,19 @@ public class AdminDomainImpl implements AdminDomain {
         adminEntity.setStore(owner.getStore());
         adminEntity.setFullName(createStaffProfileReq.getFullName());
 
-        adminRepository.save(adminEntity);
+        AdminEntity newStaff = adminRepository.save(adminEntity);
+
+        String afterChanged = convertObjectToJsonString(newStaff);
+
+        AuditLogEntity auditLogEntity = new AuditLogEntity();
+        auditLogEntity.setLoginId(owner.getLoginId());
+        auditLogEntity.setPerformedBy(owner.getFullName());
+        auditLogEntity.setAuthorityLevel("OWNER");
+        auditLogEntity.setBeforeChanged(null);
+        auditLogEntity.setAfterChanged(afterChanged);
+        auditLogEntity.setLogType("CREATE_STAFF_PROFILE");
+        auditLogEntity.setLogAction("CREATE");
+        auditLogRepository.save(auditLogEntity);
 
         return GenericMessage.builder()
                 .status(true)
@@ -92,6 +108,8 @@ public class AdminDomainImpl implements AdminDomain {
         AdminEntity staff = adminRepository.findByAdminId(updateStaffProfileReq.getAdminId())
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
+        String beforeChanged = convertObjectToJsonString(staff);
+
         if (!owner.getStore().equals(staff.getStore())) {
             throw new ForbiddenException(USER_NOT_PERMITTED);
         }
@@ -103,7 +121,19 @@ public class AdminDomainImpl implements AdminDomain {
             staff.setPassword(hashedPassword);
         }
 
-        adminRepository.save(staff);
+        AdminEntity savedAdmin = adminRepository.save(staff);
+
+        String afterChanged = convertObjectToJsonString(savedAdmin);
+
+        AuditLogEntity auditLogEntity = new AuditLogEntity();
+        auditLogEntity.setLoginId(owner.getLoginId());
+        auditLogEntity.setPerformedBy(owner.getFullName());
+        auditLogEntity.setAuthorityLevel("OWNER");
+        auditLogEntity.setBeforeChanged(beforeChanged);
+        auditLogEntity.setAfterChanged(afterChanged);
+        auditLogEntity.setLogType("UPDATE_STAFF_PROFILE");
+        auditLogEntity.setLogAction("UPDATE");
+        auditLogRepository.save(auditLogEntity);
 
         return GenericMessage.builder()
                 .status(true)

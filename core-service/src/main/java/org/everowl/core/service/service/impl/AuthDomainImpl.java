@@ -68,12 +68,14 @@ public class AuthDomainImpl implements AuthDomain {
         validateTokens(userDetails.getUsername(), userDetails.getUserType().toString());
         TokenEntity token = generateUserTokens(userDetails, ipAddress, userAgent);
 
+        String afterChanged = convertObjectToJsonString(token);
+
         AuditLogEntity auditLogEntity = new AuditLogEntity();
         auditLogEntity.setLoginId("system");
         auditLogEntity.setPerformedBy("system");
         auditLogEntity.setAuthorityLevel("SYSTEM");
         auditLogEntity.setBeforeChanged(null);
-        auditLogEntity.setAfterChanged(convertObjectToJsonString(new Object[]{token}));
+        auditLogEntity.setAfterChanged(afterChanged);
         auditLogEntity.setLogType("CREATE_USER_LOGIN");
         auditLogEntity.setLogAction("CREATE");
         auditLogRepository.save(auditLogEntity);
@@ -160,7 +162,6 @@ public class AuthDomainImpl implements AuthDomain {
                 newCustomer.setSmsCode(newSmsCode);
                 newCustomer.setSmsAttempt(1);
                 newCustomer.setSmsLastDatetime(datetime);
-                newCustomer = customerRepository.save(newCustomer);
 
                 List<StoreCustomerEntity> storeCustomerEntityList = new ArrayList<>();
                 List<StoreEntity> storeEntityList = storeRepository.findAll();
@@ -179,21 +180,52 @@ public class AuthDomainImpl implements AuthDomain {
                         storeCustomerEntityList.add(storeCustomer);
                     }
                 }
-                storeCustomerRepository.saveAll(storeCustomerEntityList);
+
+                newCustomer.setStoreCustomers(storeCustomerEntityList);
+
+                CustomerEntity savedCustomer = customerRepository.save(newCustomer);
+
+                String afterSaved = convertObjectToJsonString(savedCustomer);
+
+                AuditLogEntity auditLogEntity = new AuditLogEntity();
+                auditLogEntity.setLoginId("system");
+                auditLogEntity.setPerformedBy("system");
+                auditLogEntity.setAuthorityLevel("SYSTEM");
+                auditLogEntity.setBeforeChanged(null);
+                auditLogEntity.setAfterChanged(afterSaved);
+                auditLogEntity.setLogType("CREATE_CUSTOMER_PROFILE");
+                auditLogEntity.setLogAction("CREATE");
+                auditLogRepository.save(auditLogEntity);
             } else {
-                SmsService.SmsValidationResult smsValidationResult = smsService.canMakeSmsRequest(customerCheck.get().getSmsLastDatetime(), customerCheck.get().getSmsAttempt());
+                CustomerEntity customer = customerCheck.get();
+
+                String beforeUpdated = convertObjectToJsonString(customer);
+
+                SmsService.SmsValidationResult smsValidationResult = smsService.canMakeSmsRequest(customer.getSmsLastDatetime(), customer.getSmsAttempt());
                 log.info(smsValidationResult.getMessage());
                 if (smsValidationResult.isAllowed()) {
-                    customerCheck.get().setSmsCode(newSmsCode);
-                    customerCheck.get().setSmsLastDatetime(datetime);
+                    customer.setSmsCode(newSmsCode);
+                    customer.setSmsLastDatetime(datetime);
 
                     if (smsValidationResult.isShouldResetCounter()) {
-                        customerCheck.get().setSmsAttempt(1);
+                        customer.setSmsAttempt(1);
                     } else {
-                        customerCheck.get().setSmsAttempt(customerCheck.get().getSmsAttempt() + 1);
+                        customer.setSmsAttempt(customer.getSmsAttempt() + 1);
                     }
 
-                    customerRepository.save(customerCheck.get());
+                    CustomerEntity savedCustomer = customerRepository.save(customer);
+
+                    String afterUpdated = convertObjectToJsonString(savedCustomer);
+
+                    AuditLogEntity auditLogEntity = new AuditLogEntity();
+                    auditLogEntity.setLoginId(customer.getLoginId());
+                    auditLogEntity.setPerformedBy(customer.getFullName());
+                    auditLogEntity.setAuthorityLevel("CUSTOMER");
+                    auditLogEntity.setBeforeChanged(beforeUpdated);
+                    auditLogEntity.setAfterChanged(afterUpdated);
+                    auditLogEntity.setLogType("UPDATE_CUSTOMER_REGISTRATION_SMS_CODE");
+                    auditLogEntity.setLogAction("UPDATE");
+                    auditLogRepository.save(auditLogEntity);
                 } else {
                     throw new ForbiddenException(SMS_QUOTA_REACHED);
                 }
@@ -207,20 +239,36 @@ public class AuthDomainImpl implements AuthDomain {
                 throw new NotFoundException(USER_NOT_EXIST);
             }
 
-            if (customerCheck.get().getPassword() != null) {
+            CustomerEntity customer = customerCheck.get();
+
+            String beforeUpdated = convertObjectToJsonString(customer);
+
+            if (customer.getPassword() != null) {
                 throw new ForbiddenException(USER_NOT_PERMITTED);
             }
 
-            if (!smsCode.equals(customerCheck.get().getSmsCode())) {
+            if (!smsCode.equals(customer.getSmsCode())) {
                 throw new ForbiddenException(SMS_NOT_VALID);
             }
 
             if (password != null) {
                 String encodedPassword = passwordEncoder.encode(password);
-                customerCheck.get().setSmsCode(null);
-                customerCheck.get().setPassword(encodedPassword);
-                customerCheck.get().setSmsAttempt(0);
-                customerRepository.save(customerCheck.get());
+                customer.setSmsCode(null);
+                customer.setPassword(encodedPassword);
+                customer.setSmsAttempt(0);
+                CustomerEntity savedCustomer = customerRepository.save(customer);
+
+                String afterUpdated = convertObjectToJsonString(savedCustomer);
+
+                AuditLogEntity auditLogEntity = new AuditLogEntity();
+                auditLogEntity.setLoginId(customer.getLoginId());
+                auditLogEntity.setPerformedBy(customer.getFullName());
+                auditLogEntity.setAuthorityLevel("CUSTOMER");
+                auditLogEntity.setBeforeChanged(beforeUpdated);
+                auditLogEntity.setAfterChanged(afterUpdated);
+                auditLogEntity.setLogType("UPDATE_CUSTOMER_REGISTRATION_PASSWORD");
+                auditLogEntity.setLogAction("UPDATE");
+                auditLogRepository.save(auditLogEntity);
             }
         }
 
@@ -242,22 +290,38 @@ public class AuthDomainImpl implements AuthDomain {
                 throw new ForbiddenException(USER_NOT_EXIST);
             }
 
+            CustomerEntity customer = customerCheck.get();
+
+            String beforeUpdated = convertObjectToJsonString(customer);
+
             String datetime = LocalDateTime.now(ZoneId.of("Asia/Kuala_Lumpur")).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
             String newSmsCode = UniqueIdGenerator.generateSmsCode();
 
-            SmsService.SmsValidationResult smsValidationResult = smsService.canMakeSmsRequest(customerCheck.get().getSmsLastDatetime(), customerCheck.get().getSmsAttempt());
+            SmsService.SmsValidationResult smsValidationResult = smsService.canMakeSmsRequest(customer.getSmsLastDatetime(), customer.getSmsAttempt());
             log.info(smsValidationResult.getMessage());
             if (smsValidationResult.isAllowed()) {
-                customerCheck.get().setSmsCode(newSmsCode);
-                customerCheck.get().setSmsLastDatetime(datetime);
+                customer.setSmsCode(newSmsCode);
+                customer.setSmsLastDatetime(datetime);
 
                 if (smsValidationResult.isShouldResetCounter()) {
-                    customerCheck.get().setSmsAttempt(1);
+                    customer.setSmsAttempt(1);
                 } else {
-                    customerCheck.get().setSmsAttempt(customerCheck.get().getSmsAttempt() + 1);
+                    customer.setSmsAttempt(customer.getSmsAttempt() + 1);
                 }
 
-                customerRepository.save(customerCheck.get());
+                CustomerEntity savedCustomer = customerRepository.save(customer);
+
+                String afterUpdated = convertObjectToJsonString(savedCustomer);
+
+                AuditLogEntity auditLogEntity = new AuditLogEntity();
+                auditLogEntity.setLoginId(customer.getLoginId());
+                auditLogEntity.setPerformedBy(customer.getFullName());
+                auditLogEntity.setAuthorityLevel("CUSTOMER");
+                auditLogEntity.setBeforeChanged(beforeUpdated);
+                auditLogEntity.setAfterChanged(afterUpdated);
+                auditLogEntity.setLogType("UPDATE_CUSTOMER_REGISTRATION_SMS_CODE");
+                auditLogEntity.setLogAction("UPDATE");
+                auditLogRepository.save(auditLogEntity);
             } else {
                 throw new ForbiddenException(SMS_QUOTA_REACHED);
             }
@@ -269,6 +333,10 @@ public class AuthDomainImpl implements AuthDomain {
             if (customerCheck.isEmpty()) {
                 throw new NotFoundException(USER_NOT_EXIST);
             }
+
+            CustomerEntity customer = customerCheck.get();
+
+            String beforeUpdated = convertObjectToJsonString(customer);
 
             if (customerCheck.get().getPassword() == null) {
                 throw new ForbiddenException(USER_NOT_PERMITTED);
@@ -283,7 +351,19 @@ public class AuthDomainImpl implements AuthDomain {
                 customerCheck.get().setSmsCode(null);
                 customerCheck.get().setPassword(encodedPassword);
                 customerCheck.get().setSmsAttempt(0);
-                customerRepository.save(customerCheck.get());
+                CustomerEntity savedCustomer = customerRepository.save(customerCheck.get());
+
+                String afterUpdated = convertObjectToJsonString(savedCustomer);
+
+                AuditLogEntity auditLogEntity = new AuditLogEntity();
+                auditLogEntity.setLoginId(customer.getLoginId());
+                auditLogEntity.setPerformedBy(customer.getFullName());
+                auditLogEntity.setAuthorityLevel("CUSTOMER");
+                auditLogEntity.setBeforeChanged(beforeUpdated);
+                auditLogEntity.setAfterChanged(afterUpdated);
+                auditLogEntity.setLogType("UPDATE_CUSTOMER_REGISTRATION_PASSWORD");
+                auditLogEntity.setLogAction("UPDATE");
+                auditLogRepository.save(auditLogEntity);
             }
         }
 
@@ -316,6 +396,8 @@ public class AuthDomainImpl implements AuthDomain {
         String refreshToken = extractTokenFromHeader(request);
         TokenEntity token = validateRefreshToken(refreshToken);
 
+        String beforeChanged = convertObjectToJsonString(token);
+
         CustomUserDetails userDetails;
         if (UserType.valueOf(token.getUserType()) == UserType.CUSTOMER) {
             CustomerEntity customer = customerRepository.findByUsername(token.getLoginId())
@@ -329,7 +411,19 @@ public class AuthDomainImpl implements AuthDomain {
 
         String accessToken = jwtTokenService.generateToken(userDetails);
         token.setAccessToken(accessToken);
-        tokenRepository.save(token);
+        TokenEntity savedToken = tokenRepository.save(token);
+
+        String afterChanged = convertObjectToJsonString(savedToken);
+
+        AuditLogEntity auditLogEntity = new AuditLogEntity();
+        auditLogEntity.setLoginId("system");
+        auditLogEntity.setPerformedBy("system");
+        auditLogEntity.setAuthorityLevel("SYSTEM");
+        auditLogEntity.setBeforeChanged(beforeChanged);
+        auditLogEntity.setAfterChanged(afterChanged);
+        auditLogEntity.setLogType("REFRESH_USER_LOGIN");
+        auditLogEntity.setLogAction("UPDATE");
+        auditLogRepository.save(auditLogEntity);
 
         return createAuthenticationResponse(userDetails, token);
     }
@@ -359,8 +453,10 @@ public class AuthDomainImpl implements AuthDomain {
                 authRes.setEmailAddress(customer.get().getEmailAddress());
                 authRes.setGender(customer.get().getGender());
                 String dob = customer.get().getDateOfBirth();
-                String formattedDob = dob.substring(0, 4) + "-" + dob.substring(4, 6) + "-" + dob.substring(6, 8);
-                authRes.setDateOfBirth(formattedDob);
+                if (dob != null) {
+                    String formattedDob = dob.substring(0, 4) + "-" + dob.substring(4, 6) + "-" + dob.substring(6, 8);
+                    authRes.setDateOfBirth(formattedDob);
+                }
             }
         }
 
