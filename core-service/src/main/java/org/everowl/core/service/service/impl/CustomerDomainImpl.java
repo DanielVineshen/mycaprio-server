@@ -35,10 +35,8 @@ public class CustomerDomainImpl implements CustomerDomain {
     private final CustomerRepository customerRepository;
     private final StoreRepository storeRepository;
     private final TierRepository tierRepository;
-    private final StoreCustomerRepository storeCustomerRepository;
     private final AuditLogRepository auditLogRepository;
     private final ModelMapper modelMapper;
-    private final AuditLogRepository auditLogRepository;
 
     @Override
     public CustomerProfileRes getCustomerProfile(String loginId) {
