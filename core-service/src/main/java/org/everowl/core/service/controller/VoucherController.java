@@ -2,6 +2,7 @@ package org.everowl.core.service.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.everowl.core.service.dto.voucher.request.CreateVoucherReq;
@@ -61,7 +62,7 @@ public class VoucherController {
                                                                       @RequestParam @NotBlank(message = "Please ensure the voucher description is not blank") String voucherDesc,
                                                                       @RequestParam @NotBlank(message = "Please ensure the voucher type is not blank") String voucherType,
                                                                       @RequestParam @ValidInteger(message = "Please ensure a valid points required value is provided") @NotBlank(message = "Please ensure the points required value is not blank") String pointsRequired,
-                                                                      @RequestParam(required = false) MultipartFile attachment,
+                                                                      @RequestParam @NotNull(message = "Please ensure an attachment is provided") MultipartFile attachment,
                                                                       @RequestParam @BooleanValidation(message = "Please ensure the availability status is not blank") String isAvailable,
                                                                       @RequestParam @NotBlank(message = "Please ensure the tnc description is not blank") String tncDesc,
                                                                       @RequestParam @BooleanValidation(message = "Please ensure the exclusive status is not blank") String isExclusive,
@@ -78,9 +79,9 @@ public class VoucherController {
         request.setVoucherType(voucherType);
         request.setPointsRequired(Integer.parseInt(pointsRequired));
         request.setAttachment(attachment);
-        request.setIsAvailable(Boolean.getBoolean(isAvailable));
+        request.setIsAvailable(Boolean.parseBoolean(isAvailable));
         request.setTncDesc(tncDesc);
-        request.setIsExclusive(Boolean.getBoolean(isExclusive));
+        request.setIsExclusive(Boolean.parseBoolean(isExclusive));
         request.setLifeSpan(Integer.parseInt(lifeSpan));
         request.setMetaTag(metaTag);
         request.setQuantityTotal(Integer.parseInt(quantityTotal));
@@ -118,9 +119,9 @@ public class VoucherController {
         request.setVoucherType(voucherType);
         request.setPointsRequired(Integer.parseInt(pointsRequired));
         request.setAttachment(attachment);
-        request.setIsAvailable(Boolean.getBoolean(isAvailable));
+        request.setIsAvailable(Boolean.parseBoolean(isAvailable));
         request.setTncDesc(tncDesc);
-        request.setIsExclusive(Boolean.getBoolean(isExclusive));
+        request.setIsExclusive(Boolean.parseBoolean(isExclusive));
         request.setLifeSpan(Integer.parseInt(lifeSpan));
         request.setMetaTag(metaTag);
         request.setQuantityTotal(Integer.parseInt(quantityTotal));

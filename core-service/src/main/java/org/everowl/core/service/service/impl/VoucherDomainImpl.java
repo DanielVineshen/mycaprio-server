@@ -73,15 +73,17 @@ public class VoucherDomainImpl implements VoucherDomain {
                 .orElseThrow(() -> new NotFoundException(USER_NOT_AUTHORIZED));
 
         MultipartFile file = voucherReq.getAttachment();
-        String fileName = null;
-        String filePath = null;
-        Integer fileSize = null;
+        String fileName;
+        String filePath;
+        int fileSize;
 
         // Handle file upload and validation
         if (file != null && !file.isEmpty()) {
             fileName = uploadAttachmentFile(file);
             filePath = storagePath + fileName;
             fileSize = (int) voucherReq.getAttachment().getSize();
+        } else {
+            throw new BadRequestException(FILE_NOT_FOUND);
         }
 
         VoucherEntity voucher = new VoucherEntity();
@@ -91,9 +93,9 @@ public class VoucherDomainImpl implements VoucherDomain {
         voucher.setVoucherDesc(voucherReq.getVoucherDesc());
         voucher.setVoucherType(voucherReq.getVoucherType());
         voucher.setPointsRequired(voucherReq.getPointsRequired());
-        voucher.setAttachmentName(file != null ? fileName : null);
-        voucher.setAttachmentPath(file != null ? filePath : null);
-        voucher.setAttachmentSize(file != null ? fileSize : null);
+        voucher.setAttachmentName(fileName);
+        voucher.setAttachmentPath(filePath);
+        voucher.setAttachmentSize(fileSize);
         voucher.setIsAvailable(voucherReq.getIsAvailable());
         voucher.setTncDesc(voucherReq.getTncDesc());
         voucher.setIsExclusive(voucherReq.getIsExclusive());
@@ -134,22 +136,24 @@ public class VoucherDomainImpl implements VoucherDomain {
         //Save original copy for audit log
         String beforeChange = convertObjectToJsonString(new Object[]{voucher});
 
-
         MultipartFile file = voucherReq.getAttachment();
-        String fileName = null;
-        String filePath = null;
-        Integer fileSize = null;
 
-        //If file was uploaded and there is existing file in the server, delete existing before re-uploading
-        if (file != null && !file.isEmpty() && voucher.getAttachmentName() != null) {
-            deleteAttachmentFile(voucher.getAttachmentName());
-        }
-
-        // Handle file upload and validation
+        // Only handle attachment if a new file is provided
         if (file != null && !file.isEmpty()) {
-            fileName = uploadAttachmentFile(file);
-            filePath = storagePath + fileName;
-            fileSize = (int) voucherReq.getAttachment().getSize();
+            // Delete existing attachment if it exists
+            if (voucher.getAttachmentName() != null) {
+                deleteAttachmentFile(voucher.getAttachmentName());
+            }
+
+            // Upload new file and update attachment details
+            String fileName = uploadAttachmentFile(file);
+            String filePath = storagePath + fileName;
+            Integer fileSize = (int) file.getSize();
+
+            // Update attachment fields only when new file is provided
+            voucher.setAttachmentName(fileName);
+            voucher.setAttachmentPath(filePath);
+            voucher.setAttachmentSize(fileSize);
         }
 
         voucher.setVoucherId(voucher.getVoucherId());
@@ -159,9 +163,6 @@ public class VoucherDomainImpl implements VoucherDomain {
         voucher.setVoucherDesc(voucherReq.getVoucherDesc());
         voucher.setVoucherType(voucherReq.getVoucherType());
         voucher.setPointsRequired(voucherReq.getPointsRequired());
-        voucher.setAttachmentName(file != null ? fileName : null);
-        voucher.setAttachmentPath(file != null ? filePath : null);
-        voucher.setAttachmentSize(file != null ? fileSize : null);
         voucher.setIsAvailable(voucherReq.getIsAvailable());
         voucher.setTncDesc(voucherReq.getTncDesc());
         voucher.setIsExclusive(voucherReq.getIsExclusive());

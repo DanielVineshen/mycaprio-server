@@ -13,6 +13,7 @@ public interface VoucherRepository extends JpaRepository<VoucherEntity, Integer>
     @Query(value = """
              SELECT v FROM Voucher v
              WHERE v.store.storeId = :storeId
+             ORDER BY v.voucherId ASC
             """
     )
     List<VoucherEntity> findByStoreId(Integer storeId);
