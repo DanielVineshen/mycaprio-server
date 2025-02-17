@@ -15,6 +15,7 @@ public class VoucherDetailsRes {
     private String voucherName;
     private String voucherDesc;
     private String voucherType;
+    private String voucherValue;
     private Integer pointsRequired;
     private String attachmentName;
     private Boolean isAvailable;

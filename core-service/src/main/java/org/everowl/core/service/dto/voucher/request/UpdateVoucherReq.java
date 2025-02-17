@@ -16,6 +16,7 @@ public class UpdateVoucherReq {
     private String voucherName;
     private String voucherDesc;
     private String voucherType;
+    private String voucherValue;
     private Integer pointsRequired;
     private MultipartFile attachment;
     private Boolean isAvailable;

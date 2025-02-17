@@ -61,6 +61,7 @@ public class VoucherController {
                                                                       @RequestParam @NotBlank(message = "Please ensure the voucher name is not blank") String voucherName,
                                                                       @RequestParam @NotBlank(message = "Please ensure the voucher description is not blank") String voucherDesc,
                                                                       @RequestParam @NotBlank(message = "Please ensure the voucher type is not blank") String voucherType,
+                                                                      @RequestParam @NotBlank(message = "Please ensure the voucher value is not blank") String voucherValue,
                                                                       @RequestParam @ValidInteger(message = "Please ensure a valid points required value is provided") @NotBlank(message = "Please ensure the points required value is not blank") String pointsRequired,
                                                                       @RequestParam @NotNull(message = "Please ensure an attachment is provided") MultipartFile attachment,
                                                                       @RequestParam @BooleanValidation(message = "Please ensure the availability status is not blank") String isAvailable,
@@ -77,6 +78,7 @@ public class VoucherController {
         request.setVoucherName(voucherName);
         request.setVoucherDesc(voucherDesc);
         request.setVoucherType(voucherType);
+        request.setVoucherValue(voucherValue);
         request.setPointsRequired(Integer.parseInt(pointsRequired));
         request.setAttachment(attachment);
         request.setIsAvailable(Boolean.parseBoolean(isAvailable));
@@ -100,6 +102,7 @@ public class VoucherController {
                                                                       @RequestParam @NotBlank(message = "Please ensure the voucher name is not blank") String voucherName,
                                                                       @RequestParam @NotBlank(message = "Please ensure the voucher description is not blank") String voucherDesc,
                                                                       @RequestParam @NotBlank(message = "Please ensure the voucher type is not blank") String voucherType,
+                                                                      @RequestParam @NotBlank(message = "Please ensure the voucher value is not blank") String voucherValue,
                                                                       @RequestParam @ValidInteger(message = "Please ensure a valid points required value is provided") @NotBlank(message = "Please ensure the points required value is not blank") String pointsRequired,
                                                                       @RequestParam(required = false) MultipartFile attachment,
                                                                       @RequestParam @BooleanValidation(message = "Please ensure the availability status is not blank") String isAvailable,
@@ -117,6 +120,7 @@ public class VoucherController {
         request.setVoucherName(voucherName);
         request.setVoucherDesc(voucherDesc);
         request.setVoucherType(voucherType);
+        request.setVoucherValue(voucherValue);
         request.setPointsRequired(Integer.parseInt(pointsRequired));
         request.setAttachment(attachment);
         request.setIsAvailable(Boolean.parseBoolean(isAvailable));

@@ -10,6 +10,7 @@ public class VoucherModel {
     private String voucherName;
     private String voucherDesc;
     private String voucherType;
+    private String voucherValue;
     private Integer pointsRequired;
     private String attachmentName;
     private String attachmentPath;

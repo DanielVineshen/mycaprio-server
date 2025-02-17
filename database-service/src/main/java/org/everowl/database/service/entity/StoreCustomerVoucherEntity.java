@@ -58,6 +58,18 @@ public class StoreCustomerVoucherEntity {
     @Column(name = "voucher_type", nullable = false)
     private String voucherType;
 
+    @Column(name = "voucher_value", nullable = false)
+    private String voucherValue;
+
+    @Column(name = "attachment_name")
+    private String attachmentName;
+
+    @Column(name = "attachment_path")
+    private String attachmentPath;
+
+    @Column(name = "attachment_size", columnDefinition = "BIGINT")
+    private Integer attachmentSize;
+
     @Column(name = "tnc_desc", nullable = false, columnDefinition = "TEXT")
     private String tncDesc;
 

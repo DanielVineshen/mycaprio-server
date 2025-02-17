@@ -12,6 +12,9 @@ public class CustomerVoucherDetailsRes {
     private String validDate;
     private String voucherName;
     private String voucherDesc;
+    private String voucherType;
+    private String voucherValue;
+    private String attachmentName;
     private String tncDesc;
     private Boolean isExclusive;
     private Integer lifeSpan;

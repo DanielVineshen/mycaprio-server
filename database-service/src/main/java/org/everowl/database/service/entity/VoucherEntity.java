@@ -44,6 +44,9 @@ public class VoucherEntity {
     @Column(name = "voucher_type", nullable = false)
     private String voucherType;
 
+    @Column(name = "voucher_value", nullable = false)
+    private String voucherValue;
+
     @Column(name = "points_required", nullable = false)
     private Integer pointsRequired;
 

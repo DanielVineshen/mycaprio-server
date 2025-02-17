@@ -20,7 +20,6 @@ import java.time.MonthDay;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -67,6 +66,7 @@ public class ExclusiveVoucherJob {
                             storeCustomerVoucherEntity.setVoucherName(voucherModel.getVoucherName());
                             storeCustomerVoucherEntity.setVoucherDesc(voucherModel.getVoucherDesc());
                             storeCustomerVoucherEntity.setVoucherType(voucherModel.getVoucherType());
+                            storeCustomerVoucherEntity.setVoucherValue(voucherModel.getVoucherValue());
                             storeCustomerVoucherEntity.setTncDesc(voucherModel.getTncDesc());
                             storeCustomerVoucherEntity.setIsExclusive(voucherModel.getIsExclusive());
                             storeCustomerVoucherEntity.setLifeSpan(voucherModel.getLifeSpan());
@@ -110,21 +110,13 @@ public class ExclusiveVoucherJob {
                 ));
     }
 
-    private boolean isOlderThanSixMonths(Date createdAt) {
-        // Define Malaysian time zone
+    private boolean isOlderThanSixMonths(LocalDateTime createdAtUTC) {
         ZoneId malaysiaZone = ZoneId.of("Asia/Kuala_Lumpur");
-
-        // Convert Date to LocalDateTime in Malaysian time
-        LocalDateTime createdAtMalaysia = createdAt.toInstant()
-                .atZone(malaysiaZone)
-                .toLocalDateTime();
-
-        // Get date 6 months ago in Malaysian time
-        LocalDateTime sixMonthsAgo = LocalDateTime.now(malaysiaZone)
-                .minusMonths(6);
-
-        // Compare dates
-        return createdAtMalaysia.isBefore(sixMonthsAgo);
+        return createdAtUTC
+                .atZone(ZoneId.of("UTC"))
+                .withZoneSameInstant(malaysiaZone)
+                .toLocalDateTime()
+                .isBefore(LocalDateTime.now(malaysiaZone).minusMonths(6));
     }
 
     private boolean isDateWithinBirthdayWindow(String dateOfBirth) {

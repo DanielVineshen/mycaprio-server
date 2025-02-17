@@ -92,6 +92,7 @@ public class VoucherDomainImpl implements VoucherDomain {
         voucher.setVoucherName(voucherReq.getVoucherName());
         voucher.setVoucherDesc(voucherReq.getVoucherDesc());
         voucher.setVoucherType(voucherReq.getVoucherType());
+        voucher.setVoucherValue(voucherReq.getVoucherValue());
         voucher.setPointsRequired(voucherReq.getPointsRequired());
         voucher.setAttachmentName(fileName);
         voucher.setAttachmentPath(filePath);
@@ -162,6 +163,7 @@ public class VoucherDomainImpl implements VoucherDomain {
         voucher.setVoucherName(voucherReq.getVoucherName());
         voucher.setVoucherDesc(voucherReq.getVoucherDesc());
         voucher.setVoucherType(voucherReq.getVoucherType());
+        voucher.setVoucherValue(voucherReq.getVoucherValue());
         voucher.setPointsRequired(voucherReq.getPointsRequired());
         voucher.setIsAvailable(voucherReq.getIsAvailable());
         voucher.setTncDesc(voucherReq.getTncDesc());
