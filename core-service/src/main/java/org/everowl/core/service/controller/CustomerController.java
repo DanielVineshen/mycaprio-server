@@ -1,6 +1,8 @@
 package org.everowl.core.service.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.everowl.core.service.dto.customer.request.CreateCustomerProfileReq;
@@ -53,6 +55,17 @@ public class CustomerController {
         String loginId = userDetails.getUsername();
 
         GenericMessage response = customerDomain.updateCustomerPassword(loginId, updateCustomerPasswordReq);
+
+        BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/staff/customer/profile")
+    public @ResponseBody ResponseEntity<BaseSuccessResponseBodyModel> getACustomerProfile(@Valid @RequestParam @NotBlank(message = "Please ensure the field customer ID is not blank")
+                                                                                          @Size(min = 1, max = 255, message = "Please ensure the field customer ID is 1 to 255 characters in length")
+                                                                                          String custId) {
+
+        CustomerProfileRes response = customerDomain.getACustomerProfile(custId);
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);

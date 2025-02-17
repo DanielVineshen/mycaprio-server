@@ -116,6 +116,14 @@ public class CustomerDomainImpl implements CustomerDomain {
     }
 
     @Override
+    public CustomerProfileRes getACustomerProfile(String custId) {
+        CustomerEntity customer = customerRepository.findById(custId)
+                .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
+
+        return modelMapper.map(customer, CustomerProfileRes.class);
+    }
+
+    @Override
     @Transactional
     public GenericMessage createCustomerProfile(CreateCustomerProfileReq createCustomerProfileReq, String adminLoginId) {
         String loginId = createCustomerProfileReq.getLoginId();
