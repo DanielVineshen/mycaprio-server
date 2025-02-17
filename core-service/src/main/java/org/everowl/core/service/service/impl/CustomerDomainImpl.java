@@ -7,7 +7,11 @@ import org.everowl.core.service.dto.customer.request.ResetCustomerPasswordReq;
 import org.everowl.core.service.dto.customer.request.UpdateCustomerPasswordReq;
 import org.everowl.core.service.dto.customer.request.UpdateCustomerProfileReq;
 import org.everowl.core.service.dto.customer.response.CustomerProfileRes;
+import org.everowl.core.service.dto.customer.response.CustomerStoreProfileRes;
+import org.everowl.core.service.dto.customer.response.StoreCustomerProfile;
+import org.everowl.core.service.dto.customer.response.TierProfile;
 import org.everowl.core.service.service.CustomerDomain;
+import org.everowl.core.service.service.shared.StoreCustomerService;
 import org.everowl.database.service.entity.*;
 import org.everowl.database.service.repository.*;
 import org.everowl.shared.service.dto.GenericMessage;
@@ -37,6 +41,7 @@ public class CustomerDomainImpl implements CustomerDomain {
     private final TierRepository tierRepository;
     private final AuditLogRepository auditLogRepository;
     private final ModelMapper modelMapper;
+    private final StoreCustomerService storeCustomerService;
 
     @Override
     public CustomerProfileRes getCustomerProfile(String loginId) {
@@ -116,11 +121,24 @@ public class CustomerDomainImpl implements CustomerDomain {
     }
 
     @Override
-    public CustomerProfileRes getACustomerProfile(String custId) {
+    public CustomerProfileRes getACustomerProfile(String loginId, String custId) {
+        AdminEntity staff = adminRepository.findByUsername(loginId)
+                .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
+        StoreEntity store = staff.getStore();
+
         CustomerEntity customer = customerRepository.findById(custId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
-        return modelMapper.map(customer, CustomerProfileRes.class);
+        StoreCustomerEntity storeCustomer = storeCustomerService.getOrCreateStoreCustomer(customer, store);
+        TierEntity tier = storeCustomer.getTier();
+
+        CustomerStoreProfileRes customerStoreProfile = modelMapper.map(customer, CustomerStoreProfileRes.class);
+        StoreCustomerProfile storeCustomerProfile = modelMapper.map(storeCustomer, StoreCustomerProfile.class);
+        TierProfile tierProfile = modelMapper.map(tier, TierProfile.class);
+        storeCustomerProfile.setTier(tierProfile);
+        customerStoreProfile.setStoreCustomer(storeCustomerProfile);
+
+        return customerStoreProfile;
     }
 
     @Override

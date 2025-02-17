@@ -61,11 +61,13 @@ public class CustomerController {
     }
 
     @GetMapping(value = "/staff/customer/profile")
-    public @ResponseBody ResponseEntity<BaseSuccessResponseBodyModel> getACustomerProfile(@Valid @RequestParam @NotBlank(message = "Please ensure the field customer ID is not blank")
+    public @ResponseBody ResponseEntity<BaseSuccessResponseBodyModel> getACustomerProfile(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                                          @Valid @RequestParam @NotBlank(message = "Please ensure the field customer ID is not blank")
                                                                                           @Size(min = 1, max = 255, message = "Please ensure the field customer ID is 1 to 255 characters in length")
                                                                                           String custId) {
+        String loginId = userDetails.getUsername();
 
-        CustomerProfileRes response = customerDomain.getACustomerProfile(custId);
+        CustomerProfileRes response = customerDomain.getACustomerProfile(loginId, custId);
 
         BaseSuccessResponseBodyModel responseBody = new BaseSuccessResponseBodyModel(response);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
