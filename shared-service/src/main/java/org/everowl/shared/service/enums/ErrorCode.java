@@ -65,7 +65,9 @@ public enum ErrorCode {
     UNSUPPORTED_MEDIA_TYPE_EXCEPTION(5006, "Unsupported media type exception occurred."),
     SMS_SEND_EXCEPTION(5007, "Something went wrong when sending sms."),
     JSON_CONVERSION_EXCEPTION(5008, "Failed to convert object to JSON."),
-    JSON_PROCESSING_EXCEPTION(5009, "Failed to convert JSON to object.");
+    JSON_PROCESSING_EXCEPTION(5009, "Failed to convert JSON to object."),
+    ENCRYPTING_CODE_EXCEPTION(5010, "Something went wrong when encrypting code."),
+    DECRYPTING_CODE_EXCEPTION(5011, "Something went wrong when encrypting code.");
 
     /**
      * The numeric code associated with the error.

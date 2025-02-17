@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.everowl.database.service.entity.compositeKeys.VoucherRedemptionPKs;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -19,12 +18,13 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VoucherRedemptionEntity {
-    @EmbeddedId
-    private VoucherRedemptionPKs voucherRedemptionPKs;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "voucher_redemption_id")
+    private Integer voucherRedemptionId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonBackReference(value = "voucherRedemption-storeCustomerVoucher")
-    @MapsId("storeCustVoucherId")
     @JoinColumn(name = "store_cust_voucher_id",
             nullable = false,
             updatable = false,
@@ -35,7 +35,6 @@ public class VoucherRedemptionEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonBackReference(value = "voucherRedemption-admin")
-    @MapsId("adminId")
     @JoinColumn(name = "admin_id",
             nullable = false,
             updatable = false,

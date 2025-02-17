@@ -121,13 +121,21 @@ public class CustomerDomainImpl implements CustomerDomain {
     }
 
     @Override
-    public CustomerProfileRes getACustomerProfile(String loginId, String custId) {
+    public CustomerProfileRes getACustomerProfile(String loginId, String custId, String custLoginId) {
         AdminEntity staff = adminRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
         StoreEntity store = staff.getStore();
 
-        CustomerEntity customer = customerRepository.findById(custId)
-                .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
+        CustomerEntity customer;
+        if (custId != null) {
+            customer = customerRepository.findById(custId)
+                    .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
+        } else if (custLoginId != null) {
+            customer = customerRepository.findByUsername(custLoginId)
+                    .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
+        } else {
+            throw new NotFoundException(USER_NOT_EXIST);
+        }
 
         StoreCustomerEntity storeCustomer = storeCustomerService.getOrCreateStoreCustomer(customer, store);
         TierEntity tier = storeCustomer.getTier();

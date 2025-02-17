@@ -23,6 +23,7 @@ public interface TokenRepository extends JpaRepository<TokenEntity, Integer> {
     @Query(value = """
              SELECT t FROM Token t
              WHERE t.loginId = :loginId AND t.userType = :userType
+             ORDER BY t.createdAt ASC
             """
     )
     List<TokenEntity> findAllValidTokensByUser(String loginId, String userType);

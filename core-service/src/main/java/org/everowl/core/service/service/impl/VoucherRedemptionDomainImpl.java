@@ -4,16 +4,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.everowl.core.service.dto.voucherRedemption.request.CustomerVoucherPurchaseReq;
 import org.everowl.core.service.dto.voucherRedemption.request.CustomerVoucherRedemptionReq;
-import org.everowl.core.service.dto.voucherRedemption.response.CustomerVoucherDetailsRes;
-import org.everowl.core.service.dto.voucherRedemption.response.CustomerVoucherPurchaseDetailsRes;
+import org.everowl.core.service.dto.voucherRedemption.response.*;
 import org.everowl.core.service.service.VoucherRedemptionDomain;
+import org.everowl.core.service.service.shared.EncryptionService;
 import org.everowl.core.service.service.shared.StoreCustomerService;
 import org.everowl.database.service.entity.*;
-import org.everowl.database.service.entity.compositeKeys.VoucherRedemptionPKs;
 import org.everowl.database.service.repository.*;
 import org.everowl.shared.service.dto.GenericMessage;
 import org.everowl.shared.service.exception.ForbiddenException;
 import org.everowl.shared.service.exception.NotFoundException;
+import org.everowl.shared.service.exception.RunTimeException;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 
 import static org.everowl.shared.service.enums.ErrorCode.*;
 import static org.everowl.shared.service.util.JsonConverterUtils.convertObjectToJsonString;
@@ -41,6 +42,7 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
     private final ModelMapper modelMapper;
     private final StoreCustomerService storeCustomerService;
     private final AuditLogRepository auditLogRepository;
+    private final EncryptionService encryptionService;
 
     @Override
     @Transactional
@@ -128,7 +130,26 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
 
     @Override
     @Transactional
-    public GenericMessage createCustomerVoucherRedemption(String loginId, CustomerVoucherRedemptionReq customerVoucherRedemptionReq) {
+    public CustomerVoucherRedemptionDetailsRes createCustomerVoucherRedemption(String loginId, CustomerVoucherRedemptionReq customerVoucherRedemptionReq) {
+        try {
+            String decrypted = encryptionService.decryptCompact(customerVoucherRedemptionReq.getCode());
+            String[] trimmedParts = decrypted.split("\\|");
+            String[] trimmedArray = Arrays.stream(trimmedParts)
+                    .map(String::trim)
+                    .toArray(String[]::new);
+
+            boolean validationCheck = Integer.parseInt(trimmedArray[0]) == customerVoucherRedemptionReq.getStoreCustVoucherId()
+                    && isWithinFiveMinutes(Long.parseLong(trimmedArray[1]));
+
+            if (!validationCheck) {
+                throw new ForbiddenException(USER_NOT_PERMITTED);
+            }
+        } catch (Exception e) {
+            log.info("Exception decoding code: {}", e.toString());
+//            throw new RunTimeException(DECRYPTING_CODE_EXCEPTION);
+            throw new ForbiddenException(USER_NOT_PERMITTED);
+        }
+
         AdminEntity staff = adminRepository.findByUsername(loginId)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
 
@@ -146,10 +167,6 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
         }
 
         VoucherRedemptionEntity voucherRedemptionEntity = new VoucherRedemptionEntity();
-        VoucherRedemptionPKs voucherRedemptionPKs = new VoucherRedemptionPKs();
-        voucherRedemptionPKs.setStoreCustVoucherId(storeCustomerVoucher.getStoreCustVoucherId());
-        voucherRedemptionPKs.setAdminId(staff.getAdminId());
-        voucherRedemptionEntity.setVoucherRedemptionPKs(voucherRedemptionPKs);
         voucherRedemptionEntity.setStoreCustomerVoucher(storeCustomerVoucher);
         voucherRedemptionEntity.setAdmin(staff);
         VoucherRedemptionEntity savedVoucherRedemption = voucherRedemptionRepository.save(voucherRedemptionEntity);
@@ -169,8 +186,47 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
         auditLogEntity.setLogAction("CREATE");
         auditLogRepository.save(auditLogEntity);
 
-        return GenericMessage.builder()
-                .status(true)
-                .build();
+        CustomerVoucherRedemptionDetailsRes customerVoucherRedemptionDetailsRes = new CustomerVoucherRedemptionDetailsRes();
+        CustomerVoucherDetailsRes customerVoucherDetailsRes = modelMapper.map(storeCustomerVoucher, CustomerVoucherDetailsRes.class);
+        customerVoucherRedemptionDetailsRes.setCustomerVoucherRedemption(customerVoucherDetailsRes);
+
+        return customerVoucherRedemptionDetailsRes;
+    }
+
+    private boolean isWithinFiveMinutes(long timestamp) {
+        long currentTime = System.currentTimeMillis();
+        long diffInMillis = currentTime - timestamp;
+        return diffInMillis < (5 * 60 * 1000);
+    }
+
+    @Override
+    public CustomerVoucherCodeDetailsRes generateCustomerVoucherCode(String loginId, Integer storeCustomerVoucherId) {
+        customerRepository.findByUsername(loginId)
+                .orElseThrow(() -> new NotFoundException(USER_NOT_EXIST));
+
+        StoreCustomerVoucherEntity storeCustomerVoucher = storeCustomerVoucherRepository.findById(storeCustomerVoucherId)
+                .orElseThrow(() -> new NotFoundException(STORE_CUSTOMER_VOUCHER_NOT_EXIST));
+
+        boolean isValidDateOlder = LocalDateTime.parse(storeCustomerVoucher.getValidDate(), DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
+                .atZone(ZoneId.of("Asia/Kuala_Lumpur"))
+                .isBefore(ZonedDateTime.now(ZoneId.of("Asia/Kuala_Lumpur")));
+
+        if (storeCustomerVoucher.getQuantityLeft() == 0 || isValidDateOlder) {
+            throw new ForbiddenException(VOUCHER_REDEEMED_EXPIRED);
+        }
+
+        VoucherCodeDetails voucherCodeDetails = new VoucherCodeDetails();
+        try {
+            String sensitiveData = storeCustomerVoucherId + "|" + System.currentTimeMillis();
+            String encrypted = encryptionService.encryptCompact(sensitiveData);
+            voucherCodeDetails.setCode(encrypted);
+        } catch (Exception e) {
+            throw new RunTimeException(ENCRYPTING_CODE_EXCEPTION);
+        }
+
+        CustomerVoucherCodeDetailsRes customerVoucherCodeDetailsRes = new CustomerVoucherCodeDetailsRes();
+        customerVoucherCodeDetailsRes.setVoucherCode(voucherCodeDetails);
+
+        return customerVoucherCodeDetailsRes;
     }
 }

@@ -134,6 +134,10 @@ public class AuthDomainImpl implements AuthDomain {
 
         boolean status = customer.isEmpty();
 
+        if (customer.isPresent() && customer.get().getPassword() == null) {
+            status = true;
+        }
+
         return GenericMessage.builder()
                 .status(status)
                 .build();
