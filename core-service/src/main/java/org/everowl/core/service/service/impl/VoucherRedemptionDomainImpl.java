@@ -76,6 +76,9 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
         storeCustomerVoucherEntity.setVoucherDesc(voucher.getVoucherDesc());
         storeCustomerVoucherEntity.setVoucherType(voucher.getVoucherType());
         storeCustomerVoucherEntity.setVoucherValue(voucher.getVoucherValue());
+        storeCustomerVoucherEntity.setAttachmentName(voucher.getAttachmentName());
+        storeCustomerVoucherEntity.setAttachmentPath(voucher.getAttachmentPath());
+        storeCustomerVoucherEntity.setAttachmentSize(voucher.getAttachmentSize());
         storeCustomerVoucherEntity.setTncDesc(voucher.getTncDesc());
         storeCustomerVoucherEntity.setIsExclusive(voucher.getIsExclusive());
         storeCustomerVoucherEntity.setLifeSpan(voucher.getLifeSpan());

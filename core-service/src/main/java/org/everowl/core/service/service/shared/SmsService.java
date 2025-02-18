@@ -3,6 +3,7 @@ package org.everowl.core.service.service.shared;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.everowl.shared.service.exception.RunTimeException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -19,6 +20,7 @@ import static org.everowl.shared.service.enums.ErrorCode.SMS_SEND_EXCEPTION;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SmsService {
     @Value("${sms.api.username}")
     private String username;
@@ -127,8 +129,10 @@ public class SmsService {
                     String.class
             );
 
+            log.info("sms response: {}", response.getBody());
             return response.getBody();
         } catch (Exception e) {
+            log.info(e.toString());
             throw new RunTimeException(SMS_SEND_EXCEPTION);
         }
     }
