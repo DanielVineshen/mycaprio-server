@@ -10,7 +10,6 @@ import org.everowl.core.service.service.shared.EncryptionService;
 import org.everowl.core.service.service.shared.StoreCustomerService;
 import org.everowl.database.service.entity.*;
 import org.everowl.database.service.repository.*;
-import org.everowl.shared.service.dto.GenericMessage;
 import org.everowl.shared.service.exception.ForbiddenException;
 import org.everowl.shared.service.exception.NotFoundException;
 import org.everowl.shared.service.exception.RunTimeException;
@@ -98,6 +97,7 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
         pointsActivityEntity.setPointsMultiplier(BigDecimal.valueOf(1));
         pointsActivityEntity.setFinalisedPoints(voucher.getPointsRequired());
         pointsActivityEntity.setActivityType("REDEEM");
+        pointsActivityEntity.setActivityDesc(String.format("Redeemed %s for %d points.", voucher.getVoucherName(), voucher.getPointsRequired()));
         pointsActivityEntity.setActivityDate(currentDate);
         PointsActivityEntity savedPointsActivity = pointsActivityRepository.save(pointsActivityEntity);
 

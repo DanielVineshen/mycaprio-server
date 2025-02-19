@@ -10,7 +10,6 @@ import org.everowl.core.service.service.shared.StoreCustomerService;
 import org.everowl.database.service.entity.*;
 import org.everowl.database.service.repository.*;
 import org.everowl.shared.service.dto.GenericMessage;
-import org.everowl.shared.service.exception.ForbiddenException;
 import org.everowl.shared.service.exception.NotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -94,17 +93,18 @@ public class PointsActivityDomainImpl implements PointsActivityDomain {
                                                       BigDecimal originalPoints, BigDecimal finalisedPoints, BigDecimal multiplier) {
         String currentDate = getCurrentFormattedDate();
 
-        PointsActivityEntity activity = new PointsActivityEntity();
-        activity.setStoreCustomer(storeCustomer);
-        activity.setAdmin(staff);
-        activity.setCustExistingPoints(storeCustomer.getAvailablePoints());
-        activity.setOriginalPoints(originalPoints.intValue());
-        activity.setPointsMultiplier(multiplier);
-        activity.setFinalisedPoints(finalisedPoints.intValue());
-        activity.setActivityType("AWARD");
-        activity.setActivityDate(currentDate);
+        PointsActivityEntity pointsActivityEntity = new PointsActivityEntity();
+        pointsActivityEntity.setStoreCustomer(storeCustomer);
+        pointsActivityEntity.setAdmin(staff);
+        pointsActivityEntity.setCustExistingPoints(storeCustomer.getAvailablePoints());
+        pointsActivityEntity.setOriginalPoints(originalPoints.intValue());
+        pointsActivityEntity.setPointsMultiplier(multiplier);
+        pointsActivityEntity.setFinalisedPoints(finalisedPoints.intValue());
+        pointsActivityEntity.setActivityType("AWARD");
+        pointsActivityEntity.setActivityDesc(String.format("Awarded %s points for spending.", finalisedPoints.intValue()));
+        pointsActivityEntity.setActivityDate(currentDate);
 
-        return pointsActivityRepository.save(activity);
+        return pointsActivityRepository.save(pointsActivityEntity);
     }
 
     private StoreCustomerEntity updateCustomerTierAndPoints(StoreCustomerEntity storeCustomer, BigDecimal finalisedPoints) {

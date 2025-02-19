@@ -4,12 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.everowl.core.service.dto.storeCustomerVoucher.response.StoreCustomerVoucherDetailsRes;
 import org.everowl.core.service.dto.storeCustomerVoucher.response.StoreCustomerVoucherRes;
+import org.everowl.core.service.dto.storeCustomerVoucher.response.VoucherRedemptionsDetails;
 import org.everowl.core.service.service.StoreCustomerVoucherDomain;
 import org.everowl.core.service.service.shared.StoreCustomerService;
-import org.everowl.database.service.entity.CustomerEntity;
-import org.everowl.database.service.entity.StoreCustomerEntity;
-import org.everowl.database.service.entity.StoreCustomerVoucherEntity;
-import org.everowl.database.service.entity.StoreEntity;
+import org.everowl.database.service.entity.*;
 import org.everowl.database.service.repository.CustomerRepository;
 import org.everowl.database.service.repository.StoreCustomerVoucherRepository;
 import org.everowl.database.service.repository.StoreRepository;
@@ -17,6 +15,7 @@ import org.everowl.shared.service.exception.NotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,9 +44,22 @@ public class StoreCustomerVoucherImpl implements StoreCustomerVoucherDomain {
 
         List<StoreCustomerVoucherEntity> storeVouchers = storeCustomerVoucherRepository.findByStoreCustId(storeCustomerEntity.getStoreCustId());
 
+        modelMapper.typeMap(StoreCustomerVoucherEntity.class, StoreCustomerVoucherDetailsRes.class)
+                .addMappings(mapper -> mapper.skip(StoreCustomerVoucherDetailsRes::setVoucherRedemptions));
+
         List<StoreCustomerVoucherDetailsRes> storeCustomerVoucherDetailsResList = new ArrayList<>();
         for (StoreCustomerVoucherEntity storeCustomerVoucherEntity : storeVouchers) {
             StoreCustomerVoucherDetailsRes storeCustomerVoucherDetailsRes = modelMapper.map(storeCustomerVoucherEntity, StoreCustomerVoucherDetailsRes.class);
+            List<VoucherRedemptionsDetails> voucherRedemptionsDetailsList = new ArrayList<>();
+            for (VoucherRedemptionEntity voucherRedemptionEntity : storeCustomerVoucherEntity.getVoucherRedemptions()) {
+                VoucherRedemptionsDetails voucherRedemptionsDetails = new VoucherRedemptionsDetails();
+                voucherRedemptionsDetails.setAdminId(voucherRedemptionEntity.getAdmin().getAdminId());
+                voucherRedemptionsDetails.setAdminFullName(voucherRedemptionEntity.getAdmin().getFullName());
+                SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                voucherRedemptionsDetails.setCreatedAt(outputFormat.format(voucherRedemptionEntity.getCreatedAt()));
+                voucherRedemptionsDetailsList.add(voucherRedemptionsDetails);
+            }
+            storeCustomerVoucherDetailsRes.setVoucherRedemptions(voucherRedemptionsDetailsList);
             storeCustomerVoucherDetailsResList.add(storeCustomerVoucherDetailsRes);
         }
 
