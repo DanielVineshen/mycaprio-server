@@ -68,7 +68,7 @@ public class StoreCustomerVoucherEntity {
     private String attachmentPath;
 
     @Column(name = "attachment_size", columnDefinition = "BIGINT")
-    private Integer attachmentSize;
+    private Long attachmentSize;
 
     @Column(name = "tnc_desc", nullable = false, columnDefinition = "TEXT")
     private String tncDesc;

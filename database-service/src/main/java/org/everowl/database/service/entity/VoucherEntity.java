@@ -57,7 +57,7 @@ public class VoucherEntity {
     private String attachmentPath;
 
     @Column(name = "attachment_size", columnDefinition = "BIGINT")
-    private Integer attachmentSize;
+    private Long attachmentSize;
 
     @Column(name = "is_available", nullable = false, columnDefinition = "BOOLEAN")
     private Boolean isAvailable = false;

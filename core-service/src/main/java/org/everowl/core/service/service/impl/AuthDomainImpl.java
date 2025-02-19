@@ -54,7 +54,8 @@ public class AuthDomainImpl implements AuthDomain {
     private final PasswordEncoder passwordEncoder;
     private final StoreRepository storeRepository;
     private final TierRepository tierRepository;
-    private final StoreCustomerRepository storeCustomerRepository;
+    private final StoreCustomerVoucherRepository storeCustomerVoucherRepository;
+    private final VoucherRepository voucherRepository;
     private final AuditLogRepository auditLogRepository;
 
     private static final String BEARER = "Bearer ";
@@ -256,11 +257,41 @@ public class AuthDomainImpl implements AuthDomain {
             }
 
             if (password != null) {
+
                 String encodedPassword = passwordEncoder.encode(password);
                 customer.setSmsCode(null);
                 customer.setPassword(encodedPassword);
                 customer.setSmsAttempt(0);
                 CustomerEntity savedCustomer = customerRepository.save(customer);
+
+                List<StoreCustomerVoucherEntity> storeCustomerVouchers = new ArrayList<>();
+                List<StoreCustomerEntity> storeCustomers = customer.getStoreCustomers();
+                for (StoreCustomerEntity storeCustomer : storeCustomers) {
+                    List<VoucherEntity> firstTimeVouchers = voucherRepository.findAvailableStoreMetaTagVouchers(storeCustomer.getStore().getStoreId(), "first_time");
+                    for (VoucherEntity voucher : firstTimeVouchers) {
+                        StoreCustomerVoucherEntity storeCustomerVoucherEntity = new StoreCustomerVoucherEntity();
+                        storeCustomerVoucherEntity.setStoreCustomer(storeCustomer);
+                        storeCustomerVoucherEntity.setMinTierLevel(voucher.getMinTierLevel());
+                        storeCustomerVoucherEntity.setPointsRequired(voucher.getPointsRequired());
+                        storeCustomerVoucherEntity.setQuantityTotal(voucher.getQuantityTotal());
+                        storeCustomerVoucherEntity.setQuantityLeft(voucher.getQuantityTotal());
+                        String validDate = addDaysToToday(voucher.getLifeSpan());
+                        storeCustomerVoucherEntity.setValidDate(validDate);
+                        storeCustomerVoucherEntity.setVoucherName(voucher.getVoucherName());
+                        storeCustomerVoucherEntity.setVoucherDesc(voucher.getVoucherDesc());
+                        storeCustomerVoucherEntity.setVoucherType(voucher.getVoucherType());
+                        storeCustomerVoucherEntity.setVoucherValue(voucher.getVoucherValue());
+                        storeCustomerVoucherEntity.setAttachmentName(voucher.getAttachmentName());
+                        storeCustomerVoucherEntity.setAttachmentPath(voucher.getAttachmentPath());
+                        storeCustomerVoucherEntity.setAttachmentSize(voucher.getAttachmentSize());
+                        storeCustomerVoucherEntity.setTncDesc(voucher.getTncDesc());
+                        storeCustomerVoucherEntity.setIsExclusive(voucher.getIsExclusive());
+                        storeCustomerVoucherEntity.setLifeSpan(voucher.getLifeSpan());
+                        storeCustomerVoucherEntity.setMetaTag(voucher.getMetaTag());
+                        storeCustomerVouchers.add(storeCustomerVoucherEntity);
+                    }
+                }
+                storeCustomerVoucherRepository.saveAll(storeCustomerVouchers);
 
                 String afterUpdated = convertObjectToJsonString(savedCustomer);
 
@@ -279,6 +310,13 @@ public class AuthDomainImpl implements AuthDomain {
         return GenericMessage.builder()
                 .status(true)
                 .build();
+    }
+
+    public String addDaysToToday(int days) {
+        ZoneId malaysiaZone = ZoneId.of("Asia/Kuala_Lumpur");
+        LocalDateTime futureDateTime = LocalDateTime.now(malaysiaZone).plusDays(days);
+
+        return futureDateTime.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
     }
 
     @Override

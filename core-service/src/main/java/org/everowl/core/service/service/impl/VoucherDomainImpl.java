@@ -75,13 +75,13 @@ public class VoucherDomainImpl implements VoucherDomain {
         MultipartFile file = voucherReq.getAttachment();
         String fileName;
         String filePath;
-        int fileSize;
+        long fileSize;
 
         // Handle file upload and validation
         if (file != null && !file.isEmpty()) {
             fileName = uploadAttachmentFile(file);
             filePath = storagePath + fileName;
-            fileSize = (int) voucherReq.getAttachment().getSize();
+            fileSize = voucherReq.getAttachment().getSize();
         } else {
             throw new BadRequestException(FILE_NOT_FOUND);
         }
@@ -149,7 +149,7 @@ public class VoucherDomainImpl implements VoucherDomain {
             // Upload new file and update attachment details
             String fileName = uploadAttachmentFile(file);
             String filePath = storagePath + fileName;
-            Integer fileSize = (int) file.getSize();
+            Long fileSize = file.getSize();
 
             // Update attachment fields only when new file is provided
             voucher.setAttachmentName(fileName);
