@@ -18,6 +18,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import static org.everowl.shared.service.enums.ErrorCode.*;
@@ -65,6 +67,7 @@ public class StoreDomainImpl implements StoreDomain {
     @Override
     public StoresRes getStores() {
         List<StoreEntity> stores = storeRepository.findAll();
+        stores.sort(Comparator.comparing(StoreEntity::getCreatedAt, Date::compareTo).reversed());
 
         List<StoresDetailsRes> storeList = new ArrayList<>();
         for (StoreEntity store : stores) {

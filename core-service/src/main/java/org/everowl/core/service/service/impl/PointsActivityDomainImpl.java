@@ -20,9 +20,7 @@ import java.math.RoundingMode;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.everowl.shared.service.enums.ErrorCode.*;
 import static org.everowl.shared.service.util.JsonConverterUtils.convertObjectToJsonString;
@@ -53,7 +51,7 @@ public class PointsActivityDomainImpl implements PointsActivityDomain {
         PointsActivitiesDetailsRes pointsActivitiesDetailsRes = new PointsActivitiesDetailsRes();
 
         List<PointsActivityEntity> pointsActivities = storeCustomer.getPointsActivities();
-
+        pointsActivities.sort(Comparator.comparing(PointsActivityEntity::getCreatedAt, Date::compareTo).reversed());
         List<PointsActivityDetailsRes> pointsActivityDetailsResList = new ArrayList<>();
         for (PointsActivityEntity pointsActivity : pointsActivities) {
             PointsActivityDetailsRes pointsActivityDetailsRes = modelMapper.map(pointsActivity, PointsActivityDetailsRes.class);

@@ -14,4 +14,5 @@ public class FeedbackDetailsRes {
     private String contactNo;
     private String msgTitle;
     private String msgContent;
+    private String createdAt;
 }

@@ -10,4 +10,5 @@ public class AdminProfileRes {
     private String fullName;
     private String role;
     private Boolean isDisabled;
+    private String createdAt;
 }

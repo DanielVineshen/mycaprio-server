@@ -17,6 +17,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import static org.everowl.shared.service.enums.ErrorCode.USER_NOT_AUTHORIZED;
@@ -42,6 +44,7 @@ public class FeedbackDomainImpl implements FeedbackDomain {
 
         // Validate feedback
         List<FeedbackEntity> feedbacks = feedbackRepository.findAllByStoreId(admin.getStore().getStoreId());
+        feedbacks.sort(Comparator.comparing(FeedbackEntity::getCreatedAt, Date::compareTo).reversed());
 
         List<FeedbackDetailsRes> feedbackList = new ArrayList<>();
         for (FeedbackEntity feedback : feedbacks) {

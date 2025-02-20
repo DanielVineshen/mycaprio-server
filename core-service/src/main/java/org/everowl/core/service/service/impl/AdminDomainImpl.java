@@ -18,9 +18,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.everowl.shared.service.enums.ErrorCode.*;
 import static org.everowl.shared.service.util.JsonConverterUtils.convertObjectToJsonString;
@@ -50,6 +48,7 @@ public class AdminDomainImpl implements AdminDomain {
         StaffsProfilesRes staffsProfilesRes = new StaffsProfilesRes();
 
         List<AdminEntity> staffs = adminRepository.findStaffsByStoreId(owner.getStore().getStoreId());
+        staffs.sort(Comparator.comparing(AdminEntity::getCreatedAt, Date::compareTo).reversed());
 
         List<AdminProfileRes> adminProfileRes = new ArrayList<>();
         for (AdminEntity adminEntity : staffs) {

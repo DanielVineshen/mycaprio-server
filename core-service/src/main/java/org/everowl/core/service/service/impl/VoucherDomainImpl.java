@@ -53,6 +53,7 @@ public class VoucherDomainImpl implements VoucherDomain {
     @Override
     public VoucherRes getAllVouchers(Integer storeId) {
         List<VoucherEntity> vouchers = voucherRepository.findByStoreId(storeId);
+        vouchers.sort(Comparator.comparing(VoucherEntity::getCreatedAt, Date::compareTo).reversed());
 
         List<VoucherDetailsRes> voucherList = new ArrayList<>();
         for (VoucherEntity voucher : vouchers) {

@@ -10,6 +10,7 @@ import org.everowl.database.service.repository.TierRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -21,11 +22,11 @@ public class TierDomainImpl implements TierDomain {
     @Override
     public TierRes getAllTiers(Integer storeId) {
         List<TierEntity> tiers = tierRepository.findAllByStoreId(storeId);
+        tiers.sort(Comparator.comparing(TierEntity::getTierLevel));
 
         List<TierDetailsRes> tierList = new ArrayList<>();
 
         for (TierEntity tier : tiers) {
-
             TierDetailsRes tierDetails = new TierDetailsRes();
             tierDetails.setTierId(tier.getTierId());
             tierDetails.setTierLevel(tier.getTierLevel());

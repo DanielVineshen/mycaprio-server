@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import static org.everowl.shared.service.enums.ErrorCode.STORE_NOT_EXIST;
@@ -51,7 +53,9 @@ public class StoreCustomerVoucherImpl implements StoreCustomerVoucherDomain {
         for (StoreCustomerVoucherEntity storeCustomerVoucherEntity : storeVouchers) {
             StoreCustomerVoucherDetailsRes storeCustomerVoucherDetailsRes = modelMapper.map(storeCustomerVoucherEntity, StoreCustomerVoucherDetailsRes.class);
             List<VoucherRedemptionsDetails> voucherRedemptionsDetailsList = new ArrayList<>();
-            for (VoucherRedemptionEntity voucherRedemptionEntity : storeCustomerVoucherEntity.getVoucherRedemptions()) {
+            List<VoucherRedemptionEntity> voucherRedemptionList = new ArrayList<>(storeCustomerVoucherEntity.getVoucherRedemptions());
+            voucherRedemptionList.sort(Comparator.comparing(VoucherRedemptionEntity::getCreatedAt, Date::compareTo).reversed());
+            for (VoucherRedemptionEntity voucherRedemptionEntity : voucherRedemptionList) {
                 VoucherRedemptionsDetails voucherRedemptionsDetails = new VoucherRedemptionsDetails();
                 voucherRedemptionsDetails.setAdminId(voucherRedemptionEntity.getAdmin().getAdminId());
                 voucherRedemptionsDetails.setAdminFullName(voucherRedemptionEntity.getAdmin().getFullName());

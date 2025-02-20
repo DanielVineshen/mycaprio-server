@@ -24,4 +24,5 @@ public class VoucherDetailsRes {
     private Integer lifeSpan;
     private String metaTag;
     private Integer quantityTotal;
+    private String createdAt;
 }

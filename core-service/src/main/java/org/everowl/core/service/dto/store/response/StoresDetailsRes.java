@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class StoresDetailsRes {
     private int storeId;
     private String storeName;
+    private String createdAt;
 }
