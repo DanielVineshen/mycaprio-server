@@ -392,7 +392,7 @@ public class AuthDomainImpl implements AuthDomain {
                 String encodedPassword = passwordEncoder.encode(password);
                 customerCheck.get().setSmsCode(null);
                 customerCheck.get().setPassword(encodedPassword);
-                customerCheck.get().setSmsAttempt(0);
+//                customerCheck.get().setSmsAttempt(0);
                 CustomerEntity savedCustomer = customerRepository.save(customerCheck.get());
 
                 String afterUpdated = convertObjectToJsonString(savedCustomer);
