@@ -62,7 +62,7 @@ public class CustomerDomainImpl implements CustomerDomain {
         customer.setFullName(updateCustomerProfileReq.getFullName());
         customer.setGender(updateCustomerProfileReq.getGender());
         if (customer.getDateOfBirth() == null) {
-            customer.setDateOfBirth(updateCustomerProfileReq.getDateOfBirth());
+            customer.setDateOfBirth(updateCustomerProfileReq.getDateOfBirth().replace("-", ""));
         }
 
         CustomerEntity savedCustomer = customerRepository.save(customer);

@@ -17,7 +17,7 @@ public class BirthDateValidator implements ConstraintValidator<ValidBirthDate, S
 
         try {
             LocalDate birthDate = LocalDate.parse(value,
-                    DateTimeFormatter.ofPattern("yyyyMMdd"));
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
             ZoneId malaysiaZone = ZoneId.of("Asia/Kuala_Lumpur");
             LocalDate today = LocalDate.now(malaysiaZone);

@@ -10,7 +10,7 @@ public class UpdateCustomerProfileReq {
     private String fullName;
     private String gender;
 
-    @Pattern(regexp = "^\\d{8}$", message = "Please ensure the date of birth is in a valid format")
+    @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "Please ensure the date of birth is in YYYY-MM-DD format")
     @ValidBirthDate(message = "Please ensure the date of birth provided is a valid birth date")
     private String dateOfBirth;
 }
