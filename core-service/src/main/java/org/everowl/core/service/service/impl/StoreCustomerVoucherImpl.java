@@ -45,6 +45,7 @@ public class StoreCustomerVoucherImpl implements StoreCustomerVoucherDomain {
         StoreCustomerEntity storeCustomerEntity = storeCustomerService.getOrCreateStoreCustomer(customer, store);
 
         List<StoreCustomerVoucherEntity> storeVouchers = storeCustomerVoucherRepository.findByStoreCustId(storeCustomerEntity.getStoreCustId());
+        storeVouchers.sort(Comparator.comparing(StoreCustomerVoucherEntity::getCreatedAt, Date::compareTo).reversed());
 
         modelMapper.typeMap(StoreCustomerVoucherEntity.class, StoreCustomerVoucherDetailsRes.class)
                 .addMappings(mapper -> mapper.skip(StoreCustomerVoucherDetailsRes::setVoucherRedemptions));
