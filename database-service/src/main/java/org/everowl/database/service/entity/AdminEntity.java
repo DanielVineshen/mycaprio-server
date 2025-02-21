@@ -22,7 +22,7 @@ import java.util.List;
 @DiscriminatorValue("ADMIN")
 public class AdminEntity extends BaseUser {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "admin_id")
     private Integer adminId;
 

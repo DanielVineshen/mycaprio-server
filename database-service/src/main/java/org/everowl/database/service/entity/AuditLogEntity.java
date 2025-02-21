@@ -18,7 +18,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class AuditLogEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "audit_log_id")
     private Integer auditLogId;
 

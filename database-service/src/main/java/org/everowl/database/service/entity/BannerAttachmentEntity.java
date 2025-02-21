@@ -21,7 +21,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class BannerAttachmentEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "attachment_id")
     private Integer attachmentId;
 

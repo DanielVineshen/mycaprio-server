@@ -20,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 public class StoreEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "store_id")
     private Integer storeId;
 

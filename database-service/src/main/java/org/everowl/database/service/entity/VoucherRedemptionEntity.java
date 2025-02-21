@@ -19,7 +19,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class VoucherRedemptionEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "voucher_redemption_id")
     private Integer voucherRedemptionId;
 

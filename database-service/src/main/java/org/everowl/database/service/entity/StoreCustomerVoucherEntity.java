@@ -21,7 +21,7 @@ import java.util.List;
 @NoArgsConstructor
 public class StoreCustomerVoucherEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "store_cust_voucher_id")
     private Integer storeCustVoucherId;
 

@@ -19,7 +19,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class FeedbackEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "feedback_id")
     private Integer feedbackId;
 
