@@ -61,7 +61,7 @@ public class CustomerDomainImpl implements CustomerDomain {
         customer.setEmailAddress(updateCustomerProfileReq.getEmailAddress());
         customer.setFullName(updateCustomerProfileReq.getFullName());
         customer.setGender(updateCustomerProfileReq.getGender());
-        if (customer.getDateOfBirth() == null) {
+        if (customer.getDateOfBirth() == null && updateCustomerProfileReq.getDateOfBirth() != null) {
             customer.setDateOfBirth(updateCustomerProfileReq.getDateOfBirth().replace("-", ""));
         }
 
