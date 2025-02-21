@@ -151,7 +151,7 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
         } catch (Exception e) {
             log.info("Exception decoding code: {}", e.toString());
 //            throw new RunTimeException(DECRYPTING_CODE_EXCEPTION);
-            throw new ForbiddenException(USER_NOT_PERMITTED);
+            throw new ForbiddenException(VOUCHER_CODE_EXPIRED);
         }
 
         AdminEntity staff = adminRepository.findByUsername(loginId)
@@ -178,7 +178,7 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
         storeCustomerVoucher.setQuantityLeft(storeCustomerVoucher.getQuantityLeft() - 1);
         StoreCustomerVoucherEntity savedCustomerVoucher = storeCustomerVoucherRepository.save(storeCustomerVoucher);
 
-        String afterChanged = convertObjectToJsonString(new Object[]{savedCustomerVoucher, savedVoucherRedemption});
+        String afterChanged = convertObjectToJsonString(new Object[]{savedCustomerVoucher, savedVoucherRedemption, staff});
 
         AuditLogEntity auditLogEntity = new AuditLogEntity();
         auditLogEntity.setLoginId(staff.getLoginId());

@@ -2,9 +2,11 @@ package org.everowl.scheduler.service.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.everowl.database.service.entity.AuditLogEntity;
 import org.everowl.database.service.entity.StoreCustomerEntity;
 import org.everowl.database.service.entity.StoreEntity;
 import org.everowl.database.service.entity.TierEntity;
+import org.everowl.database.service.repository.AuditLogRepository;
 import org.everowl.database.service.repository.StoreCustomerRepository;
 import org.everowl.database.service.repository.StoreRepository;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,12 +20,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 
+import static org.everowl.shared.service.util.JsonConverterUtils.convertObjectToJsonString;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class CustomerStoreJob {
     private final StoreRepository storeRepository;
     private final StoreCustomerRepository storeCustomerRepository;
+    private final AuditLogRepository auditLogRepository;
 
     @Scheduled(fixedDelay = 60000)
     @Transactional()
@@ -42,6 +47,8 @@ public class CustomerStoreJob {
                 }
 
                 if (isOlderThanFourMonths(storeCustomer.getLastTransDate())) {
+                    String beforeChanged = convertObjectToJsonString(storeCustomer);
+
                     TierEntity customerTier = storeCustomer.getTier();
 
                     log.info("evaluating store: {} for customer {}", store.getStoreName(), storeCustomer.getCustomer().getCustId());
@@ -65,7 +72,19 @@ public class CustomerStoreJob {
                     String newLastTransDate = getCurrentFormattedDate();
                     storeCustomer.setLastTransDate(newLastTransDate);
 
-                    storeCustomerRepository.save(storeCustomer);
+                    StoreCustomerEntity savedStoreCustomer = storeCustomerRepository.save(storeCustomer);
+
+                    String afterChanged = convertObjectToJsonString(savedStoreCustomer);
+
+                    AuditLogEntity auditLogEntity = new AuditLogEntity();
+                    auditLogEntity.setLoginId("system");
+                    auditLogEntity.setPerformedBy("system");
+                    auditLogEntity.setAuthorityLevel("SYSTEM");
+                    auditLogEntity.setBeforeChanged(beforeChanged);
+                    auditLogEntity.setAfterChanged(afterChanged);
+                    auditLogEntity.setLogType("DOWNGRADE_CUSTOMER_TIER");
+                    auditLogEntity.setLogAction("UPDATE");
+                    auditLogRepository.save(auditLogEntity);
                 }
             }
         }

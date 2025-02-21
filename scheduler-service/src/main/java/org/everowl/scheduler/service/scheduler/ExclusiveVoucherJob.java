@@ -3,10 +3,7 @@ package org.everowl.scheduler.service.scheduler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.everowl.database.service.entity.*;
-import org.everowl.database.service.repository.CustomerRepository;
-import org.everowl.database.service.repository.StoreCustomerVoucherRepository;
-import org.everowl.database.service.repository.StoreRepository;
-import org.everowl.database.service.repository.VoucherRepository;
+import org.everowl.database.service.repository.*;
 import org.everowl.scheduler.service.model.exclusiveVoucher.StoreVoucherModel;
 import org.everowl.scheduler.service.model.exclusiveVoucher.VoucherModel;
 import org.modelmapper.ModelMapper;
@@ -25,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.everowl.shared.service.util.JsonConverterUtils.convertObjectToJsonString;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -33,6 +32,7 @@ public class ExclusiveVoucherJob {
     private final StoreRepository storeRepository;
     private final VoucherRepository voucherRepository;
     private final StoreCustomerVoucherRepository storeCustomerVoucherRepository;
+    private final AuditLogRepository auditLogRepository;
     private final ModelMapper modelMapper;
 
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Kuala_Lumpur")
@@ -52,32 +52,47 @@ public class ExclusiveVoucherJob {
 
                     List<StoreCustomerEntity> storeCustomerEntityList = customer.getStoreCustomers();
                     for (StoreCustomerEntity storeCustomer : storeCustomerEntityList) {
-                        StoreVoucherModel store = storeVoucherMap.get(storeCustomer.getStore().getStoreId());
+                        TierEntity currentCustomerTier = storeCustomer.getTier();
 
+                        StoreVoucherModel store = storeVoucherMap.get(storeCustomer.getStore().getStoreId());
                         List<StoreCustomerVoucherEntity> storeCustomerVoucherEntityList = new ArrayList<>();
                         for (VoucherModel voucherModel : store.getVouchers()) {
-                            StoreCustomerVoucherEntity storeCustomerVoucherEntity = new StoreCustomerVoucherEntity();
-                            storeCustomerVoucherEntity.setStoreCustomer(storeCustomer);
-                            storeCustomerVoucherEntity.setMinTierLevel(voucherModel.getMinTierLevel());
-                            storeCustomerVoucherEntity.setPointsRequired(voucherModel.getPointsRequired());
-                            storeCustomerVoucherEntity.setQuantityTotal(voucherModel.getQuantityTotal());
-                            storeCustomerVoucherEntity.setQuantityLeft(voucherModel.getQuantityTotal());
-                            String validDate = addDaysToToday(voucherModel.getLifeSpan());
-                            storeCustomerVoucherEntity.setValidDate(validDate);
-                            storeCustomerVoucherEntity.setVoucherName(voucherModel.getVoucherName());
-                            storeCustomerVoucherEntity.setVoucherDesc(voucherModel.getVoucherDesc());
-                            storeCustomerVoucherEntity.setVoucherType(voucherModel.getVoucherType());
-                            storeCustomerVoucherEntity.setVoucherValue(voucherModel.getVoucherValue());
-                            storeCustomerVoucherEntity.setAttachmentName(voucherModel.getAttachmentName());
-                            storeCustomerVoucherEntity.setAttachmentPath(voucherModel.getAttachmentPath());
-                            storeCustomerVoucherEntity.setAttachmentSize(voucherModel.getAttachmentSize());
-                            storeCustomerVoucherEntity.setTncDesc(voucherModel.getTncDesc());
-                            storeCustomerVoucherEntity.setIsExclusive(voucherModel.getIsExclusive());
-                            storeCustomerVoucherEntity.setLifeSpan(voucherModel.getLifeSpan());
-                            storeCustomerVoucherEntity.setMetaTag(voucherModel.getMetaTag());
-                            storeCustomerVoucherEntityList.add(storeCustomerVoucherEntity);
+                            if (currentCustomerTier.getTierLevel() >= voucherModel.getMinTierLevel()) {
+                                StoreCustomerVoucherEntity storeCustomerVoucherEntity = new StoreCustomerVoucherEntity();
+                                storeCustomerVoucherEntity.setStoreCustomer(storeCustomer);
+                                storeCustomerVoucherEntity.setMinTierLevel(voucherModel.getMinTierLevel());
+                                storeCustomerVoucherEntity.setPointsRequired(voucherModel.getPointsRequired());
+                                storeCustomerVoucherEntity.setQuantityTotal(voucherModel.getQuantityTotal());
+                                storeCustomerVoucherEntity.setQuantityLeft(voucherModel.getQuantityTotal());
+                                String validDate = addDaysToToday(voucherModel.getLifeSpan());
+                                storeCustomerVoucherEntity.setValidDate(validDate);
+                                storeCustomerVoucherEntity.setVoucherName(voucherModel.getVoucherName());
+                                storeCustomerVoucherEntity.setVoucherDesc(voucherModel.getVoucherDesc());
+                                storeCustomerVoucherEntity.setVoucherType(voucherModel.getVoucherType());
+                                storeCustomerVoucherEntity.setVoucherValue(voucherModel.getVoucherValue());
+                                storeCustomerVoucherEntity.setAttachmentName(voucherModel.getAttachmentName());
+                                storeCustomerVoucherEntity.setAttachmentPath(voucherModel.getAttachmentPath());
+                                storeCustomerVoucherEntity.setAttachmentSize(voucherModel.getAttachmentSize());
+                                storeCustomerVoucherEntity.setTncDesc(voucherModel.getTncDesc());
+                                storeCustomerVoucherEntity.setIsExclusive(voucherModel.getIsExclusive());
+                                storeCustomerVoucherEntity.setLifeSpan(voucherModel.getLifeSpan());
+                                storeCustomerVoucherEntity.setMetaTag(voucherModel.getMetaTag());
+                                storeCustomerVoucherEntityList.add(storeCustomerVoucherEntity);
+                            }
                         }
-                        storeCustomerVoucherRepository.saveAll(storeCustomerVoucherEntityList);
+                        List<StoreCustomerVoucherEntity> savedStoreCustomerVouchers = storeCustomerVoucherRepository.saveAll(storeCustomerVoucherEntityList);
+
+                        String afterChanged = convertObjectToJsonString(savedStoreCustomerVouchers);
+
+                        AuditLogEntity auditLogEntity = new AuditLogEntity();
+                        auditLogEntity.setLoginId("system");
+                        auditLogEntity.setPerformedBy("system");
+                        auditLogEntity.setAuthorityLevel("SYSTEM");
+                        auditLogEntity.setBeforeChanged(null);
+                        auditLogEntity.setAfterChanged(afterChanged);
+                        auditLogEntity.setLogType("CREATE_CUSTOMER_BIRTHDAY_VOUCHERS");
+                        auditLogEntity.setLogAction("UPDATE");
+                        auditLogRepository.save(auditLogEntity);
                     }
                 }
             }

@@ -15,7 +15,10 @@ import org.everowl.shared.service.exception.NotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -60,8 +63,11 @@ public class StoreCustomerVoucherImpl implements StoreCustomerVoucherDomain {
                 VoucherRedemptionsDetails voucherRedemptionsDetails = new VoucherRedemptionsDetails();
                 voucherRedemptionsDetails.setAdminId(voucherRedemptionEntity.getAdmin().getAdminId());
                 voucherRedemptionsDetails.setAdminFullName(voucherRedemptionEntity.getAdmin().getFullName());
-                SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                voucherRedemptionsDetails.setCreatedAt(outputFormat.format(voucherRedemptionEntity.getCreatedAt()));
+                Date utcDate = voucherRedemptionEntity.getCreatedAt();
+                Instant instant = utcDate.toInstant();
+                ZonedDateTime malaysiaTime = instant.atZone(ZoneId.of("Asia/Kuala_Lumpur"));
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                voucherRedemptionsDetails.setCreatedAt(malaysiaTime.format(formatter));
                 voucherRedemptionsDetailsList.add(voucherRedemptionsDetails);
             }
             storeCustomerVoucherDetailsRes.setVoucherRedemptions(voucherRedemptionsDetailsList);

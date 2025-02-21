@@ -160,17 +160,18 @@ public class PointsActivityDomainImpl implements PointsActivityDomain {
     private GenericMessage processPointsAward(AdminEntity staff, CustomerEntity customer, BigDecimal amountSpent) {
         StoreCustomerEntity storeCustomer = storeCustomerService.getOrCreateStoreCustomer(customer, staff.getStore());
 
-        String beforeChanged = convertObjectToJsonString(storeCustomer);
-
         TierEntity currentTier = storeCustomer.getTier();
+
+        String beforeChanged = convertObjectToJsonString(new Object[]{storeCustomer, currentTier});
 
         BigDecimal originalPoints = amountSpent.multiply(BigDecimal.valueOf(10)).setScale(0, RoundingMode.CEILING);
         BigDecimal finalisedPoints = calculatePoints(amountSpent, currentTier.getTierMultiplier());
 
         PointsActivityEntity savedPointsActivity = createPointsActivity(storeCustomer, staff, originalPoints, finalisedPoints, currentTier.getTierMultiplier());
         StoreCustomerEntity savedStoreCustomer = updateCustomerTierAndPoints(storeCustomer, finalisedPoints);
+        TierEntity newCurrentTier = savedStoreCustomer.getTier();
 
-        String afterChanged = convertObjectToJsonString(new Object[]{savedPointsActivity, savedStoreCustomer});
+        String afterChanged = convertObjectToJsonString(new Object[]{savedStoreCustomer, newCurrentTier, savedPointsActivity});
 
         AuditLogEntity auditLogEntity = new AuditLogEntity();
         auditLogEntity.setLoginId(staff.getLoginId());

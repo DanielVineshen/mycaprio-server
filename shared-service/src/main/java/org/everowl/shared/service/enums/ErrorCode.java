@@ -47,6 +47,7 @@ public enum ErrorCode {
     VOUCHER_REDEEMED_EXPIRED(4025, "Voucher already redeemed/expired."),
     SMS_QUOTA_REACHED(4026, "Reached maximum message request for today. Please try again tomorrow."),
     SMS_NOT_VALID(4027, "SMS code provided is not valid."),
+    VOUCHER_CODE_EXPIRED(4028, "Five minutes timer for the code has expired. Please ask the customer to try again."),
 
     /**
      * Custom error codes (40xxx range).
