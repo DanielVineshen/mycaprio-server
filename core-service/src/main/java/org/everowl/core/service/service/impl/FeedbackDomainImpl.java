@@ -82,7 +82,7 @@ public class FeedbackDomainImpl implements FeedbackDomain {
         auditLogEntity.setPerformedBy(customer.getFullName());
         auditLogEntity.setAuthorityLevel("CUSTOMER");
         auditLogEntity.setBeforeChanged(null);
-        auditLogEntity.setAfterChanged(convertObjectToJsonString(new Object[]{feedback}));
+        auditLogEntity.setAfterChanged(convertObjectToJsonString(feedback));
         auditLogEntity.setLogType("CREATE_FEEDBACK");
         auditLogEntity.setLogAction("CREATE");
         auditLogEntity.setLogDesc("A feedback was created");
@@ -111,7 +111,7 @@ public class FeedbackDomainImpl implements FeedbackDomain {
         auditLogEntity.setLoginId(loginId);
         auditLogEntity.setPerformedBy(admin.getFullName());
         auditLogEntity.setAuthorityLevel("OWNER");
-        auditLogEntity.setBeforeChanged(convertObjectToJsonString(new Object[]{feedback}));
+        auditLogEntity.setBeforeChanged(convertObjectToJsonString(feedback));
         auditLogEntity.setAfterChanged(null);
         auditLogEntity.setLogType("DELETE_FEEDBACK");
         auditLogEntity.setLogAction("DELETE");

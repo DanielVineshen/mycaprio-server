@@ -75,7 +75,7 @@ public class BannerDomainImpl implements BannerDomain {
         auditLogEntity.setPerformedBy(admin.getFullName());
         auditLogEntity.setAuthorityLevel("OWNER");
         auditLogEntity.setBeforeChanged(null);
-        auditLogEntity.setAfterChanged(convertObjectToJsonString(new Object[]{banner}));
+        auditLogEntity.setAfterChanged(convertObjectToJsonString(banner));
         auditLogEntity.setLogType("CREATE_STORE_BANNER");
         auditLogEntity.setLogAction("CREATE");
         auditLogEntity.setLogDesc("A store banner was created");
@@ -97,7 +97,7 @@ public class BannerDomainImpl implements BannerDomain {
                 .orElseThrow(() -> new NotFoundException(FILE_NOT_FOUND));
 
         //Save original copy for audit log
-        String beforeChange = convertObjectToJsonString(new Object[]{banner});
+        String beforeChange = convertObjectToJsonString(banner);
 
         MultipartFile file = bannerReq.getAttachment();
 
@@ -121,7 +121,7 @@ public class BannerDomainImpl implements BannerDomain {
         auditLogEntity.setPerformedBy(admin.getFullName());
         auditLogEntity.setAuthorityLevel("OWNER");
         auditLogEntity.setBeforeChanged(beforeChange);
-        auditLogEntity.setAfterChanged(convertObjectToJsonString(new Object[]{banner}));
+        auditLogEntity.setAfterChanged(convertObjectToJsonString(banner));
         auditLogEntity.setLogType("UPDATE_STORE_BANNER");
         auditLogEntity.setLogAction("UPDATE");
         auditLogEntity.setLogDesc("A store banner was updated");
@@ -150,7 +150,7 @@ public class BannerDomainImpl implements BannerDomain {
         auditLogEntity.setLoginId(loginId);
         auditLogEntity.setPerformedBy(admin.getFullName());
         auditLogEntity.setAuthorityLevel("OWNER");
-        auditLogEntity.setBeforeChanged(convertObjectToJsonString(new Object[]{banner}));
+        auditLogEntity.setBeforeChanged(convertObjectToJsonString(banner));
         auditLogEntity.setAfterChanged(null);
         auditLogEntity.setLogType("DELETE_STORE_BANNER");
         auditLogEntity.setLogAction("DELETE");

@@ -160,7 +160,7 @@ public class PointsActivityDomainImpl implements PointsActivityDomain {
     private GenericMessage processPointsAward(AdminEntity staff, CustomerEntity customer, BigDecimal amountSpent) {
         StoreCustomerEntity storeCustomer = storeCustomerService.getOrCreateStoreCustomer(customer, staff.getStore());
 
-        String beforeChanged = convertObjectToJsonString(new Object[]{storeCustomer});
+        String beforeChanged = convertObjectToJsonString(storeCustomer);
 
         TierEntity currentTier = storeCustomer.getTier();
 

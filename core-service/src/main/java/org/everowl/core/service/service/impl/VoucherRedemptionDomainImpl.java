@@ -56,7 +56,7 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
 
         StoreCustomerEntity storeCustomer = storeCustomerService.getOrCreateStoreCustomer(customer, store);
 
-        String beforeChanged = convertObjectToJsonString(new Object[]{storeCustomer});
+        String beforeChanged = convertObjectToJsonString(storeCustomer);
 
         validateVoucherPurchaseEligibility(voucher, storeCustomer);
 
@@ -160,7 +160,7 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
         StoreCustomerVoucherEntity storeCustomerVoucher = storeCustomerVoucherRepository.findById(customerVoucherRedemptionReq.getStoreCustVoucherId())
                 .orElseThrow(() -> new NotFoundException(STORE_CUSTOMER_VOUCHER_NOT_EXIST));
 
-        String beforeChanged = convertObjectToJsonString(new Object[]{storeCustomerVoucher});
+        String beforeChanged = convertObjectToJsonString(storeCustomerVoucher);
 
         boolean isValidDateOlder = LocalDateTime.parse(storeCustomerVoucher.getValidDate(), DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
                 .atZone(ZoneId.of("Asia/Kuala_Lumpur"))

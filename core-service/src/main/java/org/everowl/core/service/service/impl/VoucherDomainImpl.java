@@ -112,7 +112,7 @@ public class VoucherDomainImpl implements VoucherDomain {
         auditLogEntity.setPerformedBy(admin.getFullName());
         auditLogEntity.setAuthorityLevel("OWNER");
         auditLogEntity.setBeforeChanged(null);
-        auditLogEntity.setAfterChanged(convertObjectToJsonString(new Object[]{voucher}));
+        auditLogEntity.setAfterChanged(convertObjectToJsonString(voucher));
         auditLogEntity.setLogType("CREATE_STORE_VOUCHER");
         auditLogEntity.setLogAction("CREATE");
         auditLogEntity.setLogDesc("A store voucher was created");
@@ -136,7 +136,7 @@ public class VoucherDomainImpl implements VoucherDomain {
                 .orElseThrow(() -> new BadRequestException(VOUCHER_NOT_EXIST));
 
         //Save original copy for audit log
-        String beforeChange = convertObjectToJsonString(new Object[]{voucher});
+        String beforeChange = convertObjectToJsonString(voucher);
 
         MultipartFile file = voucherReq.getAttachment();
 
@@ -180,7 +180,7 @@ public class VoucherDomainImpl implements VoucherDomain {
         auditLogEntity.setPerformedBy(admin.getFullName());
         auditLogEntity.setAuthorityLevel("OWNER");
         auditLogEntity.setBeforeChanged(beforeChange);
-        auditLogEntity.setAfterChanged(convertObjectToJsonString(new Object[]{voucher}));
+        auditLogEntity.setAfterChanged(convertObjectToJsonString(voucher));
         auditLogEntity.setLogType("UPDATE_STORE_VOUCHER");
         auditLogEntity.setLogAction("UPDATE");
         auditLogEntity.setLogDesc("A store voucher was updated");
@@ -213,7 +213,7 @@ public class VoucherDomainImpl implements VoucherDomain {
         auditLogEntity.setLoginId(loginId);
         auditLogEntity.setPerformedBy(admin.getFullName());
         auditLogEntity.setAuthorityLevel("OWNER");
-        auditLogEntity.setBeforeChanged(convertObjectToJsonString(new Object[]{voucher}));
+        auditLogEntity.setBeforeChanged(convertObjectToJsonString(voucher));
         auditLogEntity.setAfterChanged(null);
         auditLogEntity.setLogType("DELETE_STORE_VOUCHER");
         auditLogEntity.setLogAction("DELETE");

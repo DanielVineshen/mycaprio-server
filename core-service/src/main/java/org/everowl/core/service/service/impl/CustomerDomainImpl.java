@@ -206,7 +206,7 @@ public class CustomerDomainImpl implements CustomerDomain {
         auditLogEntity.setPerformedBy(admin.getFullName());
         auditLogEntity.setAuthorityLevel("ADMIN");
         auditLogEntity.setBeforeChanged(null);
-        auditLogEntity.setAfterChanged(convertObjectToJsonString(new Object[]{newCustomer}));
+        auditLogEntity.setAfterChanged(convertObjectToJsonString(newCustomer));
         auditLogEntity.setLogType("CREATE_STORE_CUSTOMER_BY_ADMIN");
         auditLogEntity.setLogAction("CREATE");
         auditLogEntity.setLogDesc("A store customer was manually created by an admin");
@@ -234,7 +234,7 @@ public class CustomerDomainImpl implements CustomerDomain {
         }
 
         //Save original copy for audit log
-        String beforeChange = convertObjectToJsonString(new Object[]{customerCheck.get()});
+        String beforeChange = convertObjectToJsonString(customerCheck.get());
 
         customerCheck.get().setPassword(encodedPassword);
         customerRepository.save(customerCheck.get());
@@ -243,8 +243,8 @@ public class CustomerDomainImpl implements CustomerDomain {
         auditLogEntity.setLoginId(adminLoginId);
         auditLogEntity.setPerformedBy(admin.getFullName());
         auditLogEntity.setAuthorityLevel("OWNER");
-        auditLogEntity.setBeforeChanged(convertObjectToJsonString(new Object[]{beforeChange}));
-        auditLogEntity.setAfterChanged(convertObjectToJsonString(new Object[]{customerCheck}));
+        auditLogEntity.setBeforeChanged(convertObjectToJsonString(beforeChange));
+        auditLogEntity.setAfterChanged(convertObjectToJsonString(customerCheck));
         auditLogEntity.setLogType("UPDATE_CUSTOMER_PASSWORD_BY_OWNER");
         auditLogEntity.setLogAction("UPDATE");
         auditLogEntity.setLogDesc("A customer account password was manually updated by an owner");
