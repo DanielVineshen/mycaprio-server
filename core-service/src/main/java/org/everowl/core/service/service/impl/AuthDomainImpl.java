@@ -293,7 +293,7 @@ public class AuthDomainImpl implements AuthDomain {
                 }
                 storeCustomerVoucherRepository.saveAll(storeCustomerVouchers);
 
-                String afterUpdated = convertObjectToJsonString(savedCustomer);
+                String afterUpdated = convertObjectToJsonString(new Object[]{savedCustomer, storeCustomerVouchers});
 
                 AuditLogEntity auditLogEntity = new AuditLogEntity();
                 auditLogEntity.setLoginId(customer.getLoginId());
