@@ -178,7 +178,7 @@ public class PointsActivityDomainImpl implements PointsActivityDomain {
         auditLogEntity.setAuthorityLevel("STAFF");
         auditLogEntity.setBeforeChanged(beforeChanged);
         auditLogEntity.setAfterChanged(afterChanged);
-        auditLogEntity.setLogType("CREATE_VOUCHER_REDEEM");
+        auditLogEntity.setLogType("CREATE_POINTS_AWARD");
         auditLogEntity.setLogAction("CREATE");
         auditLogRepository.save(auditLogEntity);
 
