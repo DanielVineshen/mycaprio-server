@@ -2,6 +2,7 @@ package org.everowl.shared.service.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
 import org.everowl.shared.service.exception.RunTimeException;
 
@@ -12,6 +13,7 @@ import static org.everowl.shared.service.enums.ErrorCode.JSON_PROCESSING_EXCEPTI
 public class JsonConverterUtils {
     public static String convertObjectToJsonString(Object object) {
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         try {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
