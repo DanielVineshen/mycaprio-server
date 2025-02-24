@@ -12,6 +12,7 @@ import org.everowl.core.service.service.VoucherDomain;
 import org.everowl.database.service.entity.AdminEntity;
 import org.everowl.database.service.entity.AuditLogEntity;
 import org.everowl.database.service.entity.VoucherEntity;
+import org.everowl.database.service.entity.VoucherMetadataEntity;
 import org.everowl.database.service.repository.AdminRepository;
 import org.everowl.database.service.repository.AuditLogRepository;
 import org.everowl.database.service.repository.VoucherRepository;
@@ -203,21 +204,43 @@ public class VoucherDomainImpl implements VoucherDomain {
         VoucherEntity voucher = voucherRepository.findById(Integer.parseInt(voucherReq.getVoucherId()))
                 .orElseThrow(() -> new BadRequestException(VOUCHER_NOT_EXIST));
 
-        if (voucher.getAttachmentName() != null) {
-            deleteAttachmentFile(voucher.getAttachmentName());
-        }
-
-        voucherRepository.deleteById(Integer.parseInt(voucherReq.getVoucherId()));
+        String beforeChanged = convertObjectToJsonString(voucher);
 
         AuditLogEntity auditLogEntity = new AuditLogEntity();
-        auditLogEntity.setLoginId(loginId);
-        auditLogEntity.setPerformedBy(admin.getFullName());
-        auditLogEntity.setAuthorityLevel("OWNER");
-        auditLogEntity.setBeforeChanged(convertObjectToJsonString(voucher));
-        auditLogEntity.setAfterChanged(null);
-        auditLogEntity.setLogType("DELETE_STORE_VOUCHER");
-        auditLogEntity.setLogAction("DELETE");
-        auditLogEntity.setLogDesc("A store voucher was deleted");
+
+        List<VoucherMetadataEntity> voucherMetadata = voucher.getVoucherMetadata();
+        if (!voucherMetadata.isEmpty()) {
+            voucher.setIsAvailable(false);
+            voucher.setIsDeleted(true);
+
+            VoucherEntity savedVoucher = voucherRepository.save(voucher);
+
+            String afterChanged = convertObjectToJsonString(savedVoucher);
+
+            auditLogEntity.setLoginId(loginId);
+            auditLogEntity.setPerformedBy(admin.getFullName());
+            auditLogEntity.setAuthorityLevel("OWNER");
+            auditLogEntity.setBeforeChanged(beforeChanged);
+            auditLogEntity.setAfterChanged(afterChanged);
+            auditLogEntity.setLogType("SOFT_DELETE_STORE_VOUCHER");
+            auditLogEntity.setLogAction("UPDATE");
+            auditLogEntity.setLogDesc("A store voucher was soft deleted");
+        } else {
+            if (voucher.getAttachmentName() != null) {
+                deleteAttachmentFile(voucher.getAttachmentName());
+            }
+
+            voucherRepository.deleteById(Integer.parseInt(voucherReq.getVoucherId()));
+
+            auditLogEntity.setLoginId(loginId);
+            auditLogEntity.setPerformedBy(admin.getFullName());
+            auditLogEntity.setAuthorityLevel("OWNER");
+            auditLogEntity.setBeforeChanged(beforeChanged);
+            auditLogEntity.setAfterChanged(null);
+            auditLogEntity.setLogType("HARD_DELETE_STORE_VOUCHER");
+            auditLogEntity.setLogAction("DELETE");
+            auditLogEntity.setLogDesc("A store voucher was hard deleted");
+        }
 
         auditLogRepository.save(auditLogEntity);
 

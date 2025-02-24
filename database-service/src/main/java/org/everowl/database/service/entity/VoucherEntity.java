@@ -1,6 +1,7 @@
 package org.everowl.database.service.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity(name = "Voucher")
 @Table(name = "`Voucher`")
@@ -59,13 +61,13 @@ public class VoucherEntity {
     @Column(name = "attachment_size", columnDefinition = "BIGINT")
     private Long attachmentSize;
 
-    @Column(name = "is_available", nullable = false, columnDefinition = "BOOLEAN")
+    @Column(name = "is_available", nullable = false, columnDefinition = "BOOLEAN default false")
     private Boolean isAvailable = false;
 
     @Column(name = "tnc_desc", nullable = false, columnDefinition = "TEXT")
     private String tncDesc;
 
-    @Column(name = "is_exclusive", nullable = false, columnDefinition = "BOOLEAN")
+    @Column(name = "is_exclusive", nullable = false, columnDefinition = "BOOLEAN default false")
     private Boolean isExclusive = false;
 
     @Column(name = "life_span", nullable = false)
@@ -76,6 +78,16 @@ public class VoucherEntity {
 
     @Column(name = "quantity_total", nullable = false, columnDefinition = "integer default 1")
     private Integer quantityTotal = 1;
+
+    @Column(name = "total_purchase", nullable = false, columnDefinition = "integer default 0")
+    private Integer totalPurchase = 0;
+
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "BOOLEAN default false")
+    private Boolean isDeleted = false;
+
+    @OneToMany(mappedBy = "voucher", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "voucher-voucherMetadata")
+    private List<VoucherMetadataEntity> voucherMetadata;
 
     @CreationTimestamp
     @Column(updatable = false, nullable = false, name = "created_at")

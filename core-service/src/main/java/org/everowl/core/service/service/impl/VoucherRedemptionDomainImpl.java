@@ -8,6 +8,7 @@ import org.everowl.core.service.dto.voucherRedemption.response.*;
 import org.everowl.core.service.service.VoucherRedemptionDomain;
 import org.everowl.core.service.service.shared.EncryptionService;
 import org.everowl.core.service.service.shared.StoreCustomerService;
+import org.everowl.core.service.service.shared.VoucherMetadataService;
 import org.everowl.database.service.entity.*;
 import org.everowl.database.service.repository.*;
 import org.everowl.shared.service.exception.ForbiddenException;
@@ -42,6 +43,8 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
     private final StoreCustomerService storeCustomerService;
     private final AuditLogRepository auditLogRepository;
     private final EncryptionService encryptionService;
+    private final VoucherMetadataService voucherMetadataService;
+    private final VoucherMetadataRepository voucherMetadataRepository;
 
     @Override
     @Transactional
@@ -56,13 +59,21 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
 
         StoreCustomerEntity storeCustomer = storeCustomerService.getOrCreateStoreCustomer(customer, store);
 
-        String beforeChanged = convertObjectToJsonString(storeCustomer);
+        VoucherMetadataEntity voucherMetadataEntity = voucherMetadataService.getOrCreateVoucherMetadata(storeCustomer, voucher);
+
+        String beforeChanged = convertObjectToJsonString(new Object[]{voucher, voucherMetadataEntity, storeCustomer});
 
         validateVoucherPurchaseEligibility(voucher, storeCustomer);
 
         String voucherValidDate = ZonedDateTime.now(ZoneId.of("Asia/Kuala_Lumpur"))
                 .plusDays(voucher.getLifeSpan())
                 .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+
+        voucher.setTotalPurchase(voucher.getTotalPurchase() + 1);
+        VoucherEntity savedVoucher = voucherRepository.save(voucher);
+
+        voucherMetadataEntity.setTotalPurchase(voucherMetadataEntity.getTotalPurchase() + 1);
+        VoucherMetadataEntity savedVoucherMetadata = voucherMetadataRepository.save(voucherMetadataEntity);
 
         StoreCustomerVoucherEntity storeCustomerVoucherEntity = new StoreCustomerVoucherEntity();
         storeCustomerVoucherEntity.setStoreCustomer(storeCustomer);
@@ -105,7 +116,7 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
         CustomerVoucherDetailsRes customerVoucherDetailsRes = modelMapper.map(storeCustomerVoucherEntity, CustomerVoucherDetailsRes.class);
         customerVoucherPurchaseDetailsRes.setCustomerVoucherPurchase(customerVoucherDetailsRes);
 
-        String afterChanged = convertObjectToJsonString(new Object[]{savedCustomerVoucher, updatedStoreCustomer, savedPointsActivity});
+        String afterChanged = convertObjectToJsonString(new Object[]{savedVoucher, savedVoucherMetadata, savedCustomerVoucher, updatedStoreCustomer, savedPointsActivity});
 
         AuditLogEntity auditLogEntity = new AuditLogEntity();
         auditLogEntity.setLoginId(customer.getLoginId());
@@ -123,6 +134,7 @@ public class VoucherRedemptionDomainImpl implements VoucherRedemptionDomain {
     private void validateVoucherPurchaseEligibility(VoucherEntity voucher, StoreCustomerEntity storeCustomer) {
         if (voucher.getIsExclusive() ||
                 !voucher.getIsAvailable() ||
+                voucher.getIsDeleted() ||
                 isCustomerTierTooLow(storeCustomer, voucher)) {
             throw new ForbiddenException(VOUCHER_CANNOT_PURCHASE);
         }

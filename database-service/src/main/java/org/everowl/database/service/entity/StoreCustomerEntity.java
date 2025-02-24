@@ -69,8 +69,12 @@ public class StoreCustomerEntity {
     private List<PointsActivityEntity> pointsActivities;
 
     @OneToMany(mappedBy = "storeCustomer", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference(value = "storeCustomer-voucher")
+    @JsonManagedReference(value = "storeCustomer-storeCustomerVoucher")
     private List<StoreCustomerVoucherEntity> storeCustomerVouchers;
+
+    @OneToMany(mappedBy = "storeCustomer", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "storeCustomer-voucherMetadata")
+    private List<VoucherMetadataEntity> voucherMetadata;
 
     @CreationTimestamp
     @Column(updatable = false, nullable = false, name = "created_at")

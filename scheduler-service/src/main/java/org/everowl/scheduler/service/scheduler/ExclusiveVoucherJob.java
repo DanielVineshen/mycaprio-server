@@ -44,8 +44,8 @@ public class ExclusiveVoucherJob {
 
         List<CustomerEntity> customerEntityList = customerRepository.findAll();
         for (CustomerEntity customer : customerEntityList) {
-            // Date is older than 6 months in Malaysian time
-            if (isOlderThanSixMonths(customer.getCreatedAt())) {
+            // Date is older than 1 month in Malaysian time
+            if (isOlderThanOneMonth(customer.getCreatedAt())) {
                 // The birthday falls within the window
                 if (isDateWithinBirthdayWindow(customer.getDateOfBirth())) {
                     log.info("Customer ID: {} birthday is {}", customer.getCustId(), customer.getDateOfBirth());
@@ -129,7 +129,7 @@ public class ExclusiveVoucherJob {
                 ));
     }
 
-    private boolean isOlderThanSixMonths(Date createdAt) {
+    private boolean isOlderThanOneMonth(Date createdAt) {
         // Define Malaysian time zone
         ZoneId malaysiaZone = ZoneId.of("Asia/Kuala_Lumpur");
 
@@ -138,12 +138,12 @@ public class ExclusiveVoucherJob {
                 .atZone(malaysiaZone)
                 .toLocalDateTime();
 
-        // Get date 6 months ago in Malaysian time
-        LocalDateTime sixMonthsAgo = LocalDateTime.now(malaysiaZone)
-                .minusMonths(6);
+        // Get date 1 month ago in Malaysian time
+        LocalDateTime oneMonthsAgo = LocalDateTime.now(malaysiaZone)
+                .minusMonths(1);
 
         // Compare dates
-        return createdAtMalaysia.isBefore(sixMonthsAgo);
+        return createdAtMalaysia.isBefore(oneMonthsAgo);
     }
 
     private boolean isDateWithinBirthdayWindow(String dateOfBirth) {

@@ -26,11 +26,11 @@ public class StoreCustomerVoucherEntity {
     private Integer storeCustVoucherId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonBackReference(value = "storeCustomer-voucher")
+    @JsonBackReference(value = "storeCustomer-storeCustomerVoucher")
     @JoinColumn(name = "store_cust_id",
             nullable = false,
             referencedColumnName = "store_cust_id",
-            foreignKey = @ForeignKey(name = "FK_STORE_CUSTOMER_VOUCHER")
+            foreignKey = @ForeignKey(name = "FK_STORE_CUSTOMER_STORE_CUSTOMER_VOUCHER")
     )
     private StoreCustomerEntity storeCustomer;
 

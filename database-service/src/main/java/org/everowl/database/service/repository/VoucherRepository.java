@@ -13,6 +13,7 @@ public interface VoucherRepository extends JpaRepository<VoucherEntity, Integer>
     @Query(value = """
              SELECT v FROM Voucher v
              WHERE v.store.storeId = :storeId
+             AND v.isDeleted = false
              ORDER BY v.voucherId ASC
             """
     )
@@ -21,9 +22,20 @@ public interface VoucherRepository extends JpaRepository<VoucherEntity, Integer>
     @Query(value = """
              SELECT v FROM Voucher v
              WHERE v.store.storeId = :storeId
+             AND v.isAvailable = true
+             AND v.isExclusive = false
+             AND v.isDeleted = false
+            """
+    )
+    List<VoucherEntity> findAvailableStorePurchasableVouchers(Integer storeId);
+
+    @Query(value = """
+             SELECT v FROM Voucher v
+             WHERE v.store.storeId = :storeId
              AND v.metaTag = :metaTag
              AND v.isAvailable = true
              AND v.isExclusive = true
+             AND v.isDeleted = false
             """
     )
     List<VoucherEntity> findAvailableStoreMetaTagVouchers(Integer storeId, String metaTag);
