@@ -282,7 +282,6 @@ public class ReportDomainImpl implements ReportDomain {
     }
 
     private void setCellDateValue(String dateStr, String inputFormat, Row row, Workbook workbook, int cellIndex) {
-        log.info("dateStr: {}, format: {}", dateStr, inputFormat);
         try {
             Date date;
             if (inputFormat.contains("HH")) {  // Check if format includes time
