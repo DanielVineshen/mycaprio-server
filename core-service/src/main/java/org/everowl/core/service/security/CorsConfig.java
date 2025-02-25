@@ -14,6 +14,7 @@ public class CorsConfig {
         config.setAllowCredentials(true);
         config.addAllowedOrigin("http://localhost:8000");
         config.addAllowedOrigin("https://192.168.100.68:8000");
+        config.addAllowedOrigin("https://mycaprio.com");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
 
