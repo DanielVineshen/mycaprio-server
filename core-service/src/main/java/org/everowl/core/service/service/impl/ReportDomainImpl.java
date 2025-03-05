@@ -92,24 +92,38 @@ public class ReportDomainImpl implements ReportDomain {
             row.createCell(0).setCellValue(customer.getCustId());
             row.createCell(1).setCellValue(customer.getFullName());
             row.createCell(2).setCellValue(customer.getLoginId());
-            setCellDateValue(customer.getDateOfBirth(), "yyyyMMdd", row, workbook, 3);
+            if (customer.getDateOfBirth() != null) {
+                setCellDateValue(customer.getDateOfBirth(), "yyyyMMdd", row, workbook, 3);
+            }
             row.createCell(4).setCellValue(totalVisits.intValue());
             row.createCell(5).setCellValue(totalOriginalAccumulatedPoints.intValue());
             row.createCell(6).setCellValue(totalOriginalAccumulatedPoints.multiply(BigDecimal.TEN).intValue());
             row.createCell(7).setCellValue(storeCustomer.getAvailablePoints());
-            setCellDateValue(pointsActivityList.getFirst().getCreatedAt().toString(), "yyyy-MM-dd HH:mm:ss.SSS", row, workbook, 8);
-            setCellDateValue(pointsActivityList.getLast().getCreatedAt().toString(), "yyyy-MM-dd HH:mm:ss.SSS", row, workbook, 9);
-            BigDecimal totalDuration = calculateDurationInMonths(pointsActivityList.getFirst().getCreatedAt().toString(),
-                    pointsActivityList.getLast().getCreatedAt().toString());
-            row.createCell(10).setCellValue(totalDuration.doubleValue());
-            BigDecimal monthlyAvgPoints = totalOriginalAccumulatedPoints.divide(totalDuration, 2, RoundingMode.HALF_UP);
-            row.createCell(11).setCellValue(monthlyAvgPoints.doubleValue());
-            row.createCell(12).setCellValue(monthlyAvgPoints.multiply(BigDecimal.TEN).doubleValue());
-            row.createCell(13).setCellValue(totalOriginalAccumulatedPoints.divide(totalVisits, 2, RoundingMode.HALF_UP).doubleValue());
-            row.createCell(14).setCellValue(totalDuration.multiply(avgDaysInMonth).divide(totalVisits, 2, RoundingMode.HALF_UP).doubleValue());
-            BigDecimal daysSinceLastVisit = calculateDurationInDays(pointsActivityList.getFirst().getCreatedAt().toString(),
-                    pointsActivityList.getLast().getCreatedAt().toString());
-            row.createCell(15).setCellValue(daysSinceLastVisit.doubleValue());
+            if (!pointsActivityList.isEmpty()) {
+                setCellDateValue(pointsActivityList.getFirst().getCreatedAt().toString(), "yyyy-MM-dd HH:mm:ss.SSS", row, workbook, 8);
+                setCellDateValue(pointsActivityList.getLast().getCreatedAt().toString(), "yyyy-MM-dd HH:mm:ss.SSS", row, workbook, 9);
+                BigDecimal totalDuration = calculateDurationInMonths(pointsActivityList.getFirst().getCreatedAt().toString(),
+                        pointsActivityList.getLast().getCreatedAt().toString());
+                row.createCell(10).setCellValue(totalDuration.doubleValue());
+                BigDecimal monthlyAvgPoints = totalOriginalAccumulatedPoints.divide(totalDuration, 2, RoundingMode.HALF_UP);
+                row.createCell(11).setCellValue(monthlyAvgPoints.doubleValue());
+                row.createCell(12).setCellValue(monthlyAvgPoints.multiply(BigDecimal.TEN).doubleValue());
+                BigDecimal totalVisitsDiv = totalVisits.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ONE : totalVisits;
+                row.createCell(13).setCellValue(totalOriginalAccumulatedPoints.divide(totalVisitsDiv, 2, RoundingMode.HALF_UP).doubleValue());
+                row.createCell(14).setCellValue(totalDuration.multiply(avgDaysInMonth).divide(totalVisitsDiv, 2, RoundingMode.HALF_UP).doubleValue());
+                BigDecimal daysSinceLastVisit = calculateDurationInDays(pointsActivityList.getFirst().getCreatedAt().toString(),
+                        pointsActivityList.getLast().getCreatedAt().toString());
+                row.createCell(15).setCellValue(daysSinceLastVisit.doubleValue());
+            } else {
+                row.createCell(8).setCellValue("");
+                row.createCell(9).setCellValue("");
+                row.createCell(10).setCellValue(0);
+                row.createCell(11).setCellValue(0);
+                row.createCell(12).setCellValue(0);
+                row.createCell(13).setCellValue(0);
+                row.createCell(14).setCellValue(0);
+                row.createCell(15).setCellValue(0);
+            }
         }
 
         setSheetColumnWidth(columns, sheet, headerStyle);
@@ -118,7 +132,6 @@ public class ReportDomainImpl implements ReportDomain {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         workbook.write(outputStream);
         workbook.close();
-
         return new ExcelReport(outputStream, excelName);
     }
 
@@ -139,8 +152,8 @@ public class ReportDomainImpl implements ReportDomain {
         String excelName = store.getStoreName() + " - Store Voucher Purchase Analysis Report - " + localDate;
 
         Workbook workbook = new XSSFWorkbook(); // Create new Excel workbook
-        Sheet sheet1 = workbook.createSheet("Accumulated Store Voucher Purchase Stats");
-        Sheet sheet2 = workbook.createSheet("Customer-Specific Voucher Purchase Stats");
+        Sheet sheet1 = workbook.createSheet("Accumulate Purchase Stats");
+        Sheet sheet2 = workbook.createSheet("Customer Purchase Stats");
 
         CellStyle headerStyle = getCellHeaderStyle(workbook);
 
@@ -196,7 +209,9 @@ public class ReportDomainImpl implements ReportDomain {
             row.createCell(1).setCellValue(customer.getFullName());
             row.createCell(2).setCellValue(customer.getLoginId());
             row.createCell(3).setCellValue(customer.getEmailAddress());
-            setCellDateValue(customer.getDateOfBirth(), "yyyyMMdd", row, workbook, 4);
+            if (customer.getDateOfBirth() != null) {
+                setCellDateValue(customer.getDateOfBirth(), "yyyyMMdd", row, workbook, 4);
+            }
             row.createCell(5).setCellValue(customer.getGender());
             row.createCell(6).setCellValue(storeCustomerVoucherList.size());
             if (!voucherMetadataList.isEmpty()) {
@@ -315,10 +330,14 @@ public class ReportDomainImpl implements ReportDomain {
 
             // Calculate months with higher precision
             BigDecimal months = days.divide(avgDaysInMonth, 2, RoundingMode.HALF_UP);
+            // Ensure minimum 1 month is provided to avoid divison error
+            if (months.compareTo(BigDecimal.ZERO) == 0) {
+                months = BigDecimal.ONE;
+            }
             return months;
         } catch (Exception e) {
             log.error("Error calculating duration: {}", e.getMessage());
-            return BigDecimal.ZERO;
+            return BigDecimal.ONE;
         }
     }
 

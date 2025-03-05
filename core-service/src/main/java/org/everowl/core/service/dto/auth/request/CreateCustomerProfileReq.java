@@ -14,7 +14,9 @@ public class CreateCustomerProfileReq {
     )
     private String loginId;
 
-    @Size(min = 1, max = 64, message = "Please ensure the field password is 1 to 64 characters in length")
+    @NotBlank(message = "Please ensure the field password is not blank")
+    @Size(min = 8, max = 64, message = "Please ensure the field password is 8 to 64 characters in length")
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)\\S{8,}$", message = "Password provided is not valid")
     private String password;
 
     @Size(min = 6, max = 6, message = "Please ensure the field sms code is 6 characters in length")
