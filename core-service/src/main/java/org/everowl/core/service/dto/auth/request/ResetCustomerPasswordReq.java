@@ -11,7 +11,6 @@ public class ResetCustomerPasswordReq {
     @Pattern(regexp = "^\\+60(1[0-9])[0-9]{7,8}$", message = "Please enter a valid Malaysian mobile number starting with +60")
     private String loginId;
 
-    @NotBlank(message = "Please ensure the field password is not blank")
     @Size(min = 8, max = 64, message = "Please ensure the field password is 8 to 64 characters in length")
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)\\S{8,}$", message = "Password provided is not valid")
     private String password;
