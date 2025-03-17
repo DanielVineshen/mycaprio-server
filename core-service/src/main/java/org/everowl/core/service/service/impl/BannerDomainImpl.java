@@ -38,7 +38,7 @@ import static org.everowl.shared.service.util.JsonConverterUtils.convertObjectTo
 @RequiredArgsConstructor
 @Slf4j
 public class BannerDomainImpl implements BannerDomain {
-    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+    private static final long MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB in bytes
     private static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList(
             "image/jpeg",
             "image/png"
@@ -172,10 +172,10 @@ public class BannerDomainImpl implements BannerDomain {
     }
 
     public String uploadAttachmentFile(MultipartFile file) {
-        try {
-            // Validate the image file before uploading
-            validateFile(file);
+        // Validate the image file before uploading
+        validateFile(file);
 
+        try {
 //            // Get file extension
 //            String originalFilename = file.getOriginalFilename();
 //            if (originalFilename == null || originalFilename.isEmpty()) {
