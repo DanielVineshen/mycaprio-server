@@ -105,12 +105,11 @@ public class ReportDomainImpl implements ReportDomain {
             row.createCell(6).setCellValue(totalOriginalAccumulatedPoints.divide(BigDecimal.TEN, 2, RoundingMode.HALF_UP).intValue());
             row.createCell(7).setCellValue(storeCustomer.getAvailablePoints());
             if (!pointsActivityList.isEmpty()) {
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-                String formattedFirstDate = formatter.format(pointsActivityList.getFirst().getCreatedAt());
-                String formattedLastDate = formatter.format(pointsActivityList.getLast().getCreatedAt());
+                String formattedFirstDate = pointsActivityList.getFirst().getActivityDate();
+                String formattedLastDate = pointsActivityList.getLast().getActivityDate();
 
-                setCellDateValue(formattedFirstDate, "yyyy-MM-dd HH:mm:ss.SSS", row, workbook, 8);
-                setCellDateValue(formattedLastDate, "yyyy-MM-dd HH:mm:ss.SSS", row, workbook, 9);
+                setCellDateValue(formattedFirstDate, "yyyyMMddHHmmss", row, workbook, 8);
+                setCellDateValue(formattedLastDate, "yyyyMMddHHmmss", row, workbook, 9);
                 BigDecimal totalDuration = calculateDurationInMonths(formattedFirstDate, formattedLastDate);
                 row.createCell(10).setCellValue(totalDuration.doubleValue());
                 row.createCell(11).setCellValue(totalFinalisedAccumulatedPoints.divide(totalDuration, 2, RoundingMode.HALF_UP).doubleValue());
