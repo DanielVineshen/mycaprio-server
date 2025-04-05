@@ -6,9 +6,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.everowl.core.service.service.ReportDomain;
 import org.everowl.database.service.entity.*;
-import org.everowl.database.service.repository.AdminRepository;
-import org.everowl.database.service.repository.PointsActivityRepository;
-import org.everowl.database.service.repository.VoucherRepository;
+import org.everowl.database.service.repository.*;
 import org.everowl.shared.service.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +14,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -35,6 +32,7 @@ public class ReportDomainImpl implements ReportDomain {
     private final AdminRepository adminRepository;
     private final PointsActivityRepository pointsActivityRepository;
     private final VoucherRepository voucherRepository;
+    private final StoreCustomerVoucherRepository storeCustomerVoucherRepository;
 
     // Average days in a month (more precise value)
     private final BigDecimal avgDaysInMonth = new BigDecimal("30.436875"); // 365.2425/12
@@ -199,7 +197,7 @@ public class ReportDomainImpl implements ReportDomain {
         for (StoreCustomerEntity storeCustomer : storeCustomerList) {
             CustomerEntity customer = storeCustomer.getCustomer();
 
-            List<StoreCustomerVoucherEntity> storeCustomerVoucherList = storeCustomer.getStoreCustomerVouchers();
+            List<StoreCustomerVoucherEntity> storeCustomerVoucherList = storeCustomerVoucherRepository.findByStoreCustIdIsNotExclusive(storeCustomer.getStoreCustId());
 
             List<VoucherMetadataEntity> voucherMetadataList = storeCustomer.getVoucherMetadata();
             voucherMetadataList.sort(Comparator.comparing(VoucherMetadataEntity::getTotalPurchase).reversed());
@@ -222,26 +220,26 @@ public class ReportDomainImpl implements ReportDomain {
             row.createCell(6).setCellValue(storeCustomerVoucherList.size());
             if (!voucherMetadataList.isEmpty()) {
                 row.createCell(7).setCellValue(voucherMetadataList.getFirst().getVoucher().getVoucherName());
-                row.createCell(8).setCellValue(voucherMetadataList.getFirst().getVoucher().getTotalPurchase());
+                row.createCell(8).setCellValue(voucherMetadataList.getFirst().getTotalPurchase());
 
                 if (voucherMetadataList.size() >= 2) {
                     row.createCell(9).setCellValue(voucherMetadataList.get(1).getVoucher().getVoucherName());
-                    row.createCell(10).setCellValue(voucherMetadataList.get(1).getVoucher().getTotalPurchase());
+                    row.createCell(10).setCellValue(voucherMetadataList.get(1).getTotalPurchase());
                 }
 
                 if (voucherMetadataList.size() >= 3) {
                     row.createCell(11).setCellValue(voucherMetadataList.get(2).getVoucher().getVoucherName());
-                    row.createCell(12).setCellValue(voucherMetadataList.get(2).getVoucher().getTotalPurchase());
+                    row.createCell(12).setCellValue(voucherMetadataList.get(2).getTotalPurchase());
                 }
 
                 if (voucherMetadataList.size() >= 4) {
                     row.createCell(13).setCellValue(voucherMetadataList.get(3).getVoucher().getVoucherName());
-                    row.createCell(14).setCellValue(voucherMetadataList.get(3).getVoucher().getTotalPurchase());
+                    row.createCell(14).setCellValue(voucherMetadataList.get(3).getTotalPurchase());
                 }
 
                 if (voucherMetadataList.size() >= 5) {
                     row.createCell(15).setCellValue(voucherMetadataList.get(4).getVoucher().getVoucherName());
-                    row.createCell(16).setCellValue(voucherMetadataList.get(4).getVoucher().getTotalPurchase());
+                    row.createCell(16).setCellValue(voucherMetadataList.get(4).getTotalPurchase());
                 }
             }
         }
@@ -327,7 +325,7 @@ public class ReportDomainImpl implements ReportDomain {
 
     public BigDecimal calculateDurationInMonths(String startDateStr, String endDateStr) {
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
             LocalDateTime startDate = LocalDateTime.parse(startDateStr, formatter);
             LocalDateTime endDate = LocalDateTime.parse(endDateStr, formatter);
 
@@ -349,7 +347,7 @@ public class ReportDomainImpl implements ReportDomain {
 
     public static BigDecimal calculateDurationInDays(String startDateStr, String endDateStr) {
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
             LocalDateTime startDate = LocalDateTime.parse(startDateStr, formatter);
             LocalDateTime endDate = LocalDateTime.parse(endDateStr, formatter);
 

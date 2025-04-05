@@ -15,4 +15,11 @@ public interface StoreCustomerVoucherRepository extends JpaRepository<StoreCusto
             """
     )
     List<StoreCustomerVoucherEntity> findByStoreCustId(Integer storeCustId);
+
+    @Query(value = """
+             SELECT scv FROM Store_Customer_Voucher scv
+             WHERE scv.storeCustomer.storeCustId = :storeCustId AND scv.isExclusive = false
+            """
+    )
+    List<StoreCustomerVoucherEntity> findByStoreCustIdIsNotExclusive(Integer storeCustId);
 }
