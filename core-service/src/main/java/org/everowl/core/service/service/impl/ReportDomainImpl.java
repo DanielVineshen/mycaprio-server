@@ -16,6 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -86,6 +87,10 @@ public class ReportDomainImpl implements ReportDomain {
                     .map(PointsActivityEntity::getOriginalPoints)
                     .map(BigDecimal::valueOf)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal totalFinalisedAccumulatedPoints = pointsActivityList.stream()
+                    .map(PointsActivityEntity::getFinalisedPoints)
+                    .map(BigDecimal::valueOf)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             Row row = sheet.createRow(rowNum++);
 
@@ -96,23 +101,25 @@ public class ReportDomainImpl implements ReportDomain {
                 setCellDateValue(customer.getDateOfBirth(), "yyyyMMdd", row, workbook, 3);
             }
             row.createCell(4).setCellValue(totalVisits.intValue());
-            row.createCell(5).setCellValue(totalOriginalAccumulatedPoints.intValue());
-            row.createCell(6).setCellValue(totalOriginalAccumulatedPoints.multiply(BigDecimal.TEN).intValue());
+            row.createCell(5).setCellValue(totalFinalisedAccumulatedPoints.intValue());
+            row.createCell(6).setCellValue(totalOriginalAccumulatedPoints.divide(BigDecimal.TEN, 2, RoundingMode.HALF_UP).intValue());
             row.createCell(7).setCellValue(storeCustomer.getAvailablePoints());
             if (!pointsActivityList.isEmpty()) {
-                setCellDateValue(pointsActivityList.getFirst().getCreatedAt().toString(), "yyyy-MM-dd HH:mm:ss.SSS", row, workbook, 8);
-                setCellDateValue(pointsActivityList.getLast().getCreatedAt().toString(), "yyyy-MM-dd HH:mm:ss.SSS", row, workbook, 9);
-                BigDecimal totalDuration = calculateDurationInMonths(pointsActivityList.getFirst().getCreatedAt().toString(),
-                        pointsActivityList.getLast().getCreatedAt().toString());
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+                String formattedFirstDate = formatter.format(pointsActivityList.getFirst().getCreatedAt());
+                String formattedLastDate = formatter.format(pointsActivityList.getLast().getCreatedAt());
+
+                setCellDateValue(formattedFirstDate, "yyyy-MM-dd HH:mm:ss.SSS", row, workbook, 8);
+                setCellDateValue(formattedLastDate, "yyyy-MM-dd HH:mm:ss.SSS", row, workbook, 9);
+                BigDecimal totalDuration = calculateDurationInMonths(formattedFirstDate, formattedLastDate);
                 row.createCell(10).setCellValue(totalDuration.doubleValue());
-                BigDecimal monthlyAvgPoints = totalOriginalAccumulatedPoints.divide(totalDuration, 2, RoundingMode.HALF_UP);
-                row.createCell(11).setCellValue(monthlyAvgPoints.doubleValue());
-                row.createCell(12).setCellValue(monthlyAvgPoints.multiply(BigDecimal.TEN).doubleValue());
+                row.createCell(11).setCellValue(totalFinalisedAccumulatedPoints.divide(totalDuration, 2, RoundingMode.HALF_UP).doubleValue());
+                row.createCell(12).setCellValue(totalOriginalAccumulatedPoints.divide(totalDuration, 2, RoundingMode.HALF_UP)
+                        .divide(BigDecimal.TEN, 2, RoundingMode.HALF_UP).doubleValue());
                 BigDecimal totalVisitsDiv = totalVisits.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ONE : totalVisits;
                 row.createCell(13).setCellValue(totalOriginalAccumulatedPoints.divide(totalVisitsDiv, 2, RoundingMode.HALF_UP).doubleValue());
                 row.createCell(14).setCellValue(totalDuration.multiply(avgDaysInMonth).divide(totalVisitsDiv, 2, RoundingMode.HALF_UP).doubleValue());
-                BigDecimal daysSinceLastVisit = calculateDurationInDays(pointsActivityList.getFirst().getCreatedAt().toString(),
-                        pointsActivityList.getLast().getCreatedAt().toString());
+                BigDecimal daysSinceLastVisit = calculateDurationInDays(formattedFirstDate, formattedLastDate);
                 row.createCell(15).setCellValue(daysSinceLastVisit.doubleValue());
             } else {
                 row.createCell(8).setCellValue("");
