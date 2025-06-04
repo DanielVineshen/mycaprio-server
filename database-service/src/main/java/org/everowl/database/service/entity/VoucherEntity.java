@@ -85,6 +85,9 @@ public class VoucherEntity {
     @Column(name = "is_deleted", nullable = false, columnDefinition = "BOOLEAN default false")
     private Boolean isDeleted = false;
 
+    @Column(name = "is_target_all", nullable = false, columnDefinition = "BOOLEAN default false")
+    private Boolean isTargetAll = false;
+
     @OneToMany(mappedBy = "voucher", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "voucher-voucherMetadata")
     private List<VoucherMetadataEntity> voucherMetadata;

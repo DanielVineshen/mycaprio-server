@@ -24,4 +24,5 @@ public class CreateVoucherReq {
     private Integer lifeSpan;
     private String metaTag;
     private Integer quantityTotal;
+    private Boolean isTargetAll;
 }

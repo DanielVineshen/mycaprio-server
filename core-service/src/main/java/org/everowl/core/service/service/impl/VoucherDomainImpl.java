@@ -9,17 +9,13 @@ import org.everowl.core.service.dto.voucher.request.UpdateVoucherReq;
 import org.everowl.core.service.dto.voucher.response.VoucherDetailsRes;
 import org.everowl.core.service.dto.voucher.response.VoucherRes;
 import org.everowl.core.service.service.VoucherDomain;
-import org.everowl.database.service.entity.AdminEntity;
-import org.everowl.database.service.entity.AuditLogEntity;
-import org.everowl.database.service.entity.VoucherEntity;
-import org.everowl.database.service.entity.VoucherMetadataEntity;
-import org.everowl.database.service.repository.AdminRepository;
-import org.everowl.database.service.repository.AuditLogRepository;
-import org.everowl.database.service.repository.VoucherRepository;
+import org.everowl.database.service.entity.*;
+import org.everowl.database.service.repository.*;
 import org.everowl.shared.service.dto.GenericMessage;
 import org.everowl.shared.service.exception.BadRequestException;
 import org.everowl.shared.service.exception.NotFoundException;
 import org.everowl.shared.service.exception.RunTimeException;
+import org.everowl.shared.service.util.DateUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -47,6 +43,8 @@ public class VoucherDomainImpl implements VoucherDomain {
     private final VoucherRepository voucherRepository;
     private final AdminRepository adminRepository;
     private final AuditLogRepository auditLogRepository;
+    private final StoreCustomerRepository storeCustomerRepository;
+    private final StoreCustomerVoucherRepository storeCustomerVoucherRepository;
     private final ModelMapper modelMapper;
     @Value("${app.attachment-storage.voucher-path}")
     private String storagePath;
@@ -88,8 +86,10 @@ public class VoucherDomainImpl implements VoucherDomain {
             throw new BadRequestException(FILE_NOT_FOUND);
         }
 
+        StoreEntity store = admin.getStore();
+
         VoucherEntity voucher = new VoucherEntity();
-        voucher.setStore(admin.getStore());
+        voucher.setStore(store);
         voucher.setMinTierLevel(voucherReq.getMinTierLevel());
         voucher.setVoucherName(voucherReq.getVoucherName());
         voucher.setVoucherDesc(voucherReq.getVoucherDesc());
@@ -105,8 +105,39 @@ public class VoucherDomainImpl implements VoucherDomain {
         voucher.setLifeSpan(voucherReq.getLifeSpan());
         voucher.setMetaTag(voucherReq.getMetaTag());
         voucher.setQuantityTotal(voucherReq.getQuantityTotal());
+        voucher.setIsTargetAll(voucherReq.getIsTargetAll());
 
         voucherRepository.save(voucher);
+
+        if (voucherReq.getIsTargetAll()) {
+            List<StoreCustomerVoucherEntity> storeCustomerVouchers = new ArrayList<>();
+
+            List<StoreCustomerEntity> storeCustomers = storeCustomerRepository.findAllCustomersStoreProfile(store.getStoreId());
+            for (StoreCustomerEntity storeCustomer: storeCustomers) {
+                StoreCustomerVoucherEntity storeCustomerVoucherEntity = new StoreCustomerVoucherEntity();
+                storeCustomerVoucherEntity.setStoreCustomer(storeCustomer);
+                storeCustomerVoucherEntity.setMinTierLevel(voucher.getMinTierLevel());
+                storeCustomerVoucherEntity.setPointsRequired(voucher.getPointsRequired());
+                storeCustomerVoucherEntity.setQuantityTotal(voucher.getQuantityTotal());
+                storeCustomerVoucherEntity.setQuantityLeft(voucher.getQuantityTotal());
+                String validDate = DateUtil.addDaysToToday(voucher.getLifeSpan());
+                storeCustomerVoucherEntity.setValidDate(validDate);
+                storeCustomerVoucherEntity.setVoucherName(voucher.getVoucherName());
+                storeCustomerVoucherEntity.setVoucherDesc(voucher.getVoucherDesc());
+                storeCustomerVoucherEntity.setVoucherType(voucher.getVoucherType());
+                storeCustomerVoucherEntity.setVoucherValue(voucher.getVoucherValue());
+                storeCustomerVoucherEntity.setAttachmentName(voucher.getAttachmentName());
+                storeCustomerVoucherEntity.setAttachmentPath(voucher.getAttachmentPath());
+                storeCustomerVoucherEntity.setAttachmentSize(voucher.getAttachmentSize());
+                storeCustomerVoucherEntity.setTncDesc(voucher.getTncDesc());
+                storeCustomerVoucherEntity.setIsExclusive(voucher.getIsExclusive());
+                storeCustomerVoucherEntity.setLifeSpan(voucher.getLifeSpan());
+                storeCustomerVoucherEntity.setMetaTag(voucher.getMetaTag());
+                storeCustomerVouchers.add(storeCustomerVoucherEntity);
+            }
+
+            storeCustomerVoucherRepository.saveAll(storeCustomerVouchers);
+        }
 
         AuditLogEntity auditLogEntity = new AuditLogEntity();
         auditLogEntity.setLoginId(loginId);

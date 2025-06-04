@@ -21,6 +21,7 @@ import org.everowl.shared.service.enums.UserType;
 import org.everowl.shared.service.exception.BadRequestException;
 import org.everowl.shared.service.exception.ForbiddenException;
 import org.everowl.shared.service.exception.NotFoundException;
+import org.everowl.shared.service.util.DateUtil;
 import org.everowl.shared.service.util.UniqueIdGenerator;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -275,7 +276,7 @@ public class AuthDomainImpl implements AuthDomain {
                         storeCustomerVoucherEntity.setPointsRequired(voucher.getPointsRequired());
                         storeCustomerVoucherEntity.setQuantityTotal(voucher.getQuantityTotal());
                         storeCustomerVoucherEntity.setQuantityLeft(voucher.getQuantityTotal());
-                        String validDate = addDaysToToday(voucher.getLifeSpan());
+                        String validDate = DateUtil.addDaysToToday(voucher.getLifeSpan());
                         storeCustomerVoucherEntity.setValidDate(validDate);
                         storeCustomerVoucherEntity.setVoucherName(voucher.getVoucherName());
                         storeCustomerVoucherEntity.setVoucherDesc(voucher.getVoucherDesc());
@@ -310,13 +311,6 @@ public class AuthDomainImpl implements AuthDomain {
         return GenericMessage.builder()
                 .status(true)
                 .build();
-    }
-
-    public String addDaysToToday(int days) {
-        ZoneId malaysiaZone = ZoneId.of("Asia/Kuala_Lumpur");
-        LocalDateTime futureDateTime = LocalDateTime.now(malaysiaZone).plusDays(days);
-
-        return futureDateTime.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
     }
 
     @Override

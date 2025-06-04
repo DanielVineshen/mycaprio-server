@@ -70,6 +70,7 @@ public class VoucherController {
                                                                       @RequestParam @ValidInteger(message = "Please ensure a valid life span is provided") @NotBlank(message = "Please ensure the life span is not blank") String lifeSpan,
                                                                       @RequestParam(required = false) String metaTag,
                                                                       @RequestParam @ValidInteger(message = "Please ensure a valid quantity total is provided") @NotBlank(message = "Please ensure the quantity total is not blank") String quantityTotal,
+                                                                      @RequestParam @BooleanValidation(message = "Please ensure the is target all is not blank") String isTargetAll,
                                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
         String loginId = userDetails.getUsername();
 
@@ -87,6 +88,7 @@ public class VoucherController {
         request.setLifeSpan(Integer.parseInt(lifeSpan));
         request.setMetaTag(metaTag);
         request.setQuantityTotal(Integer.parseInt(quantityTotal));
+        request.setIsTargetAll(Boolean.parseBoolean(isTargetAll));
 
         GenericMessage response = voucherDomain.createVoucher(request, loginId);
 
